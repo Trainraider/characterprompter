@@ -50,7 +50,7 @@
 <script>
 const attributesInfo = {
     'Gender': ['Man', 'Woman'],
-    'Age': [18, 28], // Range for age
+    'Age': Array.from({ length: 18 }, (_, i) => i + 18),
     'Era': ['Medieval', 'Modern', 'Futuristic'],
     'World Type': ['Realistic', 'Fantasy'],
     'Race': ['Human', 'Elf', 'Goblin', 'Orc'] // Only if fantasy
