@@ -1,81 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Character Traits and Attributes Generator</title>
-<style>
-  body {
-    background-color: #121212; /* Dark background */
-    color: #e0e0e0; /* Light text color */
-    font-family: Arial, sans-serif;
-    padding: 20px;
-  }
-  #attributes, #traits {
-    margin-bottom: 20px;
-  }
-  .attribute, .trait {
-    margin-bottom: 10px;
-  }
-  input {
-    background-color: #333; /* Darker background for input fields */
-    color: #fff; /* White text for input fields */
-    border: none; /* No border */
-    padding: 5px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  button {
-    background-color: #333; /* Darker background for buttons */
-    color: #fff; /* White text for buttons */
-    border: none; /* No border */
-    margin-top: 20px;
-    cursor: pointer;
-    padding: 10px 20px;
-  }
-  button:hover {
-    background-color: #555; /* Slightly lighter background on hover */
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character Traits and Attributes Generator</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    #attributes,
+    #traits {
+      margin-bottom: 20px;
+    }
+
+    .attribute,
+    .trait {
+      margin-bottom: 10px;
+    }
+
+    input,
+    #customPrompt {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 5px;
+    }
+
+    #customPrompt {
+      height: 100px;
+      resize: vertical;
+      margin-bottom: 20px;
+      font-family: Arial, sans-serif;
+    }
+
+    #customPrompt::placeholder {
+      color: #888;
+    }
+
+    button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      margin-top: 10px;
+      margin-right: 10px;
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    h1,
+    h4 {
+      margin-bottom: 20px;
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      background-color: #333;
+      border-radius: 5px;
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+      margin: 0;
+    }
+
+    .checkbox-wrapper label {
+      cursor: pointer;
+    }
+
+    .spacer {
+      flex-grow: 1;
+    }
+
+    [title] {
+      cursor: help;
+    }
+  </style>
 </head>
+
 <body>
-<h1>Character Traits and Attributes Generator</h1>
-<h4>Generate and modify character traits, and use the buttons below to create a prompt for an LLM to make a Janitorai character card for you! GPT-4 non-O is best. GPT-4o works only inconsistently! The explicit prompt will trip openai moderation and eventually get you banned probably. I'm interested in finding an unmoderated AI that can make good characters, I'm still looking! JLLM kinda sorta works but it's dumb. You can try it with <a href="https://janitorai.com/characters/26902018-a3d7-4b05-bbf9-c08c00300ad2_character-chat-gpt-plus-your-versatile-ai">this ChatGPT character here</a>. With JLLM, hit the edit button to copy the unformatted text with markdown punctuation in tact.<br><br>Even with GPT-4, don't expect these characters to be particularly compelling! Consider it a first draft, and then you'll need to add in some human soul yourself.</h4>
-<button onclick="generateAll()">Reroll All</button>
-<button onclick="copyAll()">Copy All</button>
-<button onclick="copyWithPrompt(placeholder1)">Copy With Prompt</button>
-<button onclick="copyWithPrompt(placeholder2)">Copy With Explicit Prompt</button>
-<div id="attributes"></div>
-<div id="traits"></div>
-<script>
-const attributesInfo = {
-    'Gender': ['Man', 'Woman'],
-    'Age': Array.from({ length: 18 }, (_, i) => i + 18),
-    'Era': ['Medieval', 'Modern', 'Futuristic'],
-    'World Type': ['Realistic', 'Fantasy'],
-    'Race': ['Human', 'Elf', 'Goblin', 'Orc'] // Only if fantasy
-};
+  <h1>Character Traits and Attributes Generator</h1>
+  <h4>Generate and modify character traits, and use the buttons below to create a prompt for an LLM to make a Janitorai
+    character card for you! <br><br>I recommend using the c4ai-command-r-plus model to generate any (nsfw) character
+    card for free over at <a href="https://huggingface.co/chat"> Huggingchat</a>. There's free image gen there
+    too!<br><br>GPT-4 non-o also works great. GPT-4o works only inconsistently! The explicit prompt option will trip
+    openai moderation and eventually get you banned, probably. JLLM kinda sorta works but it's dumb with interpretting
+    the numbers. You can try it with <a
+      href="https://janitorai.com/characters/26902018-a3d7-4b05-bbf9-c08c00300ad2_character-chat-gpt-plus-your-versatile-ai">this
+      ChatGPT character here</a>. With JLLM, hit the edit button to copy the unformatted text with markdown punctuation
+    in tact.<br><br>Don't expect these characters to be particularly compelling! Consider it a first draft, and then
+    you'll need to add in some human soul yourself.</h4>
+  <button onclick="generateAll()">Reroll Traits</button>
+  <button onclick="copyAll()">Copy Traits</button>
+  <button onclick="copyWithPrompt(prompt_template)">Copy With Prompt</button>
+  <button onclick="copyWithPrompt(nsfw_prompt_template)">Copy With Explicit Prompt</button>
+  <br><br>
+  <div class="checkbox-container">
+    <div class="checkbox-wrapper">
+      <input type="checkbox" id="convertToAdjectives" checked>
+      <label for="convertToAdjectives">Convert numbers to adjectives</label>
+    </div>
+    <div class="spacer"></div>
+  </div>
+  <br><br>
+  <div>
+    <label>Short Prompt:</label>
+    <textarea id="customPrompt"
+      placeholder="Enter a short custom prompt to guide the AI character generation process, e.g. 'He's a billionaire CEO' (optional)"></textarea>
+  </div>
+  <br>
+  <div id="attributes"></div>
+  <div id="traits"></div>
+  <script>
+    const attributesInfo = {
+      'Gender': ['Man', 'Woman'],
+      'Age': Array.from({ length: 18 }, (_, i) => i + 18),
+      'Era': ['Medieval', 'Modern', 'Futuristic'],
+      'World Type': ['Realistic', 'Fantasy'],
+      'Race': ['Human', 'Elf', 'Goblin', 'Orc'] // Only if fantasy
+    };
 
-const traitsInfo = {
-    'Openness': 0,
-    'Conscientiousness': 0,
-    'Extroversion': 0,
-    'Agreeableness': 0,
-    'Neuroticism': 0,
-    'Narcissism': 0,
-    'Machiavellianism': 0,
-    'Sadism': 0,
-    'Psychopathy': 0,
-    'Wealth': 0,
-    'Societal status': 0,
-    'Strength': 0,
-    'Intelligence': 0,
-    'Wisdom': 0,
-    'Physical attractiveness': 0,
-    'Horniness': 0
-};
+    const traitsInfo = {
+      'Openness': 0,
+      'Conscientiousness': 0,
+      'Extroversion': 0,
+      'Agreeableness': 0,
+      'Neuroticism': 0,
+      'Narcissism': 0,
+      'Machiavellianism': 0,
+      'Sadism': 0,
+      'Psychopathy': 0,
+      'Wealth': 0,
+      'Societal status': 0,
+      'Strength': 0,
+      'Intelligence': 0,
+      'Wisdom': 0,
+      'Physical attractiveness': 0,
+      'Horniness': 0
+    };
 
-const placeholder1 = `
+    const prompt_template = `
 Character card example:
 
 Character Archetypes: The Mastermind, The Manipulator, The Tempter, The Tyrant
@@ -271,11 +355,15 @@ Be careful, though. Such items often have a mind of their own.
 \`\`\`
 End of Example Character.
 
-Now, lets make a brand new character based on different traits:
+Now, lets make a brand new character based on different traits and a short prompt:
 
 Character traits:
 
 {{traits}}
+
+Character prompt:
+
+{{custom_prompt}}
 
 These traits are the Big Five plus the Dark Tetrad, plus miscellaneous other traits. From 0, completely absent, to 100, the maximum extreme of trait expression.
 
@@ -285,7 +373,7 @@ Next, write the character card following the example format with code blocks. Wr
 
 Pick a name that seems to match everything well.
 
-When writing the personality part of the description, use one or two sentences of an action or preference of a character consistent with each level of each trait, basically represent the trait levels anecdotally. Don't restate the traits in the anecdotal descriptions, leave those terms out, and make it seem like a natural character description. Also make a brief synopsis of their life, goals, career/whatever they do.
+When writing the personality part of the description, construct a few naturally flowing paragraphs using one or two sentences of an action or preference of a character consistent with each level of each notable trait, basically represent the trait levels anecdotally. Don't restate the trait words in the anecdotal descriptions, leave those terms out, and make it seem like a natural character description. Also make a brief synopsis of their life, goals, career/whatever they do.
 
 The scenario outlines how {{user}} and {{char}} ended up in their situation, giving context to the conversation. The scenario is invisible to {{user}} and is for LLM context only, so the initial message needs to recap it somewhat for {{user}}'s benefit, from {{char}}'s perspective, showing their speech and actions as the scenario unfolds.
 
@@ -294,7 +382,7 @@ Next, write example dialogues as well. Make use of dialogues to set the unique m
 Use this information to create a character card for role-play. The character card should follow the example format and use code blocks for easy copy/pasting of each section.
 `;
 
-const placeholder2 = `
+    const nsfw_prompt_template = `
 Character card example:
 
 Character Archetypes: The Simpleton, The Mask, The Stoic, The Scapegoater, The Shadow, The Unfeeling Judge, The Narcissist, The Psychopath, The Seductress
@@ -504,11 +592,15 @@ You're not a complete failure today, pet. I'll give you a small reward, one you'
 \`\`\`
 End of Example Character.
 
-Now, lets make a brand new character based on different traits:
+Now, lets make a brand new character based on different traits and a short prompt:
 
 Character traits:
 
 {{traits}}
+
+Character prompt:
+
+{{custom_prompt}}
 
 These traits are the Big Five plus the Dark Tetrad, plus miscellaneous other traits. From 0, completely absent, to 100, the maximum extreme of trait expression.
 
@@ -518,7 +610,7 @@ Next, write the character card following the example format with code blocks. Wr
 
 Pick a name that seems to match everything well.
 
-When writing the personality part of the description, use one or two sentences of an action or preference of a character consistent with each level of each trait, basically represent the trait levels anecdotally. Don't restate the traits in the anecdotal descriptions, leave those terms out, and make it seem like a natural character description. Also make a brief synopsis of their life, goals, career/whatever they do.
+When writing the personality part of the description, construct a few naturally flowing paragraphs using one or two sentences of an action or preference of a character consistent with each level of each notable trait, basically represent the trait levels anecdotally. Don't restate the trait words in the anecdotal descriptions, leave those terms out, and make it seem like a natural character description. Also make a brief synopsis of their life, goals, career/whatever they do.
 
 The scenario outlines how {{user}} and {{char}} ended up in their situation, giving context to the conversation. The scenario is invisible to {{user}} and is for LLM context only, so the initial message needs to recap it somewhat for {{user}}'s benefit, from {{char}}'s perspective, showing their speech and actions as the scenario unfolds.
 
@@ -529,69 +621,126 @@ Use this information to create a character card for role-play. The character is 
 The character card should follow the example format and use code blocks for easy copy/pasting of each section.
 `;
 
-function generateAll() {
-    generateAttributes();
-    generateTraits();
-}
+    function generateAll() {
+      generateAttributes();
+      generateTraits();
+    }
 
-function generateAttributes() {
-    const attributesElement = document.getElementById('attributes');
-    attributesElement.innerHTML = '';
-    Object.keys(attributesInfo).forEach(key => {
+    function generateAttributes() {
+      const attributesElement = document.getElementById('attributes');
+      attributesElement.innerHTML = '';
+      Object.keys(attributesInfo).forEach(key => {
         const options = attributesInfo[key];
         let value;
         if (Array.isArray(options)) {
-            value = options[Math.floor(Math.random() * options.length)];
+          value = options[Math.floor(Math.random() * options.length)];
         } else {
-            value = Math.floor(Math.random() * (options[1] - options[0] + 1)) + options[0];
+          value = Math.floor(Math.random() * (options[1] - options[0] + 1)) + options[0];
         }
         const div = document.createElement('div');
         div.className = 'attribute';
         div.innerHTML = `${key}: <input type="text" value="${value}">`;
         attributesElement.appendChild(div);
-    });
-    // Special case for race if World Type is not fantasy
-    const worldType = document.querySelector('#attributes div:nth-child(4) input').value;
-    const raceInput = document.querySelector('#attributes div:nth-child(5) input');
-    if (worldType !== 'Fantasy') {
+      });
+      // Special case for race if World Type is not fantasy
+      const worldType = document.querySelector('#attributes div:nth-child(4) input').value;
+      const raceInput = document.querySelector('#attributes div:nth-child(5) input');
+      if (worldType !== 'Fantasy') {
         raceInput.value = 'Human';
+      }
     }
-}
 
-function generateTraits() {
-    const traitsElement = document.getElementById('traits');
-    traitsElement.innerHTML = '';
-    Object.keys(traitsInfo).forEach(trait => {
+    function generateTraits() {
+      const traitsElement = document.getElementById('traits');
+      traitsElement.innerHTML = '';
+      Object.keys(traitsInfo).forEach(trait => {
         const value = Math.floor(Math.random() * 101);
         traitsInfo[trait] = value;
         const div = document.createElement('div');
         div.className = 'trait';
         div.innerHTML = `${trait}: <input type="text" value="${value}">`;
         traitsElement.appendChild(div);
-    });
-}
+      });
+    }
 
-function copyAll() {
-    copyWithPrompt('');
-}
+    function copyAll() {
+      let allText = '';
+      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
+        let traitName = input.parentElement.textContent.split(':')[0].trim();
+        let value = input.value;
 
-function copyWithPrompt(prompt) {
-    let allText = '';
-    document.querySelectorAll('.attribute input, .trait input').forEach(input => {
-        allText += `${input.parentElement.textContent.split(':')[0]}: ${input.value}\n`;
-    });
-    const finalText = prompt.replace('{{traits}}', allText);
-    
-    // Create a temporary textarea element to facilitate copying
-    const textarea = document.createElement('textarea');
-    textarea.value = finalText;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
-}
+        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
+          value = numberToAdjective(Number(value));
+        }
 
-generateAll(); // Generate initial attributes and traits on load
-</script>
+        allText += `${traitName}: ${value}\n`;
+      });
+      // Create a temporary textarea element to facilitate copying
+      const textarea = document.createElement('textarea');
+      textarea.value = allText;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+    function numberToAdjective(number) {
+      // Convert to number if it's a string
+      number = Number(number);
+
+      // Handle numbers outside the 0-100 range
+      if (number < 0) return "less than none";
+      if (number > 100) return "trancendentally";
+
+      const levels = [
+        { threshold: 0, adjective: "not at all" },
+        { threshold: 10, adjective: "hardly" },
+        { threshold: 20, adjective: "not much" },
+        { threshold: 30, adjective: "somewhat" },
+        { threshold: 40, adjective: "average" },
+        { threshold: 60, adjective: "quite" },
+        { threshold: 75, adjective: "very" },
+        { threshold: 90, adjective: "extraordinarily" },
+        { threshold: 95, adjective: "incomprehensibly" }
+      ];
+
+      for (let i = levels.length - 1; i >= 0; i--) {
+        if (number >= levels[i].threshold) {
+          return levels[i].adjective;
+        }
+      }
+
+      // This line should never be reached, but it's here as a fallback
+      return "invalid";
+    }
+
+    function copyWithPrompt(prompt) {
+      let allText = '';
+      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
+        let traitName = input.parentElement.textContent.split(':')[0].trim();
+        let value = input.value;
+
+        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
+          value = numberToAdjective(Number(value));
+        }
+
+        allText += `${traitName}: ${value}\n`;
+      });
+      const customPromptText = document.getElementById('customPrompt').value.trim();
+      const finalText = prompt.replace('{{traits}}', allText)
+        .replace('{{custom_prompt}}', customPromptText);
+
+      // Create a temporary textarea element to facilitate copying
+      const textarea = document.createElement('textarea');
+      textarea.value = finalText;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+    generateAll(); // Generate initial attributes and traits on load
+  </script>
 </body>
+
 </html>
