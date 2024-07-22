@@ -714,6 +714,10 @@ The character card should follow the example format and use code blocks for easy
       return "invalid";
     }
 
+    function shouldConvertToAdjectives() {
+      return document.getElementById('convertToAdjectives').checked;
+    }
+
     function copyWithPrompt(prompt) {
       let allText = '';
       document.querySelectorAll('.attribute input, .trait input').forEach(input => {
