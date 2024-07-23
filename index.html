@@ -17,6 +17,10 @@
         100% { --hue: 360; }
     }
 
+    a {
+      color: #00aaaa; /* Light blue color */
+    }
+
     body {
       color: #aaa;
       font-family: Arial, sans-serif;
@@ -132,21 +136,62 @@
     .transparent-element, .transparent-element * {
       pointer-events: none;
     }
+
+    #toggleDescription {
+      background: #33333344;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-bottom: 10px;
+    }
+
+    #toggleDescription:hover {
+      background-color: #333;
+    }
+
+    #description {
+      background: #33333344;
+      padding: 10px 20px;
+      border-radius: 15px;
+      color: #fff;
+    }
+    #scrollToTop {
+      bottom: 20px;
+      right: 50%;
+      background: #33333344;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #scrollToTop:hover {
+      background-color: #333;
+    }
+
   </style>
 </head>
 
 <body>
   <h1>Character Prompt Generator for Janitorai</h1>
-  <h4>Generate and modify character traits, and use the buttons below to create a prompt for an LLM to make a Janitorai
-    character card for you! Once you've copied a prompt, you'll need to paste it somewhere else for a somewhat decent AI to make you character card.
-    <br><br>I recommend using the c4ai-command-r-plus model to generate any (nsfw) character
-    card for free over at <a href="https://huggingface.co/chat"> Huggingchat</a>. There's free image gen there
-    too! It's not super good though so maybe use dalle3 on bing or whatever else you know about. I use a locally running stable diffusion.<br><br>
-    JLLM works alright now too. You can try it with <a
-      href="https://janitorai.com/characters/26902018-a3d7-4b05-bbf9-c08c00300ad2_character-chat-gpt-plus-your-versatile-ai">this
-      ChatGPT character here</a>. With JLLM, hit the edit button on its reply to copy the unformatted text with markdown punctuation
-    in tact.<br><br>Don't expect these characters to be particularly compelling! Consider it a first draft, and then
-    you'll need to add in some human soul yourself.</h4>
+  <button id="toggleDescription">What's this site for?</button>
+  <div id="description" style="display: none;">
+    <p>Generate and modify character traits, and use the buttons below to create a prompt for an LLM to make a Janitorai
+      character card for you! Once you've copied a prompt, you'll need to paste it somewhere else for a somewhat decent AI to make you character card.
+      <br><br>I recommend using the c4ai-command-r-plus model to generate any (nsfw) character
+      card for free over at <a href="https://huggingface.co/chat"> Huggingchat</a>. There's free image gen there
+      too! It's not super good though so maybe use dalle3 on bing or whatever else you know about. I use a locally running stable diffusion.<br><br>
+      JLLM works alright now too. You can try it with <a
+        href="https://janitorai.com/characters/26902018-a3d7-4b05-bbf9-c08c00300ad2_character-chat-gpt-plus-your-versatile-ai">this
+        ChatGPT character here</a>. With JLLM, hit the edit button on its reply to copy the unformatted text with markdown punctuation
+      in tact.<br><br>Don't expect these characters to be particularly compelling! Consider it a first draft, and then
+      you'll need to add in some human soul yourself.</p>
+  </div><br>
   <button onclick="generateAll()">Reroll Traits</button>
   <button onclick="copyAll()">Copy Traits</button>
   <button onclick="copyWithPrompt(prompt_template)">Copy With Prompt</button>
@@ -172,18 +217,50 @@
   <div class="background-image-wrapper">
     <img src="image.webp" alt="Background Image" class="background-image">
   </div>
+  <button id="scrollToTop">Top</button>
   <script>
+
+
     document.addEventListener('DOMContentLoaded', (event) => {
+      const toggleButton = document.getElementById('toggleDescription');
+      const description = document.getElementById('description');
+
+      toggleButton.addEventListener('click', () => {
+        if (description.style.display === 'none') {
+          description.style.display = 'block';
+          toggleButton.textContent = 'Hide';
+        } else {
+          description.style.display = 'none';
+          toggleButton.textContent = 'What\'s this site for?';
+        }
+      });
+
+      const scrollToTopButton = document.getElementById('scrollToTop');
+
+      scrollToTopButton.addEventListener('click', () => {
+        window.scrollTo({ top: 0 });
+      });
+
       const backgroundImageWrapper = document.querySelector('.background-image-wrapper');
       const backgroundImage = document.querySelector('.background-image');
 
-      document.addEventListener('mousemove', (e) => {
+      function checkHover(event) {
         const rect = backgroundImageWrapper.getBoundingClientRect();
+        let clientX, clientY;
+
+        if (event.type.includes('touch')) {
+          clientX = event.touches[0].clientX;
+          clientY = event.touches[0].clientY;
+        } else {
+          clientX = event.clientX;
+          clientY = event.clientY;
+        }
+
         const isHovering = (
-          e.clientX >= rect.left &&
-          e.clientX <= rect.right &&
-          e.clientY >= rect.top &&
-          e.clientY <= rect.bottom
+          clientX >= rect.left &&
+          clientX <= rect.right &&
+          clientY >= rect.top &&
+          clientY <= rect.bottom
         );
 
         if (isHovering) {
@@ -191,7 +268,11 @@
         } else {
           backgroundImage.src = 'image.webp';
         }
-      });
+      }
+
+      document.addEventListener('mousemove', checkHover);
+      document.addEventListener('touchmove', checkHover);
+      document.addEventListener('touchstart', checkHover); // for initial touch
     });
   
     const attributesInfo = {
