@@ -6,13 +6,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Character Traits and Attributes Generator</title>
   <style>
+    @property --hue {
+        syntax: '<number>';
+        initial-value: 0;
+        inherits: false;
+    }
+
+    @keyframes rainbow {
+        0% { --hue: 0; }
+        100% { --hue: 360; }
+    }
+
     body {
-      background-color: #121212;
-      color: #e0e0e0;
+      color: #aaa;
       font-family: Arial, sans-serif;
       padding: 20px;
       max-width: 800px;
       margin: 0 auto;
+      --value: 5%;
+      --value-2: 10%;
+      background-image: linear-gradient(
+          to bottom right, 
+          hsl(calc(var(--hue) * 1deg), 100%, var(--value)),
+          hsl(calc((var(--hue) + 180) * 1deg), 100%, var(--value-2))
+      );
+      animation: rainbow 60s linear infinite;
     }
 
     #attributes,
@@ -25,15 +43,18 @@
       margin-bottom: 10px;
     }
 
+    input, button, .checkbox-wrapper, #customPrompt{
+      background: #33333344
+    }
+
     input,
     #customPrompt {
-      background-color: #333;
       color: #fff;
       border: none;
       padding: 10px;
       width: 100%;
       box-sizing: border-box;
-      border-radius: 5px;
+      border-radius: 15px;
     }
 
     #customPrompt {
@@ -48,19 +69,18 @@
     }
 
     button {
-      background-color: #333;
       color: #fff;
       border: none;
       margin-top: 10px;
       margin-right: 10px;
       cursor: pointer;
       padding: 10px 20px;
-      border-radius: 5px;
+      border-radius: 15px;
       transition: background-color 0.3s;
     }
 
     button:hover {
-      background-color: #555;
+      background-color: #333;
     }
 
     h1,
@@ -76,8 +96,7 @@
     .checkbox-wrapper {
       display: flex;
       align-items: center;
-      background-color: #333;
-      border-radius: 5px;
+      border-radius: 15px;
     }
 
     .checkbox-wrapper input[type="checkbox"] {
@@ -95,19 +114,29 @@
     [title] {
       cursor: help;
     }
+
+    .background-image {
+      position: fixed;
+      bottom: 0;
+      right: 10px;
+      z-index: -1;
+      width: 200px;
+      height: auto;
+      opacity: 0.5; 
+    }
   </style>
 </head>
 
 <body>
-  <h1>Character Traits and Attributes Generator</h1>
+  <h1>Character Prompt Generator for Janitorai</h1>
   <h4>Generate and modify character traits, and use the buttons below to create a prompt for an LLM to make a Janitorai
-    character card for you! <br><br>I recommend using the c4ai-command-r-plus model to generate any (nsfw) character
+    character card for you! Once you've copied a prompt, you'll need to paste it somewhere else for a somewhat decent AI to make you character card.
+    <br><br>I recommend using the c4ai-command-r-plus model to generate any (nsfw) character
     card for free over at <a href="https://huggingface.co/chat"> Huggingchat</a>. There's free image gen there
-    too!<br><br>GPT-4 non-o also works great. GPT-4o works only inconsistently! The explicit prompt option will trip
-    openai moderation and eventually get you banned, probably. JLLM kinda sorta works but it's dumb with interpretting
-    the numbers. You can try it with <a
+    too! It's not super good though so maybe use dalle3 on bing or whatever else you know about. I use a locally running stable diffusion.<br><br>
+    JLLM works alright now too. You can try it with <a
       href="https://janitorai.com/characters/26902018-a3d7-4b05-bbf9-c08c00300ad2_character-chat-gpt-plus-your-versatile-ai">this
-      ChatGPT character here</a>. With JLLM, hit the edit button to copy the unformatted text with markdown punctuation
+      ChatGPT character here</a>. With JLLM, hit the edit button on its reply to copy the unformatted text with markdown punctuation
     in tact.<br><br>Don't expect these characters to be particularly compelling! Consider it a first draft, and then
     you'll need to add in some human soul yourself.</h4>
   <button onclick="generateAll()">Reroll Traits</button>
@@ -132,6 +161,7 @@
   <br>
   <div id="attributes"></div>
   <div id="traits"></div>
+  <img src="image.webp" alt="Background Image" class="background-image">
   <script>
     const attributesInfo = {
       'Gender': ['Man', 'Woman'],
