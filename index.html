@@ -114,15 +114,23 @@
     [title] {
       cursor: help;
     }
-
-    .background-image {
+    .background-image-wrapper {
       position: fixed;
       bottom: 0;
-      right: 10px;
+      right: 0;
       z-index: -1;
-      width: 200px;
+      pointer-events: auto;
+    }
+
+    .background-image {
+      width: 200px; /* Adjust as needed */
       height: auto;
-      opacity: 0.5; 
+      opacity: 0.5; /* Optional: Adjust opacity */
+      transition: opacity 0.3s;
+    }
+
+    .transparent-element, .transparent-element * {
+      pointer-events: none;
     }
   </style>
 </head>
@@ -161,8 +169,31 @@
   <br>
   <div id="attributes"></div>
   <div id="traits"></div>
-  <img src="image.webp" alt="Background Image" class="background-image">
+  <div class="background-image-wrapper">
+    <img src="image.webp" alt="Background Image" class="background-image">
+  </div>
   <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const backgroundImageWrapper = document.querySelector('.background-image-wrapper');
+      const backgroundImage = document.querySelector('.background-image');
+
+      document.addEventListener('mousemove', (e) => {
+        const rect = backgroundImageWrapper.getBoundingClientRect();
+        const isHovering = (
+          e.clientX >= rect.left &&
+          e.clientX <= rect.right &&
+          e.clientY >= rect.top &&
+          e.clientY <= rect.bottom
+        );
+
+        if (isHovering) {
+          backgroundImage.src = 'image2.webp';
+        } else {
+          backgroundImage.src = 'image.webp';
+        }
+      });
+    });
+  
     const attributesInfo = {
       'Gender': ['Man', 'Woman'],
       'Age': Array.from({ length: 18 }, (_, i) => i + 18),
