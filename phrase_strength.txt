@@ -1,0 +1,21 @@
+Phrase modifier strength based on cosine similarity of vector embeddings
+                                              Phrase  Average Score  Normalized Score
+0   Less than no {trait}, quite the opposite in fact      -0.027639          0.000000
+1                                  no {trait} at all      -0.026841          0.000000
+2                                  almost no {trait}      -0.020683          9.268241
+3                                    minimal {trait}      -0.010020         25.316723
+4                              below average {trait}      -0.006506         30.605184
+5                     somewhat below average {trait}      -0.002706         36.324719
+6                                       mild {trait}       0.013909         61.332236
+7                            slight {trait} at times       0.017545         66.805077
+8                         a hint of {trait} at times       0.020022         70.533435
+9                                   moderate {trait}       0.020323         70.986218
+10                                      some {trait}       0.023891         76.356270
+11                                   average {trait}       0.025998         79.528528
+12                               substantial {trait}       0.029014         84.067466
+13                    slightly above average {trait}       0.032877         89.882189
+14                             above average {trait}       0.033444         90.734954
+15                                remarkable {trait}       0.035018         93.103503
+16                              unparalleled {trait}       0.039493         99.839146
+17                             extraordinary {trait}       0.039600        100.000000
+18                transcendental, superhuman {trait}       0.056540        100.000000

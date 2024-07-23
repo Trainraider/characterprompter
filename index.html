@@ -116,7 +116,8 @@
   <button onclick="copyWithPrompt(nsfw_prompt_template)">Copy With Explicit Prompt</button>
   <br><br>
   <div class="checkbox-container">
-    <div class="checkbox-wrapper" title="Converting the numbers to adjectives helps stupid and small language models understand the trait values better">
+    <div class="checkbox-wrapper"
+      title="Converting the numbers to adjectives helps stupid and small language models understand the trait values better">
       <input type="checkbox" id="convertToAdjectives" checked>
       <label for="convertToAdjectives">Convert numbers to adjectives</label>
     </div>
@@ -670,11 +671,13 @@ The character card should follow the example format and use code blocks for easy
         let value = input.value;
 
         if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
-          value = numberToAdjective(Number(value));
+          value = getStrengthModifier(Number(value), traitName);
+          allText += `${value}\n`;
+        } else {
+          allText += `${traitName}: ${value}\n`;
         }
-
-        allText += `${traitName}: ${value}\n`;
       });
+
       // Create a temporary textarea element to facilitate copying
       const textarea = document.createElement('textarea');
       textarea.value = allText;
@@ -684,34 +687,37 @@ The character card should follow the example format and use code blocks for easy
       document.body.removeChild(textarea);
     }
 
-    function numberToAdjective(number) {
+    function getStrengthModifier(number, trait) {
       // Convert to number if it's a string
       number = Number(number);
 
       // Handle numbers outside the 0-100 range
-      if (number < 0) return "less than none";
-      if (number > 100) return "trancendentally";
+      if (number < 0) return "Less than no {{trait}}, quite the opposite in fact";
+      if (number > 100) return "transcendental, superhuman {{trait}}";
 
       const levels = [
-        { threshold: 0, adjective: "not at all" },
-        { threshold: 10, adjective: "hardly" },
-        { threshold: 20, adjective: "not much" },
-        { threshold: 30, adjective: "somewhat" },
-        { threshold: 40, adjective: "average" },
-        { threshold: 60, adjective: "quite" },
-        { threshold: 75, adjective: "very" },
-        { threshold: 90, adjective: "extraordinarily" },
-        { threshold: 95, adjective: "incomprehensibly" }
+        { threshold: 0, modifier: "no {{trait}} at all" },
+        { threshold: 5, modifier: "almost no {{trait}}" },
+        { threshold: 14, modifier: "minimal {{trait}}" },
+        { threshold: 19, modifier: "somewhat below average {{trait}}" },
+        { threshold: 34, modifier: "mild {{trait}}" },
+        { threshold: 39, modifier: "moderate {{trait}}" },
+        { threshold: 44, modifier: "average {{trait}}" },
+        { threshold: 56, modifier: "substantial {{trait}}" },
+        { threshold: 74, modifier: "above average {{trait}}" },
+        { threshold: 81, modifier: "remarkable {{trait}}" },
+        { threshold: 99, modifier: "unparalleled {{trait}}" }
       ];
 
       for (let i = levels.length - 1; i >= 0; i--) {
         if (number >= levels[i].threshold) {
-          return levels[i].adjective;
+          let modifier = levels[i].modifier;
+          return modifier.includes("{{trait}}") ? modifier.replace("{{trait}}", trait.toLowerCase()) : `${modifier} ${trait.toLowerCase()}`;
         }
       }
 
       // This line should never be reached, but it's here as a fallback
-      return "invalid";
+      return `invalid ${trait}`;
     }
 
     function shouldConvertToAdjectives() {
@@ -725,10 +731,11 @@ The character card should follow the example format and use code blocks for easy
         let value = input.value;
 
         if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
-          value = numberToAdjective(Number(value));
+          value = getStrengthModifier(Number(value), traitName);
+          allText += `${value}\n`;
+        } else {
+          allText += `${traitName}: ${value}\n`;
         }
-
-        allText += `${traitName}: ${value}\n`;
       });
       const customPromptText = document.getElementById('customPrompt').value.trim();
       const finalText = prompt.replace('{{traits}}', allText)
