@@ -119,6 +119,7 @@
     }
 
     .spacer {
+      padding: 0px 0px;
       flex-grow: 1;
     }
 
@@ -185,6 +186,46 @@
     #scrollToTop:hover {
       background-color: #333;
     }
+
+    .trait-input {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .trait-input input {
+      flex-grow: 1;
+      margin-right: 10px;
+    }
+
+    .trait-input button {
+      background: #33333344;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .trait-input button:hover {
+      background-color: #333;
+    }
+
+    .delete-trait {
+      background: #33000044;
+      color: #fff;
+      border: none;
+      padding: 2px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-left: 10px;
+    }
+
+    .delete-trait:hover {
+      background-color: #300;
+    }
   </style>
 </head>
 
@@ -211,6 +252,7 @@
   <button onclick="copyAll()">Copy Traits</button>
   <button onclick="copyWithPrompt(prompt_template)">Copy With Prompt</button>
   <button onclick="copyWithPrompt(nsfw_prompt_template)">Copy With Explicit Prompt</button>
+  <button onclick="resetTraits()">Reset Traits</button>
   <br><br>
   <div class="checkbox-container">
     <div class="checkbox-wrapper"
@@ -229,11 +271,69 @@
   <br>
   <div id="attributes"></div>
   <div id="traits"></div>
+  <div class="trait-input">
+    <input type="text" id="newTraitInput" placeholder="Add new trait">
+    <button onclick="addNewTrait()">+</button>
+  </div>
   <div class="background-image-wrapper">
     <img src="image.webp" alt="Background Image" class="background-image">
   </div>
   <button id="scrollToTop">Top</button>
   <script>
+    class Trait {
+      constructor(name, initialValue = 0) {
+        this.name = name;
+        this.value = initialValue;
+        this.element = null;
+      }
+
+      generateElement() {
+        const div = document.createElement('div');
+        div.className = 'trait';
+        div.innerHTML = `${this.name}: <input type="text" value="${this.value}">`;
+        this.element = div;
+        return div;
+      }
+
+      updateValue(newValue) {
+        this.value = newValue;
+        if (this.element) {
+          this.element.querySelector('input').value = newValue;
+        }
+      }
+    }
+
+    class TraitContainer {
+      constructor() {
+        this.traits = {};
+      }
+
+      addTrait(name, initialValue = 0) {
+        this.traits[name] = new Trait(name, initialValue);
+      }
+
+      generateElements(parentElement) {
+        for (const trait of Object.values(this.traits)) {
+          parentElement.appendChild(trait.generateElement());
+        }
+      }
+
+      generateRandomValues() {
+        for (const trait of Object.values(this.traits)) {
+          const randomValue = Math.floor(Math.random() * 101);
+          trait.updateValue(randomValue);
+        }
+      }
+
+      getValues() {
+        const values = {};
+        for (const [name, trait] of Object.entries(this.traits)) {
+          values[name] = trait.value;
+        }
+        return values;
+      }
+    }
+
 
 
     document.addEventListener('DOMContentLoaded', (event) => {
@@ -298,25 +398,49 @@
       'Race': ['Human', 'Elf', 'Goblin', 'Orc'] // Only if fantasy
     };
 
-    const traitsInfo = {
-      'Openness': 0,
-      'Conscientiousness': 0,
-      'Extroversion': 0,
-      'Agreeableness': 0,
-      'Neuroticism': 0,
-      'Narcissism': 0,
-      'Machiavellianism': 0,
-      'Sadism': 0,
-      'Psychopathy': 0,
-      'Wealth': 0,
-      'Societal status': 0,
-      'Strength': 0,
-      'Intelligence': 0,
-      'Wisdom': 0,
-      'Physical attractiveness': 0,
-      'Horniness': 0
-    };
+    const traitContainer = new TraitContainer();
 
+    const defaultTraits = [
+      'Openness', 'Conscientiousness', 'Extroversion', 'Agreeableness', 'Neuroticism',
+      'Narcissism', 'Machiavellianism', 'Sadism', 'Psychopathy',
+      'Wealth', 'Societal status', 'Strength', 'Intelligence', 'Wisdom',
+      'Physical attractiveness', 'Horniness'
+    ];
+    defaultTraits.forEach(traitName => traitContainer.addTrait(traitName));
+
+    function resetTraits() {
+      traitContainer.traits = {};
+      defaultTraits.forEach(traitName => traitContainer.addTrait(traitName));
+      generateTraits();
+    }
+
+    function addNewTrait() {
+      const newTraitInput = document.getElementById('newTraitInput');
+      const newTraitName = newTraitInput.value.trim();
+      if (newTraitName && !traitContainer.traits[newTraitName]) {
+        const randomValue = Math.floor(Math.random() * 101);
+        traitContainer.addTrait(newTraitName, randomValue);
+
+        const traitsElement = document.getElementById('traits');
+        const div = document.createElement('div');
+        div.className = 'trait';
+        div.innerHTML = `
+      <button class="delete-trait" onclick="deleteTrait('${newTraitName}')">x</button>
+      ${newTraitName}: <input type="text" value="${randomValue}" data-trait-name="${newTraitName}">
+    `;
+        traitsElement.appendChild(div);
+
+        newTraitInput.value = '';
+      }
+    }
+
+    function deleteTrait(traitName) {
+      delete traitContainer.traits[traitName];
+      const traitElement = document.querySelector(`input[data-trait-name="${traitName}"]`).closest('.trait');
+      if (traitElement) {
+        traitElement.remove();
+      }
+    }
 
     function generateAll() {
       generateAttributes();
@@ -350,20 +474,26 @@
     function generateTraits() {
       const traitsElement = document.getElementById('traits');
       traitsElement.innerHTML = '';
-      Object.keys(traitsInfo).forEach(trait => {
-        const value = Math.floor(Math.random() * 101);
-        traitsInfo[trait] = value;
+      for (const [name, trait] of Object.entries(traitContainer.traits)) {
         const div = document.createElement('div');
+        trait.value = Math.floor(Math.random() * 101);
         div.className = 'trait';
-        div.innerHTML = `${trait}: <input type="text" value="${value}">`;
+        div.innerHTML = `
+      <button class="delete-trait" onclick="deleteTrait('${name}')">x</button>
+      ${name}: <input type="text" value="${trait.value}" data-trait-name="${name}">
+    `;
         traitsElement.appendChild(div);
-      });
+      }
     }
 
     function copyAll() {
       let allText = '';
       document.querySelectorAll('.attribute input, .trait input').forEach(input => {
-        let traitName = input.parentElement.textContent.split(':')[0].trim();
+        let traitName = input.getAttribute('data-trait-name');
+        if (!traitName) {
+          // Fallback to the old method for elements without data-trait-name
+          traitName = input.parentElement.textContent.split(':')[0].replace(/^x\s*/, '').trim();
+        }
         let value = input.value;
 
         if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
@@ -423,7 +553,11 @@
     function copyWithPrompt(prompt) {
       let allText = '';
       document.querySelectorAll('.attribute input, .trait input').forEach(input => {
-        let traitName = input.parentElement.textContent.split(':')[0].trim();
+        let traitName = input.getAttribute('data-trait-name');
+        if (!traitName) {
+          // Fallback to the old method for elements without data-trait-name
+          traitName = input.parentElement.textContent.split(':')[0].replace(/^x\s*/, '').trim();
+        }
         let value = input.value;
 
         if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
