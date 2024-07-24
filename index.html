@@ -7,18 +7,24 @@
   <title>✨Character Traits and Attributes Generator✨</title>
   <style>
     @property --hue {
-        syntax: '<number>';
-        initial-value: 0;
-        inherits: false;
+      syntax: '<number>';
+      initial-value: 0;
+      inherits: false;
     }
 
     @keyframes rainbow {
-        0% { --hue: 0; }
-        100% { --hue: 360; }
+      0% {
+        --hue: 0;
+      }
+
+      100% {
+        --hue: 360;
+      }
     }
 
     a {
-      color: #00aaaa; /* Light blue color */
+      color: #00aaaa;
+      /* Light blue color */
     }
 
     body {
@@ -29,11 +35,9 @@
       margin: 0 auto;
       --value: 5%;
       --value-2: 10%;
-      background-image: linear-gradient(
-          to bottom right, 
+      background-image: linear-gradient(to bottom right,
           hsl(calc(var(--hue) * 1deg), 100%, var(--value)),
-          hsl(calc((var(--hue) + 180) * 1deg), 100%, var(--value-2))
-      );
+          hsl(calc((var(--hue) + 180) * 1deg), 100%, var(--value-2)));
       animation: rainbow 60s linear infinite;
     }
 
@@ -47,7 +51,10 @@
       margin-bottom: 10px;
     }
 
-    input, button, .checkbox-wrapper, #customPrompt{
+    input,
+    button,
+    .checkbox-wrapper,
+    #customPrompt {
       background: #33333344
     }
 
@@ -118,6 +125,7 @@
     [title] {
       cursor: help;
     }
+
     .background-image-wrapper {
       position: fixed;
       bottom: 0;
@@ -127,13 +135,16 @@
     }
 
     .background-image {
-      width: 200px; /* Adjust as needed */
+      width: 200px;
+      /* Adjust as needed */
       height: auto;
-      opacity: 0.5; /* Optional: Adjust opacity */
+      opacity: 0.5;
+      /* Optional: Adjust opacity */
       transition: opacity 0.3s;
     }
 
-    .transparent-element, .transparent-element * {
+    .transparent-element,
+    .transparent-element * {
       pointer-events: none;
     }
 
@@ -158,6 +169,7 @@
       border-radius: 15px;
       color: #fff;
     }
+
     #scrollToTop {
       bottom: 20px;
       right: 50%;
@@ -173,7 +185,6 @@
     #scrollToTop:hover {
       background-color: #333;
     }
-
   </style>
 </head>
 
@@ -183,14 +194,18 @@
   <div id="description" style="display: none;">
     <p>Make any sort of role play bot you want in just a few minutes! <br><br>
       Generate and modify character traits, and use the buttons below to copy a prompt for an AI to write a Janitorai
-      character card for you! Once you've copied a prompt, you'll need to paste it somewhere else for a somewhat decent AI to write the character card.
+      character card for you! Once you've copied a prompt, you'll need to paste it somewhere else for a somewhat decent
+      AI to write the character card.
       <br><br>I recommend using the c4ai-command-r-plus model to generate any (nsfw) character
       card for free over at <a href="https://huggingface.co/chat"> Huggingchat</a>. There's free image gen there
-      too! It's not super good though so maybe use dalle3 on bing or whatever else you know about. Personally, I use a locally running stable diffusion.<br><br>
+      too! It's not super good though so maybe use dalle3 on bing or whatever else you know about. Personally, I use a
+      locally running stable diffusion.<br><br>
       JLLM works alright now too. You can try it with <a
         href="https://janitorai.com/characters/26902018-a3d7-4b05-bbf9-c08c00300ad2_character-chat-gpt-plus-your-versatile-ai">this
-        ChatGPT character here</a>. With JLLM, hit the edit button on its reply to copy the unformatted text with markdown punctuation
-      in tact.</p>
+        ChatGPT character here</a>. With JLLM, hit the edit button on its reply to copy the unformatted text with
+      markdown punctuation
+      in tact.
+    </p>
   </div><br>
   <button onclick="generateAll()">Reroll Traits</button>
   <button onclick="copyAll()">Copy Traits</button>
@@ -274,7 +289,7 @@
       document.addEventListener('touchmove', checkHover);
       document.addEventListener('touchstart', checkHover); // for initial touch
     });
-  
+
     const attributesInfo = {
       'Gender': ['Man', 'Woman'],
       'Age': Array.from({ length: 18 }, (_, i) => i + 18),
@@ -302,6 +317,136 @@
       'Horniness': 0
     };
 
+
+    function generateAll() {
+      generateAttributes();
+      generateTraits();
+    }
+
+    function generateAttributes() {
+      const attributesElement = document.getElementById('attributes');
+      attributesElement.innerHTML = '';
+      Object.keys(attributesInfo).forEach(key => {
+        const options = attributesInfo[key];
+        let value;
+        if (Array.isArray(options)) {
+          value = options[Math.floor(Math.random() * options.length)];
+        } else {
+          value = Math.floor(Math.random() * (options[1] - options[0] + 1)) + options[0];
+        }
+        const div = document.createElement('div');
+        div.className = 'attribute';
+        div.innerHTML = `${key}: <input type="text" value="${value}">`;
+        attributesElement.appendChild(div);
+      });
+      // Special case for race if World Type is not fantasy
+      const worldType = document.querySelector('#attributes div:nth-child(4) input').value;
+      const raceInput = document.querySelector('#attributes div:nth-child(5) input');
+      if (worldType !== 'Fantasy') {
+        raceInput.value = 'Human';
+      }
+    }
+
+    function generateTraits() {
+      const traitsElement = document.getElementById('traits');
+      traitsElement.innerHTML = '';
+      Object.keys(traitsInfo).forEach(trait => {
+        const value = Math.floor(Math.random() * 101);
+        traitsInfo[trait] = value;
+        const div = document.createElement('div');
+        div.className = 'trait';
+        div.innerHTML = `${trait}: <input type="text" value="${value}">`;
+        traitsElement.appendChild(div);
+      });
+    }
+
+    function copyAll() {
+      let allText = '';
+      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
+        let traitName = input.parentElement.textContent.split(':')[0].trim();
+        let value = input.value;
+
+        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
+          value = getStrengthModifier(Number(value), traitName);
+          allText += `${value}\n`;
+        } else {
+          allText += `${traitName}: ${value}\n`;
+        }
+      });
+
+      // Create a temporary textarea element to facilitate copying
+      const textarea = document.createElement('textarea');
+      textarea.value = allText;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+    function getStrengthModifier(number, trait) {
+      // Convert to number if it's a string
+      number = Number(number);
+
+      // Handle numbers outside the 0-100 range
+      if (number < 0) return `Less than no ${trait.toLowerCase()}, quite the opposite in fact`;
+      if (number > 100) return `transcendental, superhuman ${trait.toLowerCase()}`;
+
+      const levels = [
+        { threshold: 0, modifier: "no {{trait}} at all" },
+        { threshold: 5, modifier: "almost no {{trait}}" },
+        { threshold: 14, modifier: "minimal {{trait}}" },
+        { threshold: 19, modifier: "somewhat below average {{trait}}" },
+        { threshold: 34, modifier: "mild {{trait}}" },
+        { threshold: 39, modifier: "moderate {{trait}}" },
+        { threshold: 44, modifier: "average {{trait}}" },
+        { threshold: 56, modifier: "substantial {{trait}}" },
+        { threshold: 74, modifier: "above average {{trait}}" },
+        { threshold: 81, modifier: "remarkable {{trait}}" },
+        { threshold: 99, modifier: "unparalleled {{trait}}" }
+      ];
+
+      for (let i = levels.length - 1; i >= 0; i--) {
+        if (number >= levels[i].threshold) {
+          let modifier = levels[i].modifier;
+          return modifier.includes("{{trait}}") ? modifier.replace("{{trait}}", trait.toLowerCase()) : `${modifier} ${trait.toLowerCase()}`;
+        }
+      }
+
+      // This line should never be reached, but it's here as a fallback
+      return `invalid ${trait}`;
+    }
+
+    function shouldConvertToAdjectives() {
+      return document.getElementById('convertToAdjectives').checked;
+    }
+
+    function copyWithPrompt(prompt) {
+      let allText = '';
+      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
+        let traitName = input.parentElement.textContent.split(':')[0].trim();
+        let value = input.value;
+
+        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
+          value = getStrengthModifier(Number(value), traitName);
+          allText += `${value}\n`;
+        } else {
+          allText += `${traitName}: ${value}\n`;
+        }
+      });
+      const customPromptText = document.getElementById('customPrompt').value.trim();
+      const finalText = prompt.replace('{{traits}}', allText)
+        .replace('{{custom_prompt}}', customPromptText);
+
+      // Create a temporary textarea element to facilitate copying
+      const textarea = document.createElement('textarea');
+      textarea.value = finalText;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+    generateAll(); // Generate initial attributes and traits on load
     const prompt_template = `
 Character card example:
 
@@ -763,136 +908,6 @@ Use this information to create a character card for role-play. The character is 
 
 The character card should follow the example format and use code blocks for easy copy/pasting of each section.
 `;
-
-    function generateAll() {
-      generateAttributes();
-      generateTraits();
-    }
-
-    function generateAttributes() {
-      const attributesElement = document.getElementById('attributes');
-      attributesElement.innerHTML = '';
-      Object.keys(attributesInfo).forEach(key => {
-        const options = attributesInfo[key];
-        let value;
-        if (Array.isArray(options)) {
-          value = options[Math.floor(Math.random() * options.length)];
-        } else {
-          value = Math.floor(Math.random() * (options[1] - options[0] + 1)) + options[0];
-        }
-        const div = document.createElement('div');
-        div.className = 'attribute';
-        div.innerHTML = `${key}: <input type="text" value="${value}">`;
-        attributesElement.appendChild(div);
-      });
-      // Special case for race if World Type is not fantasy
-      const worldType = document.querySelector('#attributes div:nth-child(4) input').value;
-      const raceInput = document.querySelector('#attributes div:nth-child(5) input');
-      if (worldType !== 'Fantasy') {
-        raceInput.value = 'Human';
-      }
-    }
-
-    function generateTraits() {
-      const traitsElement = document.getElementById('traits');
-      traitsElement.innerHTML = '';
-      Object.keys(traitsInfo).forEach(trait => {
-        const value = Math.floor(Math.random() * 101);
-        traitsInfo[trait] = value;
-        const div = document.createElement('div');
-        div.className = 'trait';
-        div.innerHTML = `${trait}: <input type="text" value="${value}">`;
-        traitsElement.appendChild(div);
-      });
-    }
-
-    function copyAll() {
-      let allText = '';
-      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
-        let traitName = input.parentElement.textContent.split(':')[0].trim();
-        let value = input.value;
-
-        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
-          value = getStrengthModifier(Number(value), traitName);
-          allText += `${value}\n`;
-        } else {
-          allText += `${traitName}: ${value}\n`;
-        }
-      });
-
-      // Create a temporary textarea element to facilitate copying
-      const textarea = document.createElement('textarea');
-      textarea.value = allText;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-    }
-
-    function getStrengthModifier(number, trait) {
-      // Convert to number if it's a string
-      number = Number(number);
-
-      // Handle numbers outside the 0-100 range
-      if (number < 0) return "Less than no {{trait}}, quite the opposite in fact";
-      if (number > 100) return "transcendental, superhuman {{trait}}";
-
-      const levels = [
-        { threshold: 0, modifier: "no {{trait}} at all" },
-        { threshold: 5, modifier: "almost no {{trait}}" },
-        { threshold: 14, modifier: "minimal {{trait}}" },
-        { threshold: 19, modifier: "somewhat below average {{trait}}" },
-        { threshold: 34, modifier: "mild {{trait}}" },
-        { threshold: 39, modifier: "moderate {{trait}}" },
-        { threshold: 44, modifier: "average {{trait}}" },
-        { threshold: 56, modifier: "substantial {{trait}}" },
-        { threshold: 74, modifier: "above average {{trait}}" },
-        { threshold: 81, modifier: "remarkable {{trait}}" },
-        { threshold: 99, modifier: "unparalleled {{trait}}" }
-      ];
-
-      for (let i = levels.length - 1; i >= 0; i--) {
-        if (number >= levels[i].threshold) {
-          let modifier = levels[i].modifier;
-          return modifier.includes("{{trait}}") ? modifier.replace("{{trait}}", trait.toLowerCase()) : `${modifier} ${trait.toLowerCase()}`;
-        }
-      }
-
-      // This line should never be reached, but it's here as a fallback
-      return `invalid ${trait}`;
-    }
-
-    function shouldConvertToAdjectives() {
-      return document.getElementById('convertToAdjectives').checked;
-    }
-
-    function copyWithPrompt(prompt) {
-      let allText = '';
-      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
-        let traitName = input.parentElement.textContent.split(':')[0].trim();
-        let value = input.value;
-
-        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
-          value = getStrengthModifier(Number(value), traitName);
-          allText += `${value}\n`;
-        } else {
-          allText += `${traitName}: ${value}\n`;
-        }
-      });
-      const customPromptText = document.getElementById('customPrompt').value.trim();
-      const finalText = prompt.replace('{{traits}}', allText)
-        .replace('{{custom_prompt}}', customPromptText);
-
-      // Create a temporary textarea element to facilitate copying
-      const textarea = document.createElement('textarea');
-      textarea.value = finalText;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-    }
-
-    generateAll(); // Generate initial attributes and traits on load
   </script>
 </body>
 
