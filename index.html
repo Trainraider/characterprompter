@@ -226,6 +226,45 @@
     .delete-trait:hover {
       background-color: #300;
     }
+
+    .trait {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
+
+    .trait-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .trait-label {
+      margin-right: auto;
+    }
+
+    .delete-trait,
+    .lock-trait {
+      background: #33333344;
+      color: #fff;
+      border: none;
+      padding: 2px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-left: 5px;
+      font-size: 16px;
+    }
+
+    .delete-trait:hover,
+    .lock-trait:hover {
+      background-color: #333;
+    }
+
+    .trait input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 
@@ -285,24 +324,46 @@
         this.name = name;
         this.value = initialValue;
         this.element = null;
+        this.locked = false;
       }
 
       generateElement() {
         const div = document.createElement('div');
         div.className = 'trait';
-        div.innerHTML = `${this.name}: <input type="text" value="${this.value}">`;
+        div.innerHTML = `
+          <div class="trait-header">
+            <button class="lock-trait" onclick="toggleLock('${this.name}')">${this.locked ? '🔒' : '🔓'}</button>
+            <button class="delete-trait" onclick="deleteTrait('${this.name}')">❌</button>
+            <span class="trait-label">${this.name}:</span>
+          </div>
+          <input type="text" value="${this.value}" data-trait-name="${this.name}" ${this.locked ? 'disabled' : ''}>
+          `;
         this.element = div;
         return div;
       }
 
       updateValue(newValue) {
-        this.value = newValue;
+        if (!this.locked) {
+          this.value = newValue;
+          if (this.element) {
+            this.element.querySelector('input').value = newValue;
+          }
+        }
+      }
+
+      toggleLock() {
+        this.locked = !this.locked;
         if (this.element) {
-          this.element.querySelector('input').value = newValue;
+          const lockButton = this.element.querySelector('.lock-trait');
+          const input = this.element.querySelector('input');
+          lockButton.textContent = this.locked ? '🔒' : '🔓';
+          input.disabled = this.locked;
+          if (this.locked) {
+            this.value = input.value; // Update the stored value when locking
+          }
         }
       }
     }
-
     class TraitContainer {
       constructor() {
         this.traits = {};
@@ -334,7 +395,12 @@
       }
     }
 
-
+    function toggleLock(traitName) {
+      const trait = traitContainer.traits[traitName];
+      if (trait) {
+        trait.toggleLock();
+      }
+    }
 
     document.addEventListener('DOMContentLoaded', (event) => {
       const toggleButton = document.getElementById('toggleDescription');
@@ -420,16 +486,8 @@
       if (newTraitName && !traitContainer.traits[newTraitName]) {
         const randomValue = Math.floor(Math.random() * 101);
         traitContainer.addTrait(newTraitName, randomValue);
-
         const traitsElement = document.getElementById('traits');
-        const div = document.createElement('div');
-        div.className = 'trait';
-        div.innerHTML = `
-      <button class="delete-trait" onclick="deleteTrait('${newTraitName}')">x</button>
-      ${newTraitName}: <input type="text" value="${randomValue}" data-trait-name="${newTraitName}">
-    `;
-        traitsElement.appendChild(div);
-
+        traitsElement.appendChild(traitContainer.traits[newTraitName].generateElement());
         newTraitInput.value = '';
       }
     }
@@ -475,14 +533,10 @@
       const traitsElement = document.getElementById('traits');
       traitsElement.innerHTML = '';
       for (const [name, trait] of Object.entries(traitContainer.traits)) {
-        const div = document.createElement('div');
-        trait.value = Math.floor(Math.random() * 101);
-        div.className = 'trait';
-        div.innerHTML = `
-      <button class="delete-trait" onclick="deleteTrait('${name}')">x</button>
-      ${name}: <input type="text" value="${trait.value}" data-trait-name="${name}">
-    `;
-        traitsElement.appendChild(div);
+        if (!trait.locked) {
+          trait.value = Math.floor(Math.random() * 101);
+        }
+        traitsElement.appendChild(trait.generateElement());
       }
     }
 
@@ -579,6 +633,23 @@
       document.execCommand('copy');
       document.body.removeChild(textarea);
     }
+
+    function setupNewTraitInput() {
+      const newTraitInput = document.getElementById('newTraitInput');
+      const addButton = document.querySelector('.trait-input button');
+
+      newTraitInput.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault(); // Prevent form submission if it's in a form
+          addNewTrait();
+        }
+      });
+
+      // Keep the existing click event for the button
+      addButton.onclick = addNewTrait;
+    }
+
+    document.addEventListener('DOMContentLoaded', setupNewTraitInput);
 
     generateAll(); // Generate initial attributes and traits on load
     const prompt_template = `
