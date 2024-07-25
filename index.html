@@ -265,6 +265,15 @@
       width: 100%;
       box-sizing: border-box;
     }
+
+    .lock-trait {
+      transition: background-color 0.3s ease;
+    }
+
+    .lock-trait.locked {
+      background-color: rgba(0, 100, 0, 0.5);
+      /* Dark transparent green */
+    }
   </style>
 </head>
 
@@ -357,9 +366,10 @@
           const lockButton = this.element.querySelector('.lock-trait');
           const input = this.element.querySelector('input');
           lockButton.textContent = this.locked ? '🔒' : '🔓';
+          lockButton.classList.toggle('locked', this.locked);
           input.disabled = this.locked;
           if (this.locked) {
-            this.value = input.value; // Update the stored value when locking
+            this.value = input.value;
           }
         }
       }
