@@ -587,16 +587,18 @@
 
       const levels = [
         { threshold: 0, modifier: "no {{trait}} at all" },
-        { threshold: 5, modifier: "almost no {{trait}}" },
-        { threshold: 14, modifier: "minimal {{trait}}" },
-        { threshold: 19, modifier: "somewhat below average {{trait}}" },
-        { threshold: 34, modifier: "mild {{trait}}" },
-        { threshold: 39, modifier: "moderate {{trait}}" },
-        { threshold: 44, modifier: "average {{trait}}" },
-        { threshold: 56, modifier: "substantial {{trait}}" },
-        { threshold: 74, modifier: "above average {{trait}}" },
-        { threshold: 81, modifier: "remarkable {{trait}}" },
-        { threshold: 99, modifier: "unparalleled {{trait}}" }
+        { threshold: 10, modifier: "a hint of {{trait}} at times" },
+        { threshold: 20, modifier: "slight {{trait}} at times" },
+        { threshold: 25, modifier: "minimal {{trait}}" },
+        { threshold: 35, modifier: "mild {{trait}}" },
+        { threshold: 40, modifier: "some {{trait}}" },
+        { threshold: 45, modifier: "average {{trait}}" },
+        { threshold: 50, modifier: "moderate {{trait}}" },
+        { threshold: 60, modifier: "above average {{trait}}" },
+        { threshold: 70, modifier: "substantial {{trait}}" },
+        { threshold: 80, modifier: "remarkable {{trait}}" },
+        { threshold: 87, modifier: "extraordinary {{trait}}" },
+        { threshold: 94, modifier: "unparalleled {{trait}}" }
       ];
 
       for (let i = levels.length - 1; i >= 0; i--) {
