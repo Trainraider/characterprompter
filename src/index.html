@@ -53,7 +53,6 @@
 
     input,
     button,
-    .checkbox-wrapper,
     #customPrompt {
       background: #33333344
     }
@@ -97,25 +96,6 @@
     h1,
     h4 {
       margin-bottom: 20px;
-    }
-
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-    }
-
-    .checkbox-wrapper {
-      display: flex;
-      align-items: center;
-      border-radius: 15px;
-    }
-
-    .checkbox-wrapper input[type="checkbox"] {
-      margin: 0;
-    }
-
-    .checkbox-wrapper label {
-      cursor: pointer;
     }
 
     .spacer {
@@ -353,7 +333,7 @@
 
 <body>
   <h1>✨Character Prompt Generator for Janitorai✨</h1>
-  <button id="toggleDescription">What's this site for?</button>
+  <button id="toggleDescription">How does this work?</button>
   <div id="description" style="display: none;">
     <p>Make any sort of role play bot you want in just a few minutes! <br><br>
       Generate and modify character traits, and use the buttons below to copy a prompt for an AI to write a Janitorai
@@ -370,16 +350,6 @@
       in tact.
     </p>
   </div><br>
-  <button onclick="generateAll()">Reroll Traits</button>
-  <button onclick="copyAll()">Copy Traits</button>
-  <button onclick="resetTraits()">Reset Traits</button><br><br>
-  <div class="checkbox-container">
-    <div class="checkbox-wrapper"
-      title="Converting the numbers to adjectives helps stupid and small language models understand the trait values better">
-      <input type="checkbox" id="convertToAdjectives" checked>
-      <label for="convertToAdjectives">Convert numbers to adjectives</label>
-    </div>
-    <div class="spacer"></div>
   </div><br><br>
   <div class="prompt-box foldable">
     <h4 class="prompt-title">Single Step Prompts</h4>
@@ -408,7 +378,9 @@
     <textarea id="customPrompt"
       placeholder="Enter a short custom prompt to guide the AI character generation process, e.g. 'He's a billionaire CEO' (optional)"></textarea>
   </div>
-  <br>
+  <button onclick="generateAll()">Reroll Traits</button>
+  <button onclick="copyAll()">Copy Traits</button>
+  <button onclick="resetTraits()">Reset Traits</button><br><br>
   <div id="attributes"></div>
   <div id="traits"></div>
   <div class="trait-input">
@@ -679,7 +651,7 @@
           traitName = input.parentElement.textContent.split(':')[0].replace(/^x\s*/, '').trim();
         }
         let value = input.value;
-        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
+        if (traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
           value = getStrengthModifier(Number(value), traitName);
           allText += `${value}\n`;
         } else {
@@ -762,7 +734,7 @@ Please list all the personality traits from the provided list that apply to this
         }
         let value = input.value;
 
-        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
+        if (traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
           value = getStrengthModifier(Number(value), traitName);
           allText += `${value}\n`;
         } else {
@@ -814,10 +786,6 @@ Please list all the personality traits from the provided list that apply to this
       return `invalid ${trait}`;
     }
 
-    function shouldConvertToAdjectives() {
-      return document.getElementById('convertToAdjectives').checked;
-    }
-
     function copyWithPrompt(prompt) {
       let allText = '';
       document.querySelectorAll('.attribute input, .trait input').forEach(input => {
@@ -828,7 +796,7 @@ Please list all the personality traits from the provided list that apply to this
         }
         let value = input.value;
 
-        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
+        if (traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
           value = getStrengthModifier(Number(value), traitName);
           allText += `${value}\n`;
         } else {
