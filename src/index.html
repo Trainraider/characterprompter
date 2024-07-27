@@ -211,6 +211,7 @@
       display: flex;
       flex-direction: column;
       margin-bottom: 15px;
+      width: 100%
     }
 
     .trait-header {
@@ -220,7 +221,46 @@
     }
 
     .trait-label {
-      margin-right: auto;
+      display: inline-block;
+      width: 150px;
+      max-width: 150px;
+    }
+
+    .trait-top-row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .trait-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      flex-grow: 1;
+      height: 25px;
+      width: auto;
+      offset: 0px 10px;
+      padding: 0px;
+      margin-top: 20px;
+      outline: none;
+
+    }
+
+    .trait-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 25px;
+      height: 25px;
+      background: #8888;
+      border-radius: 25px;
+    }
+
+    .trait-slider::-moz-range-thumb {
+      border: 0;
+      width: 25px;
+      height: 25px;
+      background: #8888;
+      border-radius: 25px;
     }
 
     .delete-trait,
@@ -405,9 +445,9 @@
     });
 
     class Trait {
-      constructor(name, initialValue = 0) {
+      constructor(name) {
         this.name = name;
-        this.value = initialValue;
+        this.value = Math.floor(Math.random() * 101);
         this.element = null;
         this.locked = false;
       }
@@ -416,14 +456,27 @@
         const div = document.createElement('div');
         div.className = 'trait';
         div.innerHTML = `
-          <div class="trait-header">
-            <button class="lock-trait" onclick="toggleLock('${this.name}')">${this.locked ? '🔒' : '🔓'}</button>
-            <button class="delete-trait" onclick="deleteTrait('${this.name}')">❌</button>
-            <span class="trait-label">${this.name}:</span>
-          </div>
-          <input type="text" value="${this.value}" data-trait-name="${this.name}" ${this.locked ? 'disabled' : ''}>
-          `;
+                <div class="trait-top-row">
+                    <button class="lock-trait" onclick="toggleLock('${this.name}')">${this.locked ? '🔒' : '🔓'}</button>
+                    <button class="delete-trait" onclick="deleteTrait('${this.name}')">❌</button>
+                    <span class="trait-label">${this.name}:</span>
+                    <input type="range" class="trait-slider" min="0" max="100" value="${this.value}">
+                </div>
+                <input type="text" class="trait-input" placeholder="${this.getStrengthModifier()}">
+            `;
         this.element = div;
+
+        const slider = div.querySelector('.trait-slider');
+        const input = div.querySelector('.trait-input');
+
+        slider.addEventListener('input', () => {
+          this.updateValue(slider.value);
+          input.placeholder = this.getStrengthModifier();
+          if (!input.value) {
+            input.value = '';
+          }
+        });
+
         return div;
       }
 
@@ -431,7 +484,13 @@
         if (!this.locked) {
           this.value = newValue;
           if (this.element) {
-            this.element.querySelector('input').value = newValue;
+            const slider = this.element.querySelector('.trait-slider');
+            const input = this.element.querySelector('.trait-input');
+            slider.value = newValue;
+            input.placeholder = this.getStrengthModifier();
+            if (!input.value) {
+              input.value = '';
+            }
           }
         }
       }
@@ -440,26 +499,51 @@
         this.locked = !this.locked;
         if (this.element) {
           const lockButton = this.element.querySelector('.lock-trait');
-          const input = this.element.querySelector('input');
+          const slider = this.element.querySelector('.trait-slider');
+          const input = this.element.querySelector('.trait-input');
           lockButton.textContent = this.locked ? '🔒' : '🔓';
-          lockButton.classList.toggle('locked', this.locked);
+          slider.disabled = this.locked;
           input.disabled = this.locked;
-          if (this.locked) {
-            this.value = input.value;
-          }
         }
       }
+
+      getStrengthModifier() {
+        const levels = [
+          { threshold: 0, modifier: "no {{trait}} at all" },
+          { threshold: 10, modifier: "practically nonexistent {{trait}}" },
+          { threshold: 20, modifier: "almost no {{trait}}" },
+          { threshold: 25, modifier: "very low {{trait}}" },
+          { threshold: 35, modifier: "considerably below average {{trait}}" },
+          { threshold: 40, modifier: "less than average {{trait}}" },
+          { threshold: 45, modifier: "average {{trait}}" },
+          { threshold: 50, modifier: "moderate {{trait}}" },
+          { threshold: 60, modifier: "above average {{trait}}" },
+          { threshold: 70, modifier: "substantial {{trait}}" },
+          { threshold: 80, modifier: "remarkable {{trait}}" },
+          { threshold: 87, modifier: "extraordinary {{trait}}" },
+          { threshold: 94, modifier: "unparalleled {{trait}}" }
+        ];
+
+        for (let i = levels.length - 1; i >= 0; i--) {
+          if (this.value >= levels[i].threshold) {
+            return levels[i].modifier.replace("{{trait}}", this.name.toLowerCase());
+          }
+        }
+        return "invalid {{trait}}".replace("{{trait}}", this.name.toLowerCase());
+      }
     }
+
     class TraitContainer {
       constructor() {
         this.traits = {};
       }
 
-      addTrait(name, initialValue = 0) {
-        this.traits[name] = new Trait(name, initialValue);
+      addTrait(name) {
+        this.traits[name] = new Trait(name);
       }
 
       generateElements(parentElement) {
+        parentElement.innerHTML = '';
         for (const trait of Object.values(this.traits)) {
           parentElement.appendChild(trait.generateElement());
         }
@@ -467,17 +551,11 @@
 
       generateRandomValues() {
         for (const trait of Object.values(this.traits)) {
-          const randomValue = Math.floor(Math.random() * 101);
-          trait.updateValue(randomValue);
+          if (!trait.locked) {
+            const randomValue = Math.floor(Math.random() * 101);
+            trait.updateValue(randomValue);
+          }
         }
-      }
-
-      getValues() {
-        const values = {};
-        for (const [name, trait] of Object.entries(this.traits)) {
-          values[name] = trait.value;
-        }
-        return values;
       }
     }
 
@@ -558,7 +636,20 @@
       'Wealth', 'Societal status', 'Strength', 'Intelligence', 'Wisdom',
       'Physical attractiveness', 'Horniness'
     ];
+
     defaultTraits.forEach(traitName => traitContainer.addTrait(traitName));
+
+    function initializeTraits() {
+      defaultTraits.forEach(traitName => traitContainer.addTrait(traitName));
+      const traitsElement = document.getElementById('traits');
+      traitContainer.generateElements(traitsElement);
+    }
+
+    function rerollTraits() {
+      traitContainer.generateRandomValues();
+      const traitsElement = document.getElementById('traits');
+      traitContainer.generateElements(traitsElement);
+    }
 
     function resetTraits() {
       traitContainer.traits = {};
@@ -580,10 +671,8 @@
 
     function deleteTrait(traitName) {
       delete traitContainer.traits[traitName];
-      const traitElement = document.querySelector(`input[data-trait-name="${traitName}"]`).closest('.trait');
-      if (traitElement) {
-        traitElement.remove();
-      }
+      const traitsElement = document.getElementById('traits');
+      traitContainer.generateElements(traitsElement);
     }
 
     function generateAll() {
@@ -644,59 +733,25 @@
     ];
 
     function generateStep1Prompt() {
-      let allText = '';
-      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
-        let traitName = input.getAttribute('data-trait-name');
-        if (!traitName) {
-          traitName = input.parentElement.textContent.split(':')[0].replace(/^x\s*/, '').trim();
-        }
-        let value = input.value;
-        if (traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
-          value = getStrengthModifier(Number(value), traitName);
-          allText += `${value}\n`;
-        } else {
-          allText += `${traitName}: ${value}\n`;
-        }
-      });
-
+      let allText = generateTraitAttributeText();
       const customPromptText = document.getElementById('customPrompt').value.trim();
+
       const step1Prompt = `Based on the following information about a character:
+        ${allText}
+        Custom prompt: ${customPromptText}
+        And considering this list of personality traits: ${personalityTraits.join(', ')}
+        Please list all the personality traits from the provided list that apply to this character based on the information given. Put your answer in a code block.`;
 
-${allText}
-
-Custom prompt:
-${customPromptText}
-
-And considering this list of personality traits:
-${personalityTraits.join(', ')}
-
-Please list all the personality traits from the provided list that apply to this character based on the information given. Put your answer in a code block.`;
-
-      // Copy the prompt to clipboard
-      const textarea = document.createElement('textarea');
-      textarea.value = step1Prompt;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-
-      alert("Step 1 prompt copied to clipboard. Paste it to an AI, then copy the resulting code block and paste it into the text area below.");
+      copyToClipboard(step1Prompt);
     }
 
     function copyWithStep2Prompt(promptTemplate) {
       const digestedTraits = document.getElementById('digestedTraits').value.trim();
       if (!digestedTraits) {
-        alert("Please complete Step 1 and paste the digested traits before proceeding with Step 2.");
         return;
       }
 
-      let allText = '';
-      document.querySelectorAll('.attribute input').forEach(input => {
-        let attributeName = input.parentElement.textContent.split(':')[0].replace(/^x\s*/, '').trim();
-        let value = input.value;
-        allText += `${attributeName}: ${value}\n`;
-      });
-
+      let allText = generateTraitAttributeText();
       allText += `\n${digestedTraits}`;
 
       const customPromptText = document.getElementById('customPrompt').value.trim();
@@ -704,15 +759,7 @@ Please list all the personality traits from the provided list that apply to this
         .replace('{{traits}}', allText)
         .replace('{{custom_prompt}}', customPromptText);
 
-      // Copy the final text to clipboard
-      const textarea = document.createElement('textarea');
-      textarea.value = finalText;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-
-      alert("Step 2 prompt copied to clipboard.");
+      copyToClipboard(finalText);
     }
 
     document.getElementById('digestedTraits').addEventListener('input', function () {
@@ -724,31 +771,47 @@ Please list all the personality traits from the provided list that apply to this
       }
     });
 
-    function copyAll() {
+    // Helper function to generate trait/attribute text
+    function generateTraitAttributeText() {
       let allText = '';
-      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
-        let traitName = input.getAttribute('data-trait-name');
-        if (!traitName) {
-          // Fallback to the old method for elements without data-trait-name
-          traitName = input.parentElement.textContent.split(':')[0].replace(/^x\s*/, '').trim();
-        }
-        let value = input.value;
 
-        if (traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
-          value = getStrengthModifier(Number(value), traitName);
-          allText += `${value}\n`;
+      // Generate text for attributes
+      document.querySelectorAll('.attribute input').forEach(input => {
+        let attributeName = input.parentElement.textContent.split(':')[0].trim();
+        let value = input.value;
+        allText += `${attributeName}: ${value}\n`;
+      });
+
+      // Generate text for traits
+      document.querySelectorAll('.trait').forEach(traitElement => {
+        let traitName = traitElement.querySelector('.trait-label').textContent.replace(':', '').trim();
+        let sliderValue = traitElement.querySelector('.trait-slider').value;
+        let textInputValue = traitElement.querySelector('.trait-input').value;
+
+        if (textInputValue) {
+          allText += `${traitName}: ${textInputValue}\n`;
         } else {
-          allText += `${traitName}: ${value}\n`;
+          let strengthModifier = getStrengthModifier(Number(sliderValue), traitName);
+          allText += `${strengthModifier}\n`;
         }
       });
 
-      // Create a temporary textarea element to facilitate copying
+      return allText;
+    }
+
+    // Helper function to copy text to clipboard
+    function copyToClipboard(text) {
       const textarea = document.createElement('textarea');
-      textarea.value = allText;
+      textarea.value = text;
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
+    }
+
+    function copyAll() {
+      let allText = generateTraitAttributeText();
+      copyToClipboard(allText);
     }
 
     function getStrengthModifier(number, trait) {
@@ -785,36 +848,16 @@ Please list all the personality traits from the provided list that apply to this
       // This line should never be reached, but it's here as a fallback
       return `invalid ${trait}`;
     }
-
     function copyWithPrompt(prompt) {
-      let allText = '';
-      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
-        let traitName = input.getAttribute('data-trait-name');
-        if (!traitName) {
-          // Fallback to the old method for elements without data-trait-name
-          traitName = input.parentElement.textContent.split(':')[0].replace(/^x\s*/, '').trim();
-        }
-        let value = input.value;
-
-        if (traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
-          value = getStrengthModifier(Number(value), traitName);
-          allText += `${value}\n`;
-        } else {
-          allText += `${traitName}: ${value}\n`;
-        }
-      });
+      let allText = generateTraitAttributeText();
       const customPromptText = document.getElementById('customPrompt').value.trim();
-      const finalText = prompt.replace('{{traits}}', allText)
+      const finalText = prompt
+        .replace('{{traits}}', allText)
         .replace('{{custom_prompt}}', customPromptText);
 
-      // Create a temporary textarea element to facilitate copying
-      const textarea = document.createElement('textarea');
-      textarea.value = finalText;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-    }
+      copyToClipboard(finalText);
+   }
+
 
     function setupNewTraitInput() {
       const newTraitInput = document.getElementById('newTraitInput');
@@ -832,5 +875,6 @@ Please list all the personality traits from the provided list that apply to this
     }
 
     document.addEventListener('DOMContentLoaded', setupNewTraitInput);
+    document.addEventListener('DOMContentLoaded', initializeTraits);
 
     generateAll(); // Generate initial attributes and traits on load
