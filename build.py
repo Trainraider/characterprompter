@@ -40,13 +40,13 @@ def encode_image_to_base64(image_path):
 
 def build_index_html():
     src_dir = './src'
-    www_dir = './www'
+    docs_dir = './docs'
     
     try:
-        os.makedirs(www_dir, exist_ok=True)
-        print(f"Output directory {www_dir} is ready")
+        os.makedirs(docs_dir, exist_ok=True)
+        print(f"Output directory {docs_dir} is ready")
     except Exception as e:
-        print(f"Error creating output directory {www_dir}: {str(e)}")
+        print(f"Error creating output directory {docs_dir}: {str(e)}")
         return
     
     # Read source files
@@ -97,7 +97,7 @@ def build_index_html():
     full_html = index_html + append_content
     
     # Write the combined content to the output file
-    output_path = os.path.join(www_dir, 'index.html')
+    output_path = os.path.join(docs_dir, 'index.html')
     try:
         with open(output_path, 'w', encoding='utf-8') as outfile:
             outfile.write(full_html)

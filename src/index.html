@@ -274,6 +274,80 @@
       background-color: rgba(0, 100, 0, 0.5);
       /* Dark transparent green */
     }
+
+    .prompt-box {
+      border: 1px solid #33333344;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      background-color: #33333344;
+    }
+
+    .prompt-box h2 {
+      margin-top: 0;
+      color: #f0f0f0;
+    }
+
+    #step2Prompts {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    #step2Prompts.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #digestedTraits {
+      width: calc(100% - 20px);
+      height: 100px;
+      margin-bottom: 10px;
+      background-color: #2222;
+      color: #fff;
+      border: 1px solid #333;
+      border-radius: 15px;
+      padding: 10px;
+      resize: vertical;
+    }
+
+    .trait-input {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .prompt-box.foldable {
+      border: 1px solid rgba(204, 204, 204, 0.2);
+      margin-bottom: 10px;
+      background-color: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(5px);
+    }
+
+    .prompt-title {
+      color: inherit;
+      padding: 10px;
+      margin: 0;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .prompt-content {
+      display: none;
+      padding: 10px;
+    }
+
+    .prompt-box.foldable.active .prompt-content {
+      display: block;
+    }
+
+    .prompt-title::after {
+      content: '▼';
+      float: right;
+      transition: transform 0.3s ease;
+    }
+
+    .prompt-box.foldable.active .prompt-title::after {
+      transform: rotate(180deg);
+    }
   </style>
 </head>
 
@@ -298,10 +372,7 @@
   </div><br>
   <button onclick="generateAll()">Reroll Traits</button>
   <button onclick="copyAll()">Copy Traits</button>
-  <button onclick="copyWithPrompt(prompt_template)">Copy With Prompt</button>
-  <button onclick="copyWithPrompt(nsfw_prompt_template)">Copy With Explicit Prompt</button>
-  <button onclick="resetTraits()">Reset Traits</button>
-  <br><br>
+  <button onclick="resetTraits()">Reset Traits</button><br><br>
   <div class="checkbox-container">
     <div class="checkbox-wrapper"
       title="Converting the numbers to adjectives helps stupid and small language models understand the trait values better">
@@ -309,8 +380,29 @@
       <label for="convertToAdjectives">Convert numbers to adjectives</label>
     </div>
     <div class="spacer"></div>
+  </div><br><br>
+  <div class="prompt-box foldable">
+    <h4 class="prompt-title">Single Step Prompts</h4>
+    <div class="prompt-content">
+      <p>AI makes a character card right now in one step with this prompt</p>
+      <button onclick="copyWithPrompt(prompt_template)">Copy With Prompt</button>
+      <button onclick="copyWithPrompt(nsfw_prompt_template)">Copy With Explicit Prompt</button>
+    </div>
   </div>
-  <br><br>
+
+  <div class="prompt-box foldable">
+    <h4 class="prompt-title">Two Step Prompts</h4>
+    <div class="prompt-content">
+      <p>For better results, use the step 1 prompt and paste the results here, and then get an improved character card
+        from the step 2 prompt.</p>
+      <button onclick="generateStep1Prompt()">Step 1 Prompt</button>
+      <textarea id="digestedTraits" placeholder="Paste the results from Step 1 here"></textarea>
+      <div id="step2Prompts">
+        <button onclick="copyWithStep2Prompt(prompt_template)">Step 2 Prompt</button>
+        <button onclick="copyWithStep2Prompt(nsfw_prompt_template)">Explicit Step 2 Prompt</button>
+      </div>
+    </div>
+  </div>
   <div>
     <label>Short Prompt:</label>
     <textarea id="customPrompt"
@@ -328,6 +420,18 @@
   </div>
   <button id="scrollToTop">Top</button>
   <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const foldableBoxes = document.querySelectorAll('.prompt-box.foldable');
+
+      foldableBoxes.forEach(box => {
+        const title = box.querySelector('.prompt-title');
+        title.addEventListener('click', () => {
+          box.classList.toggle('active');
+        });
+      });
+    });
+
     class Trait {
       constructor(name, initialValue = 0) {
         this.name = name;
@@ -550,6 +654,104 @@
       }
     }
 
+    const personalityTraits = [
+      "Adventurous", "Ambitious", "Analytical", "Arrogant", "Assertive", "Bigotted", "Brave",
+      "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
+      "Conservative", "Creative", "Cynical", "Decisive", "Determined", "Diligent", "Dramatic",
+      "Dishonest", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious", "Focused",
+      "Forgiving", "Generous", "Honest", "Humble", "Idealistic", "Imaginative", "Impulsive",
+      "Independent", "Intelligent", "Introverted", "Intuitive", "Jealous", "Lecherous", "Liberal",
+      "Logical", "Loyal", "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
+      "Narcissistic", "Neurotic", "Observant", "Optimistic", "Passionate", "Patient", "Perfectionist",
+      "Persistent", "Persuasive", "Pessimistic", "Philosophical", "Pragmatic", "Rational", "Rebellious",
+      "Reckless", "Reserved", "Resourceful", "Romantic", "Sarcastic", "Scholarly", "Selfish",
+      "Sensitive", "Sensual", "Skeptical", "Slutty", "Socially awkward", "Stoic", "Stubborn",
+      "Suspicious", "Sympathetic", "Tactful", "Temperamental", "Tenacious", "Thoughtful", "Timid",
+      "Tolerant", "Treacherous", "Trustworthy", "Uncompromising", "Unpredictable", "Vengeful",
+      "Visionary", "Witty"
+    ];
+
+    function generateStep1Prompt() {
+      let allText = '';
+      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
+        let traitName = input.getAttribute('data-trait-name');
+        if (!traitName) {
+          traitName = input.parentElement.textContent.split(':')[0].replace(/^x\s*/, '').trim();
+        }
+        let value = input.value;
+        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
+          value = getStrengthModifier(Number(value), traitName);
+          allText += `${value}\n`;
+        } else {
+          allText += `${traitName}: ${value}\n`;
+        }
+      });
+
+      const customPromptText = document.getElementById('customPrompt').value.trim();
+      const step1Prompt = `Based on the following information about a character:
+
+${allText}
+
+Custom prompt:
+${customPromptText}
+
+And considering this list of personality traits:
+${personalityTraits.join(', ')}
+
+Please list all the personality traits from the provided list that apply to this character based on the information given. Put your answer in a code block.`;
+
+      // Copy the prompt to clipboard
+      const textarea = document.createElement('textarea');
+      textarea.value = step1Prompt;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      alert("Step 1 prompt copied to clipboard. Paste it to an AI, then copy the resulting code block and paste it into the text area below.");
+    }
+
+    function copyWithStep2Prompt(promptTemplate) {
+      const digestedTraits = document.getElementById('digestedTraits').value.trim();
+      if (!digestedTraits) {
+        alert("Please complete Step 1 and paste the digested traits before proceeding with Step 2.");
+        return;
+      }
+
+      let allText = '';
+      document.querySelectorAll('.attribute input').forEach(input => {
+        let attributeName = input.parentElement.textContent.split(':')[0].replace(/^x\s*/, '').trim();
+        let value = input.value;
+        allText += `${attributeName}: ${value}\n`;
+      });
+
+      allText += `\n${digestedTraits}`;
+
+      const customPromptText = document.getElementById('customPrompt').value.trim();
+      const finalText = promptTemplate
+        .replace('{{traits}}', allText)
+        .replace('{{custom_prompt}}', customPromptText);
+
+      // Copy the final text to clipboard
+      const textarea = document.createElement('textarea');
+      textarea.value = finalText;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      alert("Step 2 prompt copied to clipboard.");
+    }
+
+    document.getElementById('digestedTraits').addEventListener('input', function () {
+      const step2Prompts = document.getElementById('step2Prompts');
+      if (this.value.trim()) {
+        step2Prompts.classList.add('active');
+      } else {
+        step2Prompts.classList.remove('active');
+      }
+    });
+
     function copyAll() {
       let allText = '';
       document.querySelectorAll('.attribute input, .trait input').forEach(input => {
@@ -600,25 +802,6 @@
         { threshold: 87, modifier: "extraordinary {{trait}}" },
         { threshold: 94, modifier: "unparalleled {{trait}}" }
       ];
-
-      const personality_traits = [
-        "Adventurous", "Ambitious", "Analytical", "Arrogant", "Assertive", "Bigotted", "Brave",
-        "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
-        "Conservative", "Creative", "Cynical", "Decisive", "Determined", "Diligent", "Dramatic",
-        "Dishonest", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious",
-        "Focused", "Forgiving", "Generous", "Honest", "Humble",
-        "Idealistic", "Imaginative", "Impulsive", "Independent", "Intelligent",
-        "Introverted", "Intuitive", "Jealous", "Lecherous", "Liberal", "Logical", "Loyal",
-        "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
-        "Narcissistic", "Neurotic", "Observant", "Optimistic", "Passionate",
-        "Patient", "Perfectionist", "Persistent", "Persuasive", "Pessimistic", "Philosophical",
-        "Pragmatic", "Rational", "Rebellious", "Reckless", "Reserved", "Resourceful",
-        "Romantic", "Sarcastic", "Scholarly", "Selfish", "Sensitive", "Sensual",
-        "Skeptical", "Slutty", "Socially awkward", "Stoic", "Stubborn", "Suspicious",
-        "Sympathetic", "Tactful", "Temperamental", "Tenacious", "Thoughtful",
-        "Timid", "Tolerant", "Treacherous", "Trustworthy", "Uncompromising", "Unpredictable",
-        "Vengeful", "Visionary", "Witty"
-      ]
 
       for (let i = levels.length - 1; i >= 0; i--) {
         if (number >= levels[i].threshold) {
