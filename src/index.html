@@ -863,19 +863,19 @@
 
     const personalityTraits = [
       "Adventurous", "Ambitious", "Analytical", "Arrogant", "Assertive", "Bigotted", "Brave",
-      "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
+      "Careless", "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
       "Conservative", "Creative", "Cynical", "Decisive", "Determined", "Diligent", "Dramatic",
-      "Dishonest", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious", "Focused",
-      "Forgiving", "Generous", "Honest", "Humble", "Idealistic", "Imaginative", "Impulsive",
-      "Independent", "Intelligent", "Introverted", "Intuitive", "Jealous", "Lecherous", "Liberal",
-      "Logical", "Loyal", "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
+      "Dishonest", "Disorganized", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious", "Focused",
+      "Forgiving", "Generous", "Greedy", "Honest", "Humble", "Idealistic", "Imaginative", "Impulsive",
+      "Independent", "Intelligent", "Introverted", "Intuitive", "Irresponsible", "Jealous", "Lazy", "Lecherous", "Liberal",
+      "Logical", "Loyal", "Lustful", "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
       "Narcissistic", "Neurotic", "Observant", "Optimistic", "Passionate", "Patient", "Perfectionist",
-      "Persistent", "Persuasive", "Pessimistic", "Philosophical", "Pragmatic", "Rational", "Rebellious",
-      "Reckless", "Reserved", "Resourceful", "Romantic", "Sarcastic", "Scholarly", "Selfish",
+      "Persistent", "Persuasive", "Pessimistic", "Philosophical", "Pragmatic", "Procrastinates", "Prideful", "Rational", "Rebellious",
+      "Reckless", "Reserved", "Resourceful", "Romantic", "Sarcastic", "Scholarly", "Self-absorbed", "Selfish",
       "Sensitive", "Sensual", "Skeptical", "Slutty", "Socially awkward", "Stoic", "Stubborn",
       "Suspicious", "Sympathetic", "Tactful", "Temperamental", "Tenacious", "Thoughtful", "Timid",
       "Tolerant", "Treacherous", "Trustworthy", "Uncompromising", "Unpredictable", "Vengeful",
-      "Visionary", "Witty"
+      "Visionary", "Witty", "Wrathful"
     ];
 
     function generateStep1Prompt() {
@@ -884,9 +884,10 @@
 
       const step1Prompt = `Based on the following information about a character:
         ${allText}
-        Custom prompt: ${customPromptText}
+        ${customPromptText}
+
         And considering this list of personality traits: ${personalityTraits.join(', ')}
-        Please list all the personality traits from the provided list that apply to this character based on the information given. Put your answer in a code block.`;
+        Please list the personality traits from the provided list that most apply to this character based on the information given. Your list should only be space separated. You can also use traits that weren't listed in your list. Put your answer in a code block.`;
 
       copyToClipboard(step1Prompt);
     }

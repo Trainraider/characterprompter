@@ -209,10 +209,10 @@ Next, write the character card following the example format with code blocks. Wr
 
 Pick a name that seems to match everything well.
 
-When writing the personality part of the description, construct a few naturally flowing paragraphs using one or two sentences of an action or preference of a character consistent with each level of each notable trait, basically represent the traits anecdotally. Don't restate the trait words in the anecdotal descriptions, leave those terms out, and make it seem like a natural character description. Also make a brief synopsis of their life, goals, motivations, career/whatever they do.
+When writing the personality part of the description, construct a few naturally flowing paragraphs that implicitly convey the traits anecdotally and make it seem like a natural character description. Also make a brief synopsis of their life, goals, motivations, career/whatever they do.
 
 The scenario outlines how {{user}} and {{char}} ended up in their situation, giving context to the conversation. The scenario is invisible to {{user}} and is for LLM context only, so the initial message needs to recap it somewhat for {{user}}'s benefit, from {{char}}'s perspective, showing their speech and actions as the scenario unfolds.
 
-Next, write example dialogues as well. Make use of dialogues to set the unique mannerisms of speech and actions of the character, and make the speech patterns interesting and unique to the character. Example dialogue should also explore hypothetical future scenarios and show how the character would react to different possible situations.
+Next, write example dialogues as well. Make use of dialogues to set the unique and interesting mannerisms of speech and actions of the character, and make the speech patterns interesting and unique to the character. Example dialogue should also explore hypothetical future scenarios and show how the character would react to different possible situations.
 
 Use this information to create a character card for role-play. The character card should follow the example format and use code blocks for easy copy/pasting of each section.

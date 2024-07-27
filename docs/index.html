@@ -863,19 +863,19 @@
 
     const personalityTraits = [
       "Adventurous", "Ambitious", "Analytical", "Arrogant", "Assertive", "Bigotted", "Brave",
-      "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
+      "Careless", "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
       "Conservative", "Creative", "Cynical", "Decisive", "Determined", "Diligent", "Dramatic",
-      "Dishonest", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious", "Focused",
-      "Forgiving", "Generous", "Honest", "Humble", "Idealistic", "Imaginative", "Impulsive",
-      "Independent", "Intelligent", "Introverted", "Intuitive", "Jealous", "Lecherous", "Liberal",
-      "Logical", "Loyal", "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
+      "Dishonest", "Disorganized", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious", "Focused",
+      "Forgiving", "Generous", "Greedy", "Honest", "Humble", "Idealistic", "Imaginative", "Impulsive",
+      "Independent", "Intelligent", "Introverted", "Intuitive", "Irresponsible", "Jealous", "Lazy", "Lecherous", "Liberal",
+      "Logical", "Loyal", "Lustful", "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
       "Narcissistic", "Neurotic", "Observant", "Optimistic", "Passionate", "Patient", "Perfectionist",
-      "Persistent", "Persuasive", "Pessimistic", "Philosophical", "Pragmatic", "Rational", "Rebellious",
-      "Reckless", "Reserved", "Resourceful", "Romantic", "Sarcastic", "Scholarly", "Selfish",
+      "Persistent", "Persuasive", "Pessimistic", "Philosophical", "Pragmatic", "Procrastinates", "Prideful", "Rational", "Rebellious",
+      "Reckless", "Reserved", "Resourceful", "Romantic", "Sarcastic", "Scholarly", "Self-absorbed", "Selfish",
       "Sensitive", "Sensual", "Skeptical", "Slutty", "Socially awkward", "Stoic", "Stubborn",
       "Suspicious", "Sympathetic", "Tactful", "Temperamental", "Tenacious", "Thoughtful", "Timid",
       "Tolerant", "Treacherous", "Trustworthy", "Uncompromising", "Unpredictable", "Vengeful",
-      "Visionary", "Witty"
+      "Visionary", "Witty", "Wrathful"
     ];
 
     function generateStep1Prompt() {
@@ -884,9 +884,10 @@
 
       const step1Prompt = `Based on the following information about a character:
         ${allText}
-        Custom prompt: ${customPromptText}
+        ${customPromptText}
+
         And considering this list of personality traits: ${personalityTraits.join(', ')}
-        Please list all the personality traits from the provided list that apply to this character based on the information given. Put your answer in a code block.`;
+        Please list the personality traits from the provided list that most apply to this character based on the information given. Your list should only be space separated. You can also use traits that weren't listed in your list. Put your answer in a code block.`;
 
       copyToClipboard(step1Prompt);
     }
@@ -1247,11 +1248,11 @@ Next, write the character card following the example format with code blocks. Wr
 
 Pick a name that seems to match everything well.
 
-When writing the personality part of the description, construct a few naturally flowing paragraphs using one or two sentences of an action or preference of a character consistent with each level of each notable trait, basically represent the traits anecdotally. Don't restate the trait words in the anecdotal descriptions, leave those terms out, and make it seem like a natural character description. Also make a brief synopsis of their life, goals, motivations, career/whatever they do.
+When writing the personality part of the description, construct a few naturally flowing paragraphs that implicitly convey the traits anecdotally and make it seem like a natural character description. Also make a brief synopsis of their life, goals, motivations, career/whatever they do.
 
 The scenario outlines how {{user}} and {{char}} ended up in their situation, giving context to the conversation. The scenario is invisible to {{user}} and is for LLM context only, so the initial message needs to recap it somewhat for {{user}}'s benefit, from {{char}}'s perspective, showing their speech and actions as the scenario unfolds.
 
-Next, write example dialogues as well. Make use of dialogues to set the unique mannerisms of speech and actions of the character, and make the speech patterns interesting and unique to the character. Example dialogue should also explore hypothetical future scenarios and show how the character would react to different possible situations.
+Next, write example dialogues as well. Make use of dialogues to set the unique and interesting mannerisms of speech and actions of the character, and make the speech patterns interesting and unique to the character. Example dialogue should also explore hypothetical future scenarios and show how the character would react to different possible situations.
 
 Use this information to create a character card for role-play. The character card should follow the example format and use code blocks for easy copy/pasting of each section.
 
@@ -1482,11 +1483,11 @@ Next, write the character card following the example format with code blocks. Wr
 
 Pick a name that seems to match everything well.
 
-When writing the personality part of the description, construct a few naturally flowing paragraphs using one or two sentences of an action or preference of a character consistent with each level of each notable trait, basically represent the traits anecdotally. Don't restate the trait words in the anecdotal descriptions, leave those terms out, and make it seem like a natural character description. Also make a brief synopsis of their life, goals, motivations, career/whatever they do.
+When writing the personality part of the description, construct a few naturally flowing paragraphs that implicitly convey the traits anecdotally and make it seem like a natural character description. Also make a brief synopsis of their life, goals, motivations, career/whatever they do.
 
 The scenario outlines how {{user}} and {{char}} ended up in their situation, giving context to the conversation. The scenario is invisible to {{user}} and is for LLM context only, so the initial message needs to recap it somewhat for {{user}}'s benefit, from {{char}}'s perspective, showing their speech and actions as the scenario unfolds.
 
-Next, write example dialogues as well. Make use of dialogues to set the unique mannerisms of speech and actions of the character, and make the speech patterns interesting and unique to the character. Example dialogue should also explore hypothetical future scenarios and show how the character would react to different possible situations.
+Next, write example dialogues as well. Make use of dialogues to set the unique and interesting mannerisms of speech and actions of the character, and make the speech patterns interesting and unique to the character. Example dialogue should also explore hypothetical future scenarios and show how the character would react to different possible situations.
 
 Use this information to create a character card for role-play. The character is NSFW and explicit. Depending on their traits they should be made interesting with sexual or violent tendencies that mesh with their unique personality, and this should be reflected in their description and example dialogue scenarios. For example, extreme horniness and psychopathy together might make for the most insane yandere there's ever been that might drag the user into a closet for rape, or stab any other girls he glances at. Don't be afraid of interesting and complex fictional role-play characters like that!
 
