@@ -746,7 +746,7 @@
         div.className = 'attribute';
         div.innerHTML = `
       <button class="lock-attribute" onclick="toggleAttributeLock('${this.name}')">${this.locked ? '🔒' : '🔓'}</button>
-      ${this.name}: <br><br><input type="text" value="${this.value}" ${this.name === 'Race' ? 'disabled' : ''}>
+      ${this.name}: <br><br><input type="text" value="${this.value}">
     `;
         this.element = div;
 
@@ -768,7 +768,7 @@
           const input = this.element.querySelector('input');
           lockButton.textContent = this.locked ? '🔒' : '🔓';
           lockButton.classList.toggle('locked', this.locked);
-          input.disabled = this.locked || this.name === 'Race';
+          input.disabled = this.locked;
         }
       }
 
