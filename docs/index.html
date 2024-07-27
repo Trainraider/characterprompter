@@ -107,6 +107,10 @@
       cursor: help;
     }
 
+    #title {
+      text-align: center;
+    }
+
     .background-image-wrapper {
       position: fixed;
       bottom: 0;
@@ -237,8 +241,9 @@
       -webkit-appearance: none;
       appearance: none;
       flex-grow: 1;
-      height: 25px;
+      height: 10px;
       width: auto;
+      max-width: 50%;
       offset: 0px 10px;
       padding: 0px;
       margin-top: 20px;
@@ -264,7 +269,8 @@
     }
 
     .delete-trait,
-    .lock-trait {
+    .lock-trait,
+    .lock-attribute {
       background: #33333344;
       color: #fff;
       border: none;
@@ -277,7 +283,8 @@
     }
 
     .delete-trait:hover,
-    .lock-trait:hover {
+    .lock-trait:hover,
+    .lock-attribute:hover {
       background-color: #333;
     }
 
@@ -286,11 +293,13 @@
       box-sizing: border-box;
     }
 
-    .lock-trait {
+    .lock-trait,
+    .lock-attribute {
       transition: background-color 0.3s ease;
     }
 
-    .lock-trait.locked {
+    .lock-trait.locked,
+    .lock-attribute.locked {
       background-color: rgba(0, 100, 0, 0.5);
       /* Dark transparent green */
     }
@@ -372,7 +381,7 @@
 </head>
 
 <body>
-  <h1>✨Character Prompt Generator for Janitorai✨</h1>
+  <h1 id="title">✨Character Prompt Generator for Janitorai✨</h1>
   <button id="toggleDescription">How does this work?</button>
   <div id="description" style="display: none;">
     <p>Make any sort of role play bot you want in just a few minutes! <br><br>
@@ -502,6 +511,7 @@
           const slider = this.element.querySelector('.trait-slider');
           const input = this.element.querySelector('.trait-input');
           lockButton.textContent = this.locked ? '🔒' : '🔓';
+          lockButton.classList.toggle('locked', this.locked);
           slider.disabled = this.locked;
           input.disabled = this.locked;
         }
@@ -646,9 +656,40 @@
     }
 
     function rerollTraits() {
-      traitContainer.generateRandomValues();
-      const traitsElement = document.getElementById('traits');
-      traitContainer.generateElements(traitsElement);
+      for (const trait of Object.values(traitContainer.traits)) {
+        if (!trait.locked) {
+          const newValue = Math.floor(Math.random() * 101);
+          trait.updateValue(newValue);
+          if (trait.element) {
+            const slider = trait.element.querySelector('.trait-slider');
+            const input = trait.element.querySelector('.trait-input');
+            slider.value = newValue;
+            input.placeholder = trait.getStrengthModifier();
+          }
+        }
+      }
+    }
+
+    function rerollAttributes() {
+      for (const attribute of Object.values(attributeContainer.attributes)) {
+        if (!attribute.locked) {
+          const newValue = attribute.generateRandomValue();
+          attribute.updateValue(newValue);
+          if (attribute.element) {
+            const input = attribute.element.querySelector('input');
+            input.value = newValue;
+          }
+        }
+      }
+
+      // Special case for race if World Type is not fantasy
+      const worldTypeAttribute = attributeContainer.attributes['World Type'];
+      const raceAttribute = attributeContainer.attributes['Race'];
+      if (worldTypeAttribute && raceAttribute) {
+        if (worldTypeAttribute.value !== 'Fantasy' && !raceAttribute.locked) {
+          raceAttribute.updateValue('Human');
+        }
+      }
     }
 
     function resetTraits() {
@@ -675,32 +716,137 @@
       traitContainer.generateElements(traitsElement);
     }
 
+    class Attribute {
+      constructor(name, options) {
+        this.name = name;
+        this.options = options;
+        this.value = this.generateRandomValue();
+        this.element = null;
+        this.locked = false;
+      }
+
+      generateRandomValue() {
+        if (Array.isArray(this.options)) {
+          return this.options[Math.floor(Math.random() * this.options.length)];
+        } else {
+          return Math.floor(Math.random() * (this.options[1] - this.options[0] + 1)) + this.options[0];
+        }
+      }
+
+      generateElement() {
+        const div = document.createElement('div');
+        div.className = 'attribute';
+        div.innerHTML = `
+      <button class="lock-attribute" onclick="toggleAttributeLock('${this.name}')">${this.locked ? '🔒' : '🔓'}</button>
+      ${this.name}: <br><br><input type="text" value="${this.value}" ${this.name === 'Race' ? 'disabled' : ''}>
+    `;
+        this.element = div;
+
+        // Add event listener to the input
+        const input = div.querySelector('input');
+        input.addEventListener('input', (e) => {
+          if (!this.locked) {
+            this.value = e.target.value;
+          }
+        });
+
+        return div;
+      }
+
+      toggleLock() {
+        this.locked = !this.locked;
+        if (this.element) {
+          const lockButton = this.element.querySelector('.lock-attribute');
+          const input = this.element.querySelector('input');
+          lockButton.textContent = this.locked ? '🔒' : '🔓';
+          lockButton.classList.toggle('locked', this.locked);
+          input.disabled = this.locked || this.name === 'Race';
+        }
+      }
+
+      updateValue(newValue) {
+        if (!this.locked) {
+          this.value = newValue;
+          if (this.element) {
+            const input = this.element.querySelector('input');
+            input.value = newValue;
+          }
+        }
+      }
+    }
+
+    function setupAttributeListeners() {
+      const attributesElement = document.getElementById('attributes');
+      const attributeInputs = attributesElement.querySelectorAll('input');
+
+      attributeInputs.forEach(input => {
+        const attributeName = input.closest('.attribute').textContent.split(':')[0].trim();
+        const attribute = attributeContainer.attributes[attributeName];
+
+        input.addEventListener('input', (e) => {
+          if (!attribute.locked) {
+            attribute.value = e.target.value;
+          }
+        });
+      });
+    }
+
+    class AttributeContainer {
+      constructor() {
+        this.attributes = {};
+      }
+
+      addAttribute(name, options) {
+        this.attributes[name] = new Attribute(name, options);
+      }
+
+      generateElements(parentElement) {
+        parentElement.innerHTML = '';
+        for (const attribute of Object.values(this.attributes)) {
+          parentElement.appendChild(attribute.generateElement());
+        }
+      }
+
+      generateRandomValues() {
+        for (const attribute of Object.values(this.attributes)) {
+          if (!attribute.locked) {
+            attribute.updateValue(attribute.generateRandomValue());
+          }
+        }
+      }
+    }
+
+    // Initialize the attribute container
+    const attributeContainer = new AttributeContainer();
+
+    // Populate the attribute container
+    Object.entries(attributesInfo).forEach(([key, options]) => {
+      attributeContainer.addAttribute(key, options);
+    });
+
     function generateAll() {
-      generateAttributes();
-      generateTraits();
+      rerollAttributes();
+      rerollTraits();
     }
 
     function generateAttributes() {
       const attributesElement = document.getElementById('attributes');
-      attributesElement.innerHTML = '';
-      Object.keys(attributesInfo).forEach(key => {
-        const options = attributesInfo[key];
-        let value;
-        if (Array.isArray(options)) {
-          value = options[Math.floor(Math.random() * options.length)];
-        } else {
-          value = Math.floor(Math.random() * (options[1] - options[0] + 1)) + options[0];
-        }
-        const div = document.createElement('div');
-        div.className = 'attribute';
-        div.innerHTML = `${key}: <input type="text" value="${value}">`;
-        attributesElement.appendChild(div);
-      });
+      attributeContainer.generateElements(attributesElement);
+
       // Special case for race if World Type is not fantasy
-      const worldType = document.querySelector('#attributes div:nth-child(4) input').value;
-      const raceInput = document.querySelector('#attributes div:nth-child(5) input');
-      if (worldType !== 'Fantasy') {
-        raceInput.value = 'Human';
+      const worldTypeAttribute = attributeContainer.attributes['World Type'];
+      const raceAttribute = attributeContainer.attributes['Race'];
+      if (worldTypeAttribute && raceAttribute) {
+        if (worldTypeAttribute.value !== 'Fantasy') {
+          raceAttribute.updateValue('Human');
+        }
+      }
+    }
+
+    function toggleAttributeLock(attributeName) {
+      const attribute = attributeContainer.attributes[attributeName];
+      if (attribute) {
+        attribute.toggleLock();
       }
     }
 
@@ -751,8 +897,9 @@
         return;
       }
 
-      let allText = generateTraitAttributeText();
-      allText += `\n${digestedTraits}`;
+      // Generate text for attributes
+      let attributesText = generateAttributeText() + 'Personality:\n';
+      let allText = attributesText + digestedTraits;
 
       const customPromptText = document.getElementById('customPrompt').value.trim();
       const finalText = promptTemplate
@@ -771,16 +918,23 @@
       }
     });
 
+    function generateAttributeText() {
+      let attributesText = '';
+      for (const attribute of Object.values(attributeContainer.attributes)) {
+        attributesText += `${attribute.name}: ${attribute.value}\n`;
+      }
+      // Remove any leading/trailing whitespace and ensure no empty lines
+      attributesText = attributesText.trim().replace(/^\s+/gm, '');
+      // Add a single newline at the end
+      return attributesText + '\n';
+    }
+
     // Helper function to generate trait/attribute text
     function generateTraitAttributeText() {
       let allText = '';
 
       // Generate text for attributes
-      document.querySelectorAll('.attribute input').forEach(input => {
-        let attributeName = input.parentElement.textContent.split(':')[0].trim();
-        let value = input.value;
-        allText += `${attributeName}: ${value}\n`;
-      });
+      allText += generateAttributeText();
 
       // Generate text for traits
       document.querySelectorAll('.trait').forEach(traitElement => {
@@ -856,7 +1010,7 @@
         .replace('{{custom_prompt}}', customPromptText);
 
       copyToClipboard(finalText);
-   }
+    }
 
 
     function setupNewTraitInput() {
@@ -874,10 +1028,13 @@
       addButton.onclick = addNewTrait;
     }
 
-    document.addEventListener('DOMContentLoaded', setupNewTraitInput);
-    document.addEventListener('DOMContentLoaded', initializeTraits);
-
-    generateAll(); // Generate initial attributes and traits on load
+    document.addEventListener('DOMContentLoaded', () => {
+      setupNewTraitInput();
+      initializeTraits();
+      generateAll();
+      generateAttributes();
+      setupAttributeListeners();
+    });
     const prompt_template = `
 Character card example:
 
