@@ -203,15 +203,13 @@ Character prompt:
 
 {{custom_prompt}}
 
-These traits are the Big Five plus the Dark Tetrad, plus miscellaneous other traits. From 0, completely absent, to 100, the maximum extreme of trait expression.
-
 List just a few character archetypes common in fiction that match the character traits. Next pick a plot archetype that suggests how the story will progress and would guide how the character interacts with {{user}}, what they plan to do with {{user}} etc. It is extremely important that you pick relevant archetypes so that you can then write a compelling character. Do not skip this.
 
 Next, write the character card following the example format with code blocks. Write the name, bio, description, scenario, initial message, and example dialogue.
 
 Pick a name that seems to match everything well.
 
-When writing the personality part of the description, construct a few naturally flowing paragraphs using one or two sentences of an action or preference of a character consistent with each level of each notable trait, basically represent the trait levels anecdotally. Don't restate the trait words in the anecdotal descriptions, leave those terms out, and make it seem like a natural character description. Also make a brief synopsis of their life, goals, career/whatever they do.
+When writing the personality part of the description, construct a few naturally flowing paragraphs using one or two sentences of an action or preference of a character consistent with each level of each notable trait, basically represent the traits anecdotally. Don't restate the trait words in the anecdotal descriptions, leave those terms out, and make it seem like a natural character description. Also make a brief synopsis of their life, goals, motivations, career/whatever they do.
 
 The scenario outlines how {{user}} and {{char}} ended up in their situation, giving context to the conversation. The scenario is invisible to {{user}} and is for LLM context only, so the initial message needs to recap it somewhat for {{user}}'s benefit, from {{char}}'s perspective, showing their speech and actions as the scenario unfolds.
 
