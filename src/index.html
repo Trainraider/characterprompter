@@ -237,8 +237,9 @@
       -webkit-appearance: none;
       appearance: none;
       flex-grow: 1;
-      height: 25px;
+      height: 10px;
       width: auto;
+      max-width: 50%;
       offset: 0px 10px;
       padding: 0px;
       margin-top: 20px;
@@ -751,8 +752,9 @@
         return;
       }
 
-      let allText = generateTraitAttributeText();
-      allText += `\n${digestedTraits}`;
+      // Generate text for attributes
+      let attributesText = generateAttributeText() + 'Personality:\n';
+      let allText = attributesText + digestedTraits;
 
       const customPromptText = document.getElementById('customPrompt').value.trim();
       const finalText = promptTemplate
@@ -771,16 +773,27 @@
       }
     });
 
+    function generateAttributeText() {
+      let attributesText = '';
+      document.querySelectorAll('.attribute').forEach(attributeDiv => {
+        let key = attributeDiv.textContent.split(':')[0].trim().split('\n').pop();
+        let value = attributeDiv.querySelector('input').value;
+        attributesText += `${key}: ${value}\n`;
+      });
+
+      // Remove any leading/trailing whitespace and ensure no empty lines
+      attributesText = attributesText.trim().replace(/^\s+/gm, '');
+
+      // Add a single newline at the end
+      return attributesText + '\n';
+    }
+
     // Helper function to generate trait/attribute text
     function generateTraitAttributeText() {
       let allText = '';
 
       // Generate text for attributes
-      document.querySelectorAll('.attribute input').forEach(input => {
-        let attributeName = input.parentElement.textContent.split(':')[0].trim();
-        let value = input.value;
-        allText += `${attributeName}: ${value}\n`;
-      });
+      allText += generateAttributeText();
 
       // Generate text for traits
       document.querySelectorAll('.trait').forEach(traitElement => {
