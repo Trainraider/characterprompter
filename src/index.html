@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨Character Traits and Attributes Generator✨</title>
+  <style>
+    @property --hue {
+      syntax: '<number>';
+      initial-value: 0;
+      inherits: false;
+    }
+
+    @keyframes rainbow {
+      0% {
+        --hue: 0;
+      }
+
+      100% {
+        --hue: 360;
+      }
+    }
+
+    a {
+      color: #00aaaa;
+      /* Light blue color */
+    }
+
+    body {
+      color: #aaa;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      --value: 5%;
+      --value-2: 10%;
+      background-image: linear-gradient(to bottom right,
+          hsl(calc(var(--hue) * 1deg), 100%, var(--value)),
+          hsl(calc((var(--hue) + 180) * 1deg), 100%, var(--value-2)));
+      animation: rainbow 60s linear infinite;
+    }
+
+    #attributes,
+    #traits {
+      margin-bottom: 20px;
+    }
+
+    .attribute,
+    .trait {
+      margin-bottom: 10px;
+    }
+
+    input,
+    button,
+    .checkbox-wrapper,
+    #customPrompt {
+      background: #33333344
+    }
+
+    input,
+    #customPrompt {
+      color: #fff;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 15px;
+    }
+
+    #customPrompt {
+      height: 100px;
+      resize: vertical;
+      margin-bottom: 20px;
+      font-family: Arial, sans-serif;
+    }
+
+    #customPrompt::placeholder {
+      color: #888;
+    }
+
+    button {
+      color: #fff;
+      border: none;
+      margin-top: 10px;
+      margin-right: 10px;
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 15px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #333;
+    }
+
+    h1,
+    h4 {
+      margin-bottom: 20px;
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      border-radius: 15px;
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+      margin: 0;
+    }
+
+    .checkbox-wrapper label {
+      cursor: pointer;
+    }
+
+    .spacer {
+      padding: 0px 0px;
+      flex-grow: 1;
+    }
+
+    [title] {
+      cursor: help;
+    }
+
+    .background-image-wrapper {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      z-index: -1;
+      pointer-events: auto;
+    }
+
+    .background-image {
+      width: 200px;
+      /* Adjust as needed */
+      height: auto;
+      opacity: 0.5;
+      /* Optional: Adjust opacity */
+      transition: opacity 0.3s;
+    }
+
+    .transparent-element,
+    .transparent-element * {
+      pointer-events: none;
+    }
+
+    #toggleDescription {
+      background: #33333344;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-bottom: 10px;
+    }
+
+    #toggleDescription:hover {
+      background-color: #333;
+    }
+
+    #description {
+      background: #33333344;
+      padding: 10px 20px;
+      border-radius: 15px;
+      color: #fff;
+    }
+
+    #scrollToTop {
+      bottom: 20px;
+      right: 50%;
+      background: #33333344;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #scrollToTop:hover {
+      background-color: #333;
+    }
+
+    .trait-input {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .trait-input input {
+      flex-grow: 1;
+      margin-right: 10px;
+    }
+
+    .trait-input button {
+      background: #33333344;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .trait-input button:hover {
+      background-color: #333;
+    }
+
+    .delete-trait {
+      background: #33000044;
+      color: #fff;
+      border: none;
+      padding: 2px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-left: 10px;
+    }
+
+    .delete-trait:hover {
+      background-color: #300;
+    }
+
+    .trait {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
+
+    .trait-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .trait-label {
+      margin-right: auto;
+    }
+
+    .delete-trait,
+    .lock-trait {
+      background: #33333344;
+      color: #fff;
+      border: none;
+      padding: 2px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-left: 5px;
+      font-size: 16px;
+    }
+
+    .delete-trait:hover,
+    .lock-trait:hover {
+      background-color: #333;
+    }
+
+    .trait input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .lock-trait {
+      transition: background-color 0.3s ease;
+    }
+
+    .lock-trait.locked {
+      background-color: rgba(0, 100, 0, 0.5);
+      /* Dark transparent green */
+    }
+  </style>
+</head>
+
+<body>
+  <h1>✨Character Prompt Generator for Janitorai✨</h1>
+  <button id="toggleDescription">What's this site for?</button>
+  <div id="description" style="display: none;">
+    <p>Make any sort of role play bot you want in just a few minutes! <br><br>
+      Generate and modify character traits, and use the buttons below to copy a prompt for an AI to write a Janitorai
+      character card for you! Once you've copied a prompt, you'll need to paste it somewhere else for a somewhat decent
+      AI to write the character card.
+      <br><br>I recommend using the c4ai-command-r-plus model to generate any (nsfw) character
+      card for free over at <a href="https://huggingface.co/chat"> Huggingchat</a>. There's free image gen there
+      too! It's not super good though so maybe use dalle3 on bing or whatever else you know about. Personally, I use a
+      locally running stable diffusion.<br><br>
+      JLLM works alright now too. You can try it with <a
+        href="https://janitorai.com/characters/26902018-a3d7-4b05-bbf9-c08c00300ad2_character-chat-gpt-plus-your-versatile-ai">this
+        ChatGPT character here</a>. With JLLM, hit the edit button on its reply to copy the unformatted text with
+      markdown punctuation
+      in tact.
+    </p>
+  </div><br>
+  <button onclick="generateAll()">Reroll Traits</button>
+  <button onclick="copyAll()">Copy Traits</button>
+  <button onclick="copyWithPrompt(prompt_template)">Copy With Prompt</button>
+  <button onclick="copyWithPrompt(nsfw_prompt_template)">Copy With Explicit Prompt</button>
+  <button onclick="resetTraits()">Reset Traits</button>
+  <br><br>
+  <div class="checkbox-container">
+    <div class="checkbox-wrapper"
+      title="Converting the numbers to adjectives helps stupid and small language models understand the trait values better">
+      <input type="checkbox" id="convertToAdjectives" checked>
+      <label for="convertToAdjectives">Convert numbers to adjectives</label>
+    </div>
+    <div class="spacer"></div>
+  </div>
+  <br><br>
+  <div>
+    <label>Short Prompt:</label>
+    <textarea id="customPrompt"
+      placeholder="Enter a short custom prompt to guide the AI character generation process, e.g. 'He's a billionaire CEO' (optional)"></textarea>
+  </div>
+  <br>
+  <div id="attributes"></div>
+  <div id="traits"></div>
+  <div class="trait-input">
+    <input type="text" id="newTraitInput" placeholder="Add new trait">
+    <button onclick="addNewTrait()">+</button>
+  </div>
+  <div class="background-image-wrapper">
+    <img src="image.webp" alt="Background Image" class="background-image">
+  </div>
+  <button id="scrollToTop">Top</button>
+  <script>
+    class Trait {
+      constructor(name, initialValue = 0) {
+        this.name = name;
+        this.value = initialValue;
+        this.element = null;
+        this.locked = false;
+      }
+
+      generateElement() {
+        const div = document.createElement('div');
+        div.className = 'trait';
+        div.innerHTML = `
+          <div class="trait-header">
+            <button class="lock-trait" onclick="toggleLock('${this.name}')">${this.locked ? '🔒' : '🔓'}</button>
+            <button class="delete-trait" onclick="deleteTrait('${this.name}')">❌</button>
+            <span class="trait-label">${this.name}:</span>
+          </div>
+          <input type="text" value="${this.value}" data-trait-name="${this.name}" ${this.locked ? 'disabled' : ''}>
+          `;
+        this.element = div;
+        return div;
+      }
+
+      updateValue(newValue) {
+        if (!this.locked) {
+          this.value = newValue;
+          if (this.element) {
+            this.element.querySelector('input').value = newValue;
+          }
+        }
+      }
+
+      toggleLock() {
+        this.locked = !this.locked;
+        if (this.element) {
+          const lockButton = this.element.querySelector('.lock-trait');
+          const input = this.element.querySelector('input');
+          lockButton.textContent = this.locked ? '🔒' : '🔓';
+          lockButton.classList.toggle('locked', this.locked);
+          input.disabled = this.locked;
+          if (this.locked) {
+            this.value = input.value;
+          }
+        }
+      }
+    }
+    class TraitContainer {
+      constructor() {
+        this.traits = {};
+      }
+
+      addTrait(name, initialValue = 0) {
+        this.traits[name] = new Trait(name, initialValue);
+      }
+
+      generateElements(parentElement) {
+        for (const trait of Object.values(this.traits)) {
+          parentElement.appendChild(trait.generateElement());
+        }
+      }
+
+      generateRandomValues() {
+        for (const trait of Object.values(this.traits)) {
+          const randomValue = Math.floor(Math.random() * 101);
+          trait.updateValue(randomValue);
+        }
+      }
+
+      getValues() {
+        const values = {};
+        for (const [name, trait] of Object.entries(this.traits)) {
+          values[name] = trait.value;
+        }
+        return values;
+      }
+    }
+
+    function toggleLock(traitName) {
+      const trait = traitContainer.traits[traitName];
+      if (trait) {
+        trait.toggleLock();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const toggleButton = document.getElementById('toggleDescription');
+      const description = document.getElementById('description');
+
+      toggleButton.addEventListener('click', () => {
+        if (description.style.display === 'none') {
+          description.style.display = 'block';
+          toggleButton.textContent = 'Hide';
+        } else {
+          description.style.display = 'none';
+          toggleButton.textContent = 'What\'s this site for?';
+        }
+      });
+
+      const scrollToTopButton = document.getElementById('scrollToTop');
+
+      scrollToTopButton.addEventListener('click', () => {
+        window.scrollTo({ top: 0 });
+      });
+
+      const backgroundImageWrapper = document.querySelector('.background-image-wrapper');
+      const backgroundImage = document.querySelector('.background-image');
+
+      function checkHover(event) {
+        const rect = backgroundImageWrapper.getBoundingClientRect();
+        let clientX, clientY;
+
+        if (event.type.includes('touch')) {
+          clientX = event.touches[0].clientX;
+          clientY = event.touches[0].clientY;
+        } else {
+          clientX = event.clientX;
+          clientY = event.clientY;
+        }
+
+        const isHovering = (
+          clientX >= rect.left &&
+          clientX <= rect.right &&
+          clientY >= rect.top &&
+          clientY <= rect.bottom
+        );
+
+        if (isHovering) {
+          backgroundImage.src = 'image2.webp';
+        } else {
+          backgroundImage.src = 'image.webp';
+        }
+      }
+
+      document.addEventListener('mousemove', checkHover);
+      document.addEventListener('touchmove', checkHover);
+      document.addEventListener('touchstart', checkHover); // for initial touch
+    });
+
+    const attributesInfo = {
+      'Gender': ['Man', 'Woman'],
+      'Age': Array.from({ length: 18 }, (_, i) => i + 18),
+      'Era': ['Medieval', 'Modern', 'Futuristic'],
+      'World Type': ['Realistic', 'Fantasy'],
+      'Race': ['Human', 'Elf', 'Goblin', 'Orc'] // Only if fantasy
+    };
+
+    const traitContainer = new TraitContainer();
+
+    const defaultTraits = [
+      'Openness', 'Conscientiousness', 'Extroversion', 'Agreeableness', 'Neuroticism',
+      'Narcissism', 'Machiavellianism', 'Sadism', 'Psychopathy',
+      'Wealth', 'Societal status', 'Strength', 'Intelligence', 'Wisdom',
+      'Physical attractiveness', 'Horniness'
+    ];
+    defaultTraits.forEach(traitName => traitContainer.addTrait(traitName));
+
+    function resetTraits() {
+      traitContainer.traits = {};
+      defaultTraits.forEach(traitName => traitContainer.addTrait(traitName));
+      generateTraits();
+    }
+
+    function addNewTrait() {
+      const newTraitInput = document.getElementById('newTraitInput');
+      const newTraitName = newTraitInput.value.trim();
+      if (newTraitName && !traitContainer.traits[newTraitName]) {
+        const randomValue = Math.floor(Math.random() * 101);
+        traitContainer.addTrait(newTraitName, randomValue);
+        const traitsElement = document.getElementById('traits');
+        traitsElement.appendChild(traitContainer.traits[newTraitName].generateElement());
+        newTraitInput.value = '';
+      }
+    }
+
+    function deleteTrait(traitName) {
+      delete traitContainer.traits[traitName];
+      const traitElement = document.querySelector(`input[data-trait-name="${traitName}"]`).closest('.trait');
+      if (traitElement) {
+        traitElement.remove();
+      }
+    }
+
+    function generateAll() {
+      generateAttributes();
+      generateTraits();
+    }
+
+    function generateAttributes() {
+      const attributesElement = document.getElementById('attributes');
+      attributesElement.innerHTML = '';
+      Object.keys(attributesInfo).forEach(key => {
+        const options = attributesInfo[key];
+        let value;
+        if (Array.isArray(options)) {
+          value = options[Math.floor(Math.random() * options.length)];
+        } else {
+          value = Math.floor(Math.random() * (options[1] - options[0] + 1)) + options[0];
+        }
+        const div = document.createElement('div');
+        div.className = 'attribute';
+        div.innerHTML = `${key}: <input type="text" value="${value}">`;
+        attributesElement.appendChild(div);
+      });
+      // Special case for race if World Type is not fantasy
+      const worldType = document.querySelector('#attributes div:nth-child(4) input').value;
+      const raceInput = document.querySelector('#attributes div:nth-child(5) input');
+      if (worldType !== 'Fantasy') {
+        raceInput.value = 'Human';
+      }
+    }
+
+    function generateTraits() {
+      const traitsElement = document.getElementById('traits');
+      traitsElement.innerHTML = '';
+      for (const [name, trait] of Object.entries(traitContainer.traits)) {
+        if (!trait.locked) {
+          trait.value = Math.floor(Math.random() * 101);
+        }
+        traitsElement.appendChild(trait.generateElement());
+      }
+    }
+
+    function copyAll() {
+      let allText = '';
+      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
+        let traitName = input.getAttribute('data-trait-name');
+        if (!traitName) {
+          // Fallback to the old method for elements without data-trait-name
+          traitName = input.parentElement.textContent.split(':')[0].replace(/^x\s*/, '').trim();
+        }
+        let value = input.value;
+
+        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
+          value = getStrengthModifier(Number(value), traitName);
+          allText += `${value}\n`;
+        } else {
+          allText += `${traitName}: ${value}\n`;
+        }
+      });
+
+      // Create a temporary textarea element to facilitate copying
+      const textarea = document.createElement('textarea');
+      textarea.value = allText;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+    function getStrengthModifier(number, trait) {
+      // Convert to number if it's a string
+      number = Number(number);
+
+      // Handle numbers outside the 0-100 range
+      if (number < 0) return `Less than no ${trait.toLowerCase()}, quite the opposite in fact`;
+      if (number > 100) return `transcendental, superhuman ${trait.toLowerCase()}`;
+
+      const levels = [
+        { threshold: 0, modifier: "no {{trait}} at all" },
+        { threshold: 10, modifier: "practically nonexistent {{trait}}" },
+        { threshold: 20, modifier: "almost no {{trait}}" },
+        { threshold: 25, modifier: "very low {{trait}}" },
+        { threshold: 35, modifier: "considerably below average {{trait}}" },
+        { threshold: 40, modifier: "less than average {{trait}}" },
+        { threshold: 45, modifier: "average {{trait}}" },
+        { threshold: 50, modifier: "moderate {{trait}}" },
+        { threshold: 60, modifier: "above average {{trait}}" },
+        { threshold: 70, modifier: "substantial {{trait}}" },
+        { threshold: 80, modifier: "remarkable {{trait}}" },
+        { threshold: 87, modifier: "extraordinary {{trait}}" },
+        { threshold: 94, modifier: "unparalleled {{trait}}" }
+      ];
+
+      const personality_traits = [
+        "Adventurous", "Ambitious", "Analytical", "Arrogant", "Assertive", "Bigotted", "Brave",
+        "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
+        "Conservative", "Creative", "Cynical", "Decisive", "Determined", "Diligent", "Dramatic",
+        "Dishonest", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious",
+        "Focused", "Forgiving", "Generous", "Honest", "Humble",
+        "Idealistic", "Imaginative", "Impulsive", "Independent", "Intelligent",
+        "Introverted", "Intuitive", "Jealous", "Lecherous", "Liberal", "Logical", "Loyal",
+        "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
+        "Narcissistic", "Neurotic", "Observant", "Optimistic", "Passionate",
+        "Patient", "Perfectionist", "Persistent", "Persuasive", "Pessimistic", "Philosophical",
+        "Pragmatic", "Rational", "Rebellious", "Reckless", "Reserved", "Resourceful",
+        "Romantic", "Sarcastic", "Scholarly", "Selfish", "Sensitive", "Sensual",
+        "Skeptical", "Slutty", "Socially awkward", "Stoic", "Stubborn", "Suspicious",
+        "Sympathetic", "Tactful", "Temperamental", "Tenacious", "Thoughtful",
+        "Timid", "Tolerant", "Treacherous", "Trustworthy", "Uncompromising", "Unpredictable",
+        "Vengeful", "Visionary", "Witty"
+      ]
+
+      for (let i = levels.length - 1; i >= 0; i--) {
+        if (number >= levels[i].threshold) {
+          let modifier = levels[i].modifier;
+          return modifier.includes("{{trait}}") ? modifier.replace("{{trait}}", trait.toLowerCase()) : `${modifier} ${trait.toLowerCase()}`;
+        }
+      }
+
+      // This line should never be reached, but it's here as a fallback
+      return `invalid ${trait}`;
+    }
+
+    function shouldConvertToAdjectives() {
+      return document.getElementById('convertToAdjectives').checked;
+    }
+
+    function copyWithPrompt(prompt) {
+      let allText = '';
+      document.querySelectorAll('.attribute input, .trait input').forEach(input => {
+        let traitName = input.getAttribute('data-trait-name');
+        if (!traitName) {
+          // Fallback to the old method for elements without data-trait-name
+          traitName = input.parentElement.textContent.split(':')[0].replace(/^x\s*/, '').trim();
+        }
+        let value = input.value;
+
+        if (shouldConvertToAdjectives() && traitName !== "Age" && !isNaN(parseFloat(value)) && isFinite(value)) {
+          value = getStrengthModifier(Number(value), traitName);
+          allText += `${value}\n`;
+        } else {
+          allText += `${traitName}: ${value}\n`;
+        }
+      });
+      const customPromptText = document.getElementById('customPrompt').value.trim();
+      const finalText = prompt.replace('{{traits}}', allText)
+        .replace('{{custom_prompt}}', customPromptText);
+
+      // Create a temporary textarea element to facilitate copying
+      const textarea = document.createElement('textarea');
+      textarea.value = finalText;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+    function setupNewTraitInput() {
+      const newTraitInput = document.getElementById('newTraitInput');
+      const addButton = document.querySelector('.trait-input button');
+
+      newTraitInput.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault(); // Prevent form submission if it's in a form
+          addNewTrait();
+        }
+      });
+
+      // Keep the existing click event for the button
+      addButton.onclick = addNewTrait;
+    }
+
+    document.addEventListener('DOMContentLoaded', setupNewTraitInput);
+
+    generateAll(); // Generate initial attributes and traits on load

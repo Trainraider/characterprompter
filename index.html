@@ -587,11 +587,11 @@
 
       const levels = [
         { threshold: 0, modifier: "no {{trait}} at all" },
-        { threshold: 10, modifier: "a hint of {{trait}} at times" },
-        { threshold: 20, modifier: "slight {{trait}} at times" },
-        { threshold: 25, modifier: "minimal {{trait}}" },
-        { threshold: 35, modifier: "mild {{trait}}" },
-        { threshold: 40, modifier: "some {{trait}}" },
+        { threshold: 10, modifier: "practically nonexistent {{trait}}" },
+        { threshold: 20, modifier: "almost no {{trait}}" },
+        { threshold: 25, modifier: "very low {{trait}}" },
+        { threshold: 35, modifier: "considerably below average {{trait}}" },
+        { threshold: 40, modifier: "less than average {{trait}}" },
         { threshold: 45, modifier: "average {{trait}}" },
         { threshold: 50, modifier: "moderate {{trait}}" },
         { threshold: 60, modifier: "above average {{trait}}" },
@@ -600,6 +600,25 @@
         { threshold: 87, modifier: "extraordinary {{trait}}" },
         { threshold: 94, modifier: "unparalleled {{trait}}" }
       ];
+
+      const personality_traits = [
+        "Adventurous", "Ambitious", "Analytical", "Arrogant", "Assertive", "Bigotted", "Brave",
+        "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
+        "Conservative", "Creative", "Cynical", "Decisive", "Determined", "Diligent", "Dramatic",
+        "Dishonest", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious",
+        "Focused", "Forgiving", "Generous", "Honest", "Humble",
+        "Idealistic", "Imaginative", "Impulsive", "Independent", "Intelligent",
+        "Introverted", "Intuitive", "Jealous", "Lecherous", "Liberal", "Logical", "Loyal",
+        "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
+        "Narcissistic", "Neurotic", "Observant", "Optimistic", "Passionate",
+        "Patient", "Perfectionist", "Persistent", "Persuasive", "Pessimistic", "Philosophical",
+        "Pragmatic", "Rational", "Rebellious", "Reckless", "Reserved", "Resourceful",
+        "Romantic", "Sarcastic", "Scholarly", "Selfish", "Sensitive", "Sensual",
+        "Skeptical", "Slutty", "Socially awkward", "Stoic", "Stubborn", "Suspicious",
+        "Sympathetic", "Tactful", "Temperamental", "Tenacious", "Thoughtful",
+        "Timid", "Tolerant", "Treacherous", "Trustworthy", "Uncompromising", "Unpredictable",
+        "Vengeful", "Visionary", "Witty"
+      ]
 
       for (let i = levels.length - 1; i >= 0; i--) {
         if (number >= levels[i].threshold) {
