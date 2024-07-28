@@ -377,34 +377,55 @@
     .prompt-box.foldable.active .prompt-title::after {
       transform: rotate(180deg);
     }
+
+    #copyNotification {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(42, 42, 42, 0.9);
+      color: #ffffff;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+      font-weight: bold;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+      z-index: 1000;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
   </style>
 </head>
 
 <body>
+  <div id="copyNotification">Copied ✅</div>
   <h1 id="title">✨Character Prompt Generator for Janitorai✨</h1>
   <button id="toggleDescription">How does this work?</button>
   <div id="description" style="display: none;">
     <h4><u>Make any sort of role play bot you want in just a few minutes!</u></h4>
     <div style="margin-left: 20px">
-    <p>1. Generate and modify the character traits below</p>
-    <p>2. Fill in any details you want for your character in the short custom prompt box.</p>
-    <p>3. Copy a prompt from the single or two step prompt area</p>
-    <p>4. Go to an AI site and paste your prompt.</p>
-    <p>5. If you're using the 2 step prompts, paste the result from the AI in step 1 in the box and then copy the step 2 prompt. Next, go back to the AI in a new chat, and
-      use the prompt to get the final character card.
-    </p>
+      <p>1. Generate and modify the character traits below</p>
+      <p>2. Fill in any details you want for your character in the short custom prompt box.</p>
+      <p>3. Copy a prompt from the single or two step prompt area</p>
+      <p>4. Go to an AI site and paste your prompt.</p>
+      <p>5. If you're using the 2 step prompts, paste the result from the AI in step 1 in the box and then copy the step
+        2 prompt. Next, go back to the AI in a new chat, and
+        use the prompt to get the final character card.
+      </p>
     </div>
     <h4><u>But where do I paste my prompts???</u></h4>
     <div style="margin-left: 20px">
-    <p>I recommend using the Command R Plus model to generate any (nsfw)
-      character
-      card for free over at <a href="https://huggingface.co/chat"> Huggingchat</a></p>
-    <p>JLLM works alright now too. You can try it with <a
-        href="https://janitorai.com/characters/26902018-a3d7-4b05-bbf9-c08c00300ad2_character-chat-gpt-plus-your-versatile-ai">this
-        ChatGPT character here</a>. With JLLM, hit the edit button on its reply to copy the unformatted text with
-      markdown punctuation
-      in tact.</p>
-    <p>ChatGPT is good but the explicit prompts will trip moderation and eventually get you banned there!</p>
+      <p>I recommend using the Command R Plus model to generate any (nsfw)
+        character
+        card for free over at <a href="https://huggingface.co/chat"> Huggingchat</a></p>
+      <p>JLLM works alright now too. You can try it with <a
+          href="https://janitorai.com/characters/26902018-a3d7-4b05-bbf9-c08c00300ad2_character-chat-gpt-plus-your-versatile-ai">this
+          ChatGPT character here</a>. With JLLM, hit the edit button on its reply to copy the unformatted text with
+        markdown punctuation
+        in tact.</p>
+      <p>ChatGPT is good but the explicit prompts will trip moderation and eventually get you banned there!</p>
     </div>
   </div><br>
   </div><br><br>
@@ -448,14 +469,15 @@
     <img src="image.webp" alt="Background Image" class="background-image">
   </div>
   <button id="scrollToTop">Top</button><br><br>
-  <footer style="background-color: #1113; padding: 0px 0; text-align: center; bottom: 0; width: 100%; border-radius: 15px">
-  <p style="margin: 0;">
-    If you find this tool helpful, consider 
-    <a href="https://venmo.com/u/Robert-Rapier-2" target="_blank" style="">
-      buying me a coffee ☕
-    </a>
-  </p>
-</footer>
+  <footer
+    style="background-color: #1113; padding: 0px 0; text-align: center; bottom: 0; width: 100%; border-radius: 15px">
+    <p style="margin: 0;">
+      If you find this tool helpful, consider
+      <a href="https://buymeacoffee.com/trainraider" target="_blank">
+        buying me a coffee ☕
+      </a>
+    </p>
+  </footer>
   <script>
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -970,7 +992,16 @@
       return allText;
     }
 
-    // Helper function to copy text to clipboard
+    function showCopyNotification() {
+      const notification = document.getElementById('copyNotification');
+      notification.style.opacity = '1';
+      notification.style.visibility = 'visible';
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.visibility = 'hidden';
+      }, 1000);
+    }
+
     function copyToClipboard(text) {
       const textarea = document.createElement('textarea');
       textarea.value = text;
@@ -978,8 +1009,8 @@
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
+      showCopyNotification();
     }
-
     function copyAll() {
       let allText = generateTraitAttributeText();
       copyToClipboard(allText);
