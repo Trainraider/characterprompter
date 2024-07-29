@@ -269,8 +269,7 @@
     }
 
     .delete-trait,
-    .lock-trait,
-    .lock-attribute {
+    .lock {
       background: #33333344;
       color: #fff;
       border: none;
@@ -283,8 +282,7 @@
     }
 
     .delete-trait:hover,
-    .lock-trait:hover,
-    .lock-attribute:hover {
+    .lock:hover {
       background-color: #333;
     }
 
@@ -293,13 +291,11 @@
       box-sizing: border-box;
     }
 
-    .lock-trait,
-    .lock-attribute {
+    .lock {
       transition: background-color 0.3s ease;
     }
 
-    .lock-trait.locked,
-    .lock-attribute.locked {
+    .lock.locked {
       background-color: rgba(0, 100, 0, 0.5);
       /* Dark transparent green */
     }
@@ -600,6 +596,36 @@
       }
     }
 
+    class Lockable {
+      constructor() {
+        this.locked = false;
+        this.element = null;
+      }
+
+      setElement(element) {
+        this.element = element;
+      }
+
+      toggleLock() {
+        this.locked = !this.locked;
+        if (this.element) {
+          const lockButton = this.element.querySelector('.lock');
+          const inputs = this.element.querySelectorAll('input');
+
+          lockButton.textContent = this.locked ? '🔒' : '🔓';
+          lockButton.classList.toggle('locked', this.locked);
+
+          inputs.forEach(input => {
+            input.disabled = this.locked;
+          });
+        }
+      }
+
+      isLocked() {
+        return this.locked;
+      }
+
+    }
 
     class Attribute {
       constructor(name, options) {
@@ -607,7 +633,7 @@
         this.options = options;
         this.value = this.generateRandomValue();
         this.element = null;
-        this.locked = false;
+        this.lockable = new Lockable();
       }
 
       generateRandomValue() {
@@ -622,10 +648,11 @@
         const div = document.createElement('div');
         div.className = 'attribute';
         div.innerHTML = `
-      <button class="lock-attribute" onclick="toggleAttributeLock('${this.name}')">${this.locked ? '🔒' : '🔓'}</button>
-      ${this.name}: <br><br><input type="text" value="${this.value}">
-    `;
+            <button class="lock" onclick="toggleAttributeLock('${this.name}')">${this.lockable.isLocked() ? '🔒' : '🔓'}</button>
+            ${this.name}: <br><br><input type="text" value="${this.value}">
+          `;
         this.element = div;
+        this.lockable.setElement(div);
 
         // Add event listener to the input
         const input = div.querySelector('input');
@@ -638,19 +665,8 @@
         return div;
       }
 
-      toggleLock() {
-        this.locked = !this.locked;
-        if (this.element) {
-          const lockButton = this.element.querySelector('.lock-attribute');
-          const input = this.element.querySelector('input');
-          lockButton.textContent = this.locked ? '🔒' : '🔓';
-          lockButton.classList.toggle('locked', this.locked);
-          input.disabled = this.locked;
-        }
-      }
-
       updateValue(newValue) {
-        if (!this.locked) {
+        if (!this.lockable.isLocked()) {
           this.value = newValue;
           if (this.element) {
             const input = this.element.querySelector('input');
@@ -690,7 +706,7 @@
         this.name = name;
         this.value = Math.floor(Math.random() * 101);
         this.element = null;
-        this.locked = false;
+        this.lockable = new Lockable();
       }
 
       generateElement() {
@@ -698,7 +714,7 @@
         div.className = 'trait';
         div.innerHTML = `
                 <div class="trait-top-row">
-                    <button class="lock-trait" onclick="toggleLock('${this.name}')">${this.locked ? '🔒' : '🔓'}</button>
+                    <button class="lock" onclick="toggleLock('${this.name}')">${this.lockable.isLocked() ? '🔒' : '🔓'}</button>
                     <button class="delete-trait" onclick="deleteTrait('${this.name}')">❌</button>
                     <span class="trait-label">${this.name}:</span>
                     <input type="range" class="trait-slider" min="0" max="100" value="${this.value}">
@@ -706,6 +722,7 @@
                 <input type="text" class="trait-input" placeholder="${this.getStrengthModifier()}">
             `;
         this.element = div;
+        this.lockable.setElement(div);
 
         const slider = div.querySelector('.trait-slider');
         const input = div.querySelector('.trait-input');
@@ -733,19 +750,6 @@
               input.value = '';
             }
           }
-        }
-      }
-
-      toggleLock() {
-        this.locked = !this.locked;
-        if (this.element) {
-          const lockButton = this.element.querySelector('.lock-trait');
-          const slider = this.element.querySelector('.trait-slider');
-          const input = this.element.querySelector('.trait-input');
-          lockButton.textContent = this.locked ? '🔒' : '🔓';
-          lockButton.classList.toggle('locked', this.locked);
-          slider.disabled = this.locked;
-          input.disabled = this.locked;
         }
       }
 
@@ -804,15 +808,20 @@
     function toggleLock(traitName) {
       const trait = traitContainer.traits[traitName];
       if (trait) {
-        trait.toggleLock();
+        trait.lockable.toggleLock();
+      }
+    }
+    
+    function toggleAttributeLock(attributeName) {
+      const attribute = attributeContainer.attributes[attributeName];
+      if (attribute) {
+        attribute.lockable.toggleLock();
       }
     }
 
-
-
     function rerollTraits() {
       for (const trait of Object.values(traitContainer.traits)) {
-        if (!trait.locked) {
+        if (!trait.lockable.isLocked()) {
           const newValue = Math.floor(Math.random() * 101);
           trait.updateValue(newValue);
           if (trait.element) {
@@ -827,7 +836,7 @@
 
     function rerollAttributes() {
       for (const attribute of Object.values(attributeContainer.attributes)) {
-        if (!attribute.locked) {
+        if (!attribute.lockable.isLocked()) {
           const newValue = attribute.generateRandomValue();
           attribute.updateValue(newValue);
           if (attribute.element) {
@@ -880,13 +889,6 @@
       attributeContainer.addAttribute(key, options);
     });
 
-
-    function toggleAttributeLock(attributeName) {
-      const attribute = attributeContainer.attributes[attributeName];
-      if (attribute) {
-        attribute.toggleLock();
-      }
-    }
 
     function generateStep1Prompt() {
       let allText = generateTraitAttributeText();
@@ -989,7 +991,7 @@
 
       copyToClipboard(finalText);
     }
-    
+
     const traitContainer = new TraitContainer();
 
     DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
