@@ -452,7 +452,7 @@
     <textarea id="customPrompt"
       placeholder="Enter a short custom prompt to guide the AI character generation process, e.g. 'He's a billionaire CEO' (optional)"></textarea>
   </div>
-  <button onclick="generateAll()">Reroll Traits</button>
+  <button onclick="rerollAll()">Reroll Traits</button>
   <button onclick="copyAll()">Copy Traits</button>
   <button onclick="traitContainer.resetTraits()">Reset Traits</button><br><br>
   <div id="attributes"></div>
@@ -506,100 +506,6 @@
       "Tolerant", "Treacherous", "Trustworthy", "Uncompromising", "Unpredictable", "Vengeful",
       "Visionary", "Witty", "Wrathful"
     ];
-
-    // Utility functions
-    function getStrengthModifier(value, trait) {
-      const levels = [
-        { threshold: 0, modifier: "no {{trait}} at all" },
-        { threshold: 10, modifier: "practically nonexistent {{trait}}" },
-        { threshold: 20, modifier: "almost no {{trait}}" },
-        { threshold: 25, modifier: "very low {{trait}}" },
-        { threshold: 35, modifier: "considerably below average {{trait}}" },
-        { threshold: 40, modifier: "less than average {{trait}}" },
-        { threshold: 45, modifier: "average {{trait}}" },
-        { threshold: 50, modifier: "moderate {{trait}}" },
-        { threshold: 60, modifier: "above average {{trait}}" },
-        { threshold: 70, modifier: "substantial {{trait}}" },
-        { threshold: 80, modifier: "remarkable {{trait}}" },
-        { threshold: 87, modifier: "extraordinary {{trait}}" },
-        { threshold: 94, modifier: "unparalleled {{trait}}" }
-      ];
-      value = Number(value);
-
-      // Handle numbers outside the 0-100 range
-      if (value < 0) return `Less than no ${trait.toLowerCase()}, quite the opposite in fact`;
-      if (value > 100) return `transcendental, superhuman ${trait.toLowerCase()}`;
-
-      for (let i = levels.length - 1; i >= 0; i--) {
-        if (value >= levels[i].threshold) {
-          let modifier = levels[i].modifier;
-          return modifier.includes("{{trait}}") ? modifier.replace("{{trait}}", trait.toLowerCase()) : `${modifier} ${trait.toLowerCase()}`;
-        }
-      }
-      return `unknown amount of ${trait}`;
-    }
-
-    //UI functions
-    function setupNewTraitInput() {
-      const newTraitInput = document.getElementById('newTraitInput');
-      const addButton = document.querySelector('.trait-input button');
-
-      newTraitInput.addEventListener('keypress', function (event) {
-        const newTraitInput = document.getElementById('newTraitInput');
-        const newTraitName = newTraitInput.value.trim();
-        if (event.key === 'Enter') {
-          event.preventDefault(); // Prevent form submission if it's in a form
-          traitContainer.addTrait(newTraitName);
-        }
-      });
-
-      addButton.onclick = function () {
-        const newTraitInput = document.getElementById('newTraitInput');
-        const newTraitName = newTraitInput.value.trim();
-        traitContainer.addTrait(newTraitName);
-      };
-    }
-
-    function initializeTraits() {
-      DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
-      const traitsElement = document.getElementById('traits');
-      traitContainer.generateElements(traitsElement);
-    }
-
-    function setupAttributeListeners() {
-      const attributesElement = document.getElementById('attributes');
-      const attributeInputs = attributesElement.querySelectorAll('input');
-
-      attributeInputs.forEach(input => {
-        const attributeName = input.closest('.attribute').textContent.split(':')[0].trim();
-        const attribute = attributeContainer.attributes[attributeName];
-
-        input.addEventListener('input', (e) => {
-          if (!attribute.locked) {
-            attribute.value = e.target.value;
-          }
-        });
-      });
-    }
-
-    function generateAll() {
-      attributeContainer.reroll();
-      traitContainer.reroll();
-    }
-
-    function generateAttributes() {
-      const attributesElement = document.getElementById('attributes');
-      attributeContainer.generateElements(attributesElement);
-
-      // Special case for race if World Type is not fantasy
-      const worldTypeAttribute = attributeContainer.attributes['World Type'];
-      const raceAttribute = attributeContainer.attributes['Race'];
-      if (worldTypeAttribute && raceAttribute) {
-        if (worldTypeAttribute.value !== 'Fantasy') {
-          raceAttribute.updateValue('Human');
-        }
-      }
-    }
 
     class LockButton {
       constructor(name) {
@@ -718,9 +624,10 @@
         this.attributes[name] = new Attribute(name, options);
       }
 
-      generateElements(parentElement) {
-        parentElement.innerHTML = '';
-        this._forEach(attribute => parentElement.appendChild(attribute.generateElement()));
+      generateElements() {
+        const attributesElement = document.getElementById('attributes');
+        attributesElement.innerHTML = '';
+        this._forEach(attribute => attributesElement.appendChild(attribute.generateElement()));
       }
 
       generateText() {
@@ -762,7 +669,7 @@
 
         div.innerHTML = `
                 <div class="trait-top-row">
-                    <button class="delete-trait" onclick="deleteTrait('${this.name}')">❌</button>
+                    <button class="delete-trait" onclick="traitContainer.deleteTrait('${this.name}')">❌</button>
                     <span class="trait-label">${this.name}:</span>
                     <input type="range" class="trait-slider" min="0" max="100" value="${this.value}">
                 </div>
@@ -871,10 +778,6 @@
       generateElements(parentElement) {
         parentElement.innerHTML = '';
         this._forEach(trait => parentElement.appendChild(trait.generateElement()));
-
-        // for (const trait of Object.values(this.traits)) {
-        //   parentElement.appendChild(trait.generateElement());
-        // }
       }
 
       generateText() {
@@ -893,14 +796,54 @@
         this.generateElements(document.getElementById('traits'));
       }
 
+      deleteTrait(traitName) {
+        delete this.traits[traitName];
+        const traitsElement = document.getElementById('traits');
+        this.generateElements(traitsElement);
+      }
+    }
+    
+    function setupNewTraitInput() {
+      const newTraitInput = document.getElementById('newTraitInput');
+      const addButton = document.querySelector('.trait-input button');
+
+      newTraitInput.addEventListener('keypress', function (event) {
+        const newTraitInput = document.getElementById('newTraitInput');
+        const newTraitName = newTraitInput.value.trim();
+        if (event.key === 'Enter') {
+          event.preventDefault(); // Prevent form submission if it's in a form
+          traitContainer.addTrait(newTraitName);
+        }
+      });
+
+      addButton.onclick = function () {
+        const newTraitInput = document.getElementById('newTraitInput');
+        const newTraitName = newTraitInput.value.trim();
+        traitContainer.addTrait(newTraitName);
+      };
     }
 
-    function deleteTrait(traitName) {
-      delete traitContainer.traits[traitName];
+    function initializeTraits() {
+      DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
       const traitsElement = document.getElementById('traits');
       traitContainer.generateElements(traitsElement);
     }
 
+    function setupAttributeListeners() {
+      const attributesElement = document.getElementById('attributes');
+      const attributeInputs = attributesElement.querySelectorAll('input');
+
+      attributeInputs.forEach(input => {
+        const attributeName = input.closest('.attribute').textContent.split(':')[0].trim();
+        const attribute = attributeContainer.attributes[attributeName];
+
+        input.addEventListener('input', (e) => {
+          if (!attribute.locked) {
+            attribute.value = e.target.value;
+          }
+        });
+      });
+    }
 
     // Initialize the attribute container
     const attributeContainer = new AttributeContainer();
@@ -910,6 +853,10 @@
       attributeContainer.addAttribute(key, options);
     });
 
+    function rerollAll() {
+      attributeContainer.reroll();
+      traitContainer.reroll();
+    }
 
     function generateStep1Prompt() {
       let allText = generateTraitAttributeText();
@@ -932,7 +879,7 @@
       }
 
       // Generate text for attributes
-      let attributesText = generateAttributeText() + 'Personality:\n';
+      let attributesText = attributeContainer.generateText() + 'Personality:\n';
       let allText = attributesText + digestedTraits;
 
       const customPromptText = document.getElementById('customPrompt').value.trim();
@@ -943,29 +890,8 @@
       copyToClipboard(finalText);
     }
 
-
-    function generateAttributeText() {
-      let attributesText = '';
-      for (const attribute of Object.values(attributeContainer.attributes)) {
-        attributesText += `${attribute.name}: ${attribute.value}\n`;
-      }
-      // Remove any leading/trailing whitespace and ensure no empty lines
-      attributesText = attributesText.trim().replace(/^\s+/gm, '');
-      return attributesText + '\n';
-    }
-
     function generateTraitAttributeText() {
       return attributeContainer.generateText() + traitContainer.generateText();
-    }
-
-    function showCopyNotification() {
-      const notification = document.getElementById('copyNotification');
-      notification.style.opacity = '1';
-      notification.style.visibility = 'visible';
-      setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.visibility = 'hidden';
-      }, 1000);
     }
 
     function copyToClipboard(text) {
@@ -975,8 +901,17 @@
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      showCopyNotification();
+
+      //show copy notification
+      const notification = document.getElementById('copyNotification');
+      notification.style.opacity = '1';
+      notification.style.visibility = 'visible';
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.visibility = 'hidden';
+      }, 1000);
     }
+
     function copyAll() {
       let allText = generateTraitAttributeText();
       copyToClipboard(allText);
@@ -993,8 +928,6 @@
     }
 
     const traitContainer = new TraitContainer();
-
-    DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
 
     document.getElementById('digestedTraits').addEventListener('input', function () {
       const step2Prompts = document.getElementById('step2Prompts');
@@ -1070,7 +1003,7 @@
 
       setupNewTraitInput();
       initializeTraits();
-      generateAll();
-      generateAttributes();
+      attributeContainer.generateElements();
+      rerollAll();
       setupAttributeListeners();
     });
