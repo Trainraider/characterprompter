@@ -480,16 +480,168 @@
   </footer>
   <script>
 
-    document.addEventListener('DOMContentLoaded', function () {
-      const foldableBoxes = document.querySelectorAll('.prompt-box.foldable');
+    const ATTRIBUTES_INFO = {
+      'Gender': ['Man', 'Woman'],
+      'Age': Array.from({ length: 18 }, (_, i) => i + 18),
+      'Era': ['Medieval', 'Modern', 'Futuristic'],
+      'World Type': ['Realistic', 'Fantasy'],
+      'Race': ['Human', 'Elf', 'Goblin', 'Orc'] // Only if fantasy
+    };
 
-      foldableBoxes.forEach(box => {
-        const title = box.querySelector('.prompt-title');
-        title.addEventListener('click', () => {
-          box.classList.toggle('active');
+    const DEFAULT_TRAITS = [
+      'Narcissism', 'Machiavellianism', 'Sadism', 'Psychopathy',
+      'Wealth', 'Societal status', 'Strength', 'Intelligence', 'Wisdom',
+      'Physical attractiveness', 'Horniness'
+    ];
+
+    const PERSONALITY_TRAITS = [
+      "Adventurous", "Ambitious", "Analytical", "Arrogant", "Assertive", "Bigotted", "Brave",
+      "Careless", "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
+      "Conservative", "Creative", "Cynical", "Decisive", "Determined", "Diligent", "Dramatic",
+      "Dishonest", "Disorganized", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious", "Focused",
+      "Forgiving", "Generous", "Greedy", "Honest", "Humble", "Idealistic", "Imaginative", "Impulsive",
+      "Independent", "Intelligent", "Introverted", "Intuitive", "Irresponsible", "Jealous", "Lazy", "Lecherous", "Liberal",
+      "Logical", "Loyal", "Lustful", "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
+      "Narcissistic", "Neurotic", "Observant", "Optimistic", "Passionate", "Patient", "Perfectionist",
+      "Persistent", "Persuasive", "Pessimistic", "Philosophical", "Pragmatic", "Procrastinates", "Prideful", "Rational", "Rebellious",
+      "Reckless", "Reserved", "Resourceful", "Romantic", "Sarcastic", "Scholarly", "Self-absorbed", "Selfish",
+      "Sensitive", "Sensual", "Skeptical", "Slutty", "Socially awkward", "Stoic", "Stubborn",
+      "Suspicious", "Sympathetic", "Tactful", "Temperamental", "Tenacious", "Thoughtful", "Timid",
+      "Tolerant", "Treacherous", "Trustworthy", "Uncompromising", "Unpredictable", "Vengeful",
+      "Visionary", "Witty", "Wrathful"
+    ];
+
+    // Utility functions
+    function getStrengthModifier(value, trait) {
+      const levels = [
+        { threshold: 0, modifier: "no {{trait}} at all" },
+        { threshold: 10, modifier: "practically nonexistent {{trait}}" },
+        { threshold: 20, modifier: "almost no {{trait}}" },
+        { threshold: 25, modifier: "very low {{trait}}" },
+        { threshold: 35, modifier: "considerably below average {{trait}}" },
+        { threshold: 40, modifier: "less than average {{trait}}" },
+        { threshold: 45, modifier: "average {{trait}}" },
+        { threshold: 50, modifier: "moderate {{trait}}" },
+        { threshold: 60, modifier: "above average {{trait}}" },
+        { threshold: 70, modifier: "substantial {{trait}}" },
+        { threshold: 80, modifier: "remarkable {{trait}}" },
+        { threshold: 87, modifier: "extraordinary {{trait}}" },
+        { threshold: 94, modifier: "unparalleled {{trait}}" }
+      ];
+      value = Number(value);
+
+      // Handle numbers outside the 0-100 range
+      if (value < 0) return `Less than no ${trait.toLowerCase()}, quite the opposite in fact`;
+      if (value > 100) return `transcendental, superhuman ${trait.toLowerCase()}`;
+
+      for (let i = levels.length - 1; i >= 0; i--) {
+        if (value >= levels[i].threshold) {
+          let modifier = levels[i].modifier;
+          return modifier.includes("{{trait}}") ? modifier.replace("{{trait}}", trait.toLowerCase()) : `${modifier} ${trait.toLowerCase()}`;
+        }
+      }
+      return `unknown amount of ${trait}`;
+    }
+    
+    class Attribute {
+      constructor(name, options) {
+        this.name = name;
+        this.options = options;
+        this.value = this.generateRandomValue();
+        this.element = null;
+        this.locked = false;
+      }
+
+      generateRandomValue() {
+        if (Array.isArray(this.options)) {
+          return this.options[Math.floor(Math.random() * this.options.length)];
+        } else {
+          return Math.floor(Math.random() * (this.options[1] - this.options[0] + 1)) + this.options[0];
+        }
+      }
+
+      generateElement() {
+        const div = document.createElement('div');
+        div.className = 'attribute';
+        div.innerHTML = `
+      <button class="lock-attribute" onclick="toggleAttributeLock('${this.name}')">${this.locked ? '🔒' : '🔓'}</button>
+      ${this.name}: <br><br><input type="text" value="${this.value}">
+    `;
+        this.element = div;
+
+        // Add event listener to the input
+        const input = div.querySelector('input');
+        input.addEventListener('input', (e) => {
+          if (!this.locked) {
+            this.value = e.target.value;
+          }
+        });
+
+        return div;
+      }
+
+      toggleLock() {
+        this.locked = !this.locked;
+        if (this.element) {
+          const lockButton = this.element.querySelector('.lock-attribute');
+          const input = this.element.querySelector('input');
+          lockButton.textContent = this.locked ? '🔒' : '🔓';
+          lockButton.classList.toggle('locked', this.locked);
+          input.disabled = this.locked;
+        }
+      }
+
+      updateValue(newValue) {
+        if (!this.locked) {
+          this.value = newValue;
+          if (this.element) {
+            const input = this.element.querySelector('input');
+            input.value = newValue;
+          }
+        }
+      }
+    }
+
+    function setupAttributeListeners() {
+      const attributesElement = document.getElementById('attributes');
+      const attributeInputs = attributesElement.querySelectorAll('input');
+
+      attributeInputs.forEach(input => {
+        const attributeName = input.closest('.attribute').textContent.split(':')[0].trim();
+        const attribute = attributeContainer.attributes[attributeName];
+
+        input.addEventListener('input', (e) => {
+          if (!attribute.locked) {
+            attribute.value = e.target.value;
+          }
         });
       });
-    });
+    }
+
+    class AttributeContainer {
+      constructor() {
+        this.attributes = {};
+      }
+
+      addAttribute(name, options) {
+        this.attributes[name] = new Attribute(name, options);
+      }
+
+      generateElements(parentElement) {
+        parentElement.innerHTML = '';
+        for (const attribute of Object.values(this.attributes)) {
+          parentElement.appendChild(attribute.generateElement());
+        }
+      }
+
+      generateRandomValues() {
+        for (const attribute of Object.values(this.attributes)) {
+          if (!attribute.locked) {
+            attribute.updateValue(attribute.generateRandomValue());
+          }
+        }
+      }
+    }
 
     class Trait {
       constructor(name) {
@@ -668,27 +820,12 @@
       document.addEventListener('touchstart', checkHover); // for initial touch
     });
 
-    const attributesInfo = {
-      'Gender': ['Man', 'Woman'],
-      'Age': Array.from({ length: 18 }, (_, i) => i + 18),
-      'Era': ['Medieval', 'Modern', 'Futuristic'],
-      'World Type': ['Realistic', 'Fantasy'],
-      'Race': ['Human', 'Elf', 'Goblin', 'Orc'] // Only if fantasy
-    };
-
     const traitContainer = new TraitContainer();
 
-    const defaultTraits = [
-      'Openness', 'Conscientiousness', 'Extroversion', 'Agreeableness', 'Neuroticism',
-      'Narcissism', 'Machiavellianism', 'Sadism', 'Psychopathy',
-      'Wealth', 'Societal status', 'Strength', 'Intelligence', 'Wisdom',
-      'Physical attractiveness', 'Horniness'
-    ];
-
-    defaultTraits.forEach(traitName => traitContainer.addTrait(traitName));
+    DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
 
     function initializeTraits() {
-      defaultTraits.forEach(traitName => traitContainer.addTrait(traitName));
+      DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
       const traitsElement = document.getElementById('traits');
       traitContainer.generateElements(traitsElement);
     }
@@ -732,7 +869,7 @@
 
     function resetTraits() {
       traitContainer.traits = {};
-      defaultTraits.forEach(traitName => traitContainer.addTrait(traitName));
+      DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
       generateTraits();
     }
 
@@ -754,111 +891,12 @@
       traitContainer.generateElements(traitsElement);
     }
 
-    class Attribute {
-      constructor(name, options) {
-        this.name = name;
-        this.options = options;
-        this.value = this.generateRandomValue();
-        this.element = null;
-        this.locked = false;
-      }
-
-      generateRandomValue() {
-        if (Array.isArray(this.options)) {
-          return this.options[Math.floor(Math.random() * this.options.length)];
-        } else {
-          return Math.floor(Math.random() * (this.options[1] - this.options[0] + 1)) + this.options[0];
-        }
-      }
-
-      generateElement() {
-        const div = document.createElement('div');
-        div.className = 'attribute';
-        div.innerHTML = `
-      <button class="lock-attribute" onclick="toggleAttributeLock('${this.name}')">${this.locked ? '🔒' : '🔓'}</button>
-      ${this.name}: <br><br><input type="text" value="${this.value}">
-    `;
-        this.element = div;
-
-        // Add event listener to the input
-        const input = div.querySelector('input');
-        input.addEventListener('input', (e) => {
-          if (!this.locked) {
-            this.value = e.target.value;
-          }
-        });
-
-        return div;
-      }
-
-      toggleLock() {
-        this.locked = !this.locked;
-        if (this.element) {
-          const lockButton = this.element.querySelector('.lock-attribute');
-          const input = this.element.querySelector('input');
-          lockButton.textContent = this.locked ? '🔒' : '🔓';
-          lockButton.classList.toggle('locked', this.locked);
-          input.disabled = this.locked;
-        }
-      }
-
-      updateValue(newValue) {
-        if (!this.locked) {
-          this.value = newValue;
-          if (this.element) {
-            const input = this.element.querySelector('input');
-            input.value = newValue;
-          }
-        }
-      }
-    }
-
-    function setupAttributeListeners() {
-      const attributesElement = document.getElementById('attributes');
-      const attributeInputs = attributesElement.querySelectorAll('input');
-
-      attributeInputs.forEach(input => {
-        const attributeName = input.closest('.attribute').textContent.split(':')[0].trim();
-        const attribute = attributeContainer.attributes[attributeName];
-
-        input.addEventListener('input', (e) => {
-          if (!attribute.locked) {
-            attribute.value = e.target.value;
-          }
-        });
-      });
-    }
-
-    class AttributeContainer {
-      constructor() {
-        this.attributes = {};
-      }
-
-      addAttribute(name, options) {
-        this.attributes[name] = new Attribute(name, options);
-      }
-
-      generateElements(parentElement) {
-        parentElement.innerHTML = '';
-        for (const attribute of Object.values(this.attributes)) {
-          parentElement.appendChild(attribute.generateElement());
-        }
-      }
-
-      generateRandomValues() {
-        for (const attribute of Object.values(this.attributes)) {
-          if (!attribute.locked) {
-            attribute.updateValue(attribute.generateRandomValue());
-          }
-        }
-      }
-    }
 
     // Initialize the attribute container
     const attributeContainer = new AttributeContainer();
 
     // Populate the attribute container
-    Object.entries(attributesInfo).forEach(([key, options]) => {
+    Object.entries(ATTRIBUTES_INFO).forEach(([key, options]) => {
       attributeContainer.addAttribute(key, options);
     });
 
@@ -899,23 +937,6 @@
       }
     }
 
-    const personalityTraits = [
-      "Adventurous", "Ambitious", "Analytical", "Arrogant", "Assertive", "Bigotted", "Brave",
-      "Careless", "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
-      "Conservative", "Creative", "Cynical", "Decisive", "Determined", "Diligent", "Dramatic",
-      "Dishonest", "Disorganized", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious", "Focused",
-      "Forgiving", "Generous", "Greedy", "Honest", "Humble", "Idealistic", "Imaginative", "Impulsive",
-      "Independent", "Intelligent", "Introverted", "Intuitive", "Irresponsible", "Jealous", "Lazy", "Lecherous", "Liberal",
-      "Logical", "Loyal", "Lustful", "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
-      "Narcissistic", "Neurotic", "Observant", "Optimistic", "Passionate", "Patient", "Perfectionist",
-      "Persistent", "Persuasive", "Pessimistic", "Philosophical", "Pragmatic", "Procrastinates", "Prideful", "Rational", "Rebellious",
-      "Reckless", "Reserved", "Resourceful", "Romantic", "Sarcastic", "Scholarly", "Self-absorbed", "Selfish",
-      "Sensitive", "Sensual", "Skeptical", "Slutty", "Socially awkward", "Stoic", "Stubborn",
-      "Suspicious", "Sympathetic", "Tactful", "Temperamental", "Tenacious", "Thoughtful", "Timid",
-      "Tolerant", "Treacherous", "Trustworthy", "Uncompromising", "Unpredictable", "Vengeful",
-      "Visionary", "Witty", "Wrathful"
-    ];
-
     function generateStep1Prompt() {
       let allText = generateTraitAttributeText();
       const customPromptText = document.getElementById('customPrompt').value.trim();
@@ -924,7 +945,7 @@
         ${allText}
         ${customPromptText}
 
-        And considering this list of personality traits: ${personalityTraits.join(', ')}
+        And considering this list of personality traits: ${PERSONALITY_TRAITS.join(', ')}
         Please list the personality traits from the provided list that most apply to this character based on the information given. Your list should only be space separated. You can also use traits that weren't listed in your list. Put your answer in a code block.`;
 
       copyToClipboard(step1Prompt);
@@ -1016,40 +1037,6 @@
       copyToClipboard(allText);
     }
 
-    function getStrengthModifier(number, trait) {
-      // Convert to number if it's a string
-      number = Number(number);
-
-      // Handle numbers outside the 0-100 range
-      if (number < 0) return `Less than no ${trait.toLowerCase()}, quite the opposite in fact`;
-      if (number > 100) return `transcendental, superhuman ${trait.toLowerCase()}`;
-
-      const levels = [
-        { threshold: 0, modifier: "no {{trait}} at all" },
-        { threshold: 10, modifier: "practically nonexistent {{trait}}" },
-        { threshold: 20, modifier: "almost no {{trait}}" },
-        { threshold: 25, modifier: "very low {{trait}}" },
-        { threshold: 35, modifier: "considerably below average {{trait}}" },
-        { threshold: 40, modifier: "less than average {{trait}}" },
-        { threshold: 45, modifier: "average {{trait}}" },
-        { threshold: 50, modifier: "moderate {{trait}}" },
-        { threshold: 60, modifier: "above average {{trait}}" },
-        { threshold: 70, modifier: "substantial {{trait}}" },
-        { threshold: 80, modifier: "remarkable {{trait}}" },
-        { threshold: 87, modifier: "extraordinary {{trait}}" },
-        { threshold: 94, modifier: "unparalleled {{trait}}" }
-      ];
-
-      for (let i = levels.length - 1; i >= 0; i--) {
-        if (number >= levels[i].threshold) {
-          let modifier = levels[i].modifier;
-          return modifier.includes("{{trait}}") ? modifier.replace("{{trait}}", trait.toLowerCase()) : `${modifier} ${trait.toLowerCase()}`;
-        }
-      }
-
-      // This line should never be reached, but it's here as a fallback
-      return `invalid ${trait}`;
-    }
     function copyWithPrompt(prompt) {
       let allText = generateTraitAttributeText();
       const customPromptText = document.getElementById('customPrompt').value.trim();
@@ -1075,8 +1062,17 @@
       // Keep the existing click event for the button
       addButton.onclick = addNewTrait;
     }
-
+    
     document.addEventListener('DOMContentLoaded', () => {
+      const foldableBoxes = document.querySelectorAll('.prompt-box.foldable');
+
+      foldableBoxes.forEach(box => {
+        const title = box.querySelector('.prompt-title');
+        title.addEventListener('click', () => {
+          box.classList.toggle('active');
+        });
+      });
+
       setupNewTraitInput();
       initializeTraits();
       generateAll();
