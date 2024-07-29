@@ -596,25 +596,38 @@
       }
     }
 
-    class Lockable {
-      constructor() {
+    class LockButton {
+      constructor(name) {
+        this.name = name;
         this.locked = false;
         this.element = null;
       }
 
+      createLockButton() {
+        const lockButton = document.createElement('button');
+        lockButton.className = 'lock';
+        lockButton.textContent = this.locked ? '🔒' : '🔓';
+        lockButton.onclick = () => this.toggleLock();
+        return lockButton;
+      }
+
       setElement(element) {
         this.element = element;
+        this.updateElementState();
       }
 
       toggleLock() {
         this.locked = !this.locked;
+        this.updateElementState();
+      }
+
+      updateElementState() {
         if (this.element) {
           const lockButton = this.element.querySelector('.lock');
           const inputs = this.element.querySelectorAll('input');
 
           lockButton.textContent = this.locked ? '🔒' : '🔓';
           lockButton.classList.toggle('locked', this.locked);
-
           inputs.forEach(input => {
             input.disabled = this.locked;
           });
@@ -624,7 +637,6 @@
       isLocked() {
         return this.locked;
       }
-
     }
 
     class Attribute {
@@ -633,7 +645,7 @@
         this.options = options;
         this.value = this.generateRandomValue();
         this.element = null;
-        this.lockable = new Lockable();
+        this.lock = new LockButton(name);
       }
 
       generateRandomValue() {
@@ -647,17 +659,21 @@
       generateElement() {
         const div = document.createElement('div');
         div.className = 'attribute';
-        div.innerHTML = `
-            <button class="lock" onclick="toggleAttributeLock('${this.name}')">${this.lockable.isLocked() ? '🔒' : '🔓'}</button>
-            ${this.name}: <br><br><input type="text" value="${this.value}">
-          `;
-        this.element = div;
-        this.lockable.setElement(div);
 
-        // Add event listener to the input
+        const lockButton = this.lock.createLockButton();
+
+        div.innerHTML = `
+            ${this.name}: <br><br>
+            <input type="text" value="${this.value}">
+          `;
+        div.insertBefore(lockButton, div.firstChild);
+
+        this.element = div;
+        this.lock.setElement(div);
+
         const input = div.querySelector('input');
         input.addEventListener('input', (e) => {
-          if (!this.locked) {
+          if (!this.lock.isLocked()) {
             this.value = e.target.value;
           }
         });
@@ -666,7 +682,7 @@
       }
 
       updateValue(newValue) {
-        if (!this.lockable.isLocked()) {
+        if (!this.lock.isLocked()) {
           this.value = newValue;
           if (this.element) {
             const input = this.element.querySelector('input');
@@ -706,23 +722,29 @@
         this.name = name;
         this.value = Math.floor(Math.random() * 101);
         this.element = null;
-        this.lockable = new Lockable();
+        this.lock = new LockButton();
       }
 
       generateElement() {
         const div = document.createElement('div');
         div.className = 'trait';
+
+        const lockButton = this.lock.createLockButton();
+
         div.innerHTML = `
                 <div class="trait-top-row">
-                    <button class="lock" onclick="toggleLock('${this.name}')">${this.lockable.isLocked() ? '🔒' : '🔓'}</button>
                     <button class="delete-trait" onclick="deleteTrait('${this.name}')">❌</button>
                     <span class="trait-label">${this.name}:</span>
                     <input type="range" class="trait-slider" min="0" max="100" value="${this.value}">
                 </div>
                 <input type="text" class="trait-input" placeholder="${this.getStrengthModifier()}">
             `;
+        
+        const traitTopRow = div.querySelector('.trait-top-row');
+        traitTopRow.insertBefore(lockButton, traitTopRow.firstChild);
+
         this.element = div;
-        this.lockable.setElement(div);
+        this.lock.setElement(div);
 
         const slider = div.querySelector('.trait-slider');
         const input = div.querySelector('.trait-input');
@@ -739,7 +761,7 @@
       }
 
       updateValue(newValue) {
-        if (!this.locked) {
+        if (!this.lock.isLocked()) {
           this.value = newValue;
           if (this.element) {
             const slider = this.element.querySelector('.trait-slider');
@@ -805,23 +827,9 @@
       }
     }
 
-    function toggleLock(traitName) {
-      const trait = traitContainer.traits[traitName];
-      if (trait) {
-        trait.lockable.toggleLock();
-      }
-    }
-    
-    function toggleAttributeLock(attributeName) {
-      const attribute = attributeContainer.attributes[attributeName];
-      if (attribute) {
-        attribute.lockable.toggleLock();
-      }
-    }
-
     function rerollTraits() {
       for (const trait of Object.values(traitContainer.traits)) {
-        if (!trait.lockable.isLocked()) {
+        if (!trait.lock.isLocked()) {
           const newValue = Math.floor(Math.random() * 101);
           trait.updateValue(newValue);
           if (trait.element) {
@@ -836,7 +844,7 @@
 
     function rerollAttributes() {
       for (const attribute of Object.values(attributeContainer.attributes)) {
-        if (!attribute.lockable.isLocked()) {
+        if (!attribute.lock.isLocked()) {
           const newValue = attribute.generateRandomValue();
           attribute.updateValue(newValue);
           if (attribute.element) {
