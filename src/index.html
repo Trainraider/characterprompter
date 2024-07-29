@@ -22,6 +22,11 @@
       }
     }
 
+    html,
+    body {
+      overscroll-behavior: none;
+    }
+
     body {
       color: #aaa;
       font-family: Arial, sans-serif;
@@ -218,15 +223,21 @@
       outline: none;
     }
 
-    .trait-slider::-webkit-slider-thumb,
-    .trait-slider::-moz-range-thumb {
+    .trait-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
       width: 25px;
       height: 25px;
       background: #8888;
       border-radius: 25px;
+    }
+
+    .trait-slider::-moz-range-thumb {
       border: 0;
+      width: 25px;
+      height: 25px;
+      background: #8888;
+      border-radius: 25px;
     }
 
     .lock.locked {
@@ -323,6 +334,40 @@
       transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
       z-index: 1000;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    @-moz-document url-prefix() {
+      * {
+        scrollbar-color: #555 #2c2c2c;
+        scrollbar-width: thin;
+      }
+    }
+
+    /* Webkit Scrollbar Styles */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar:hover {
+      width: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #111;
+      /* Light grey */
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #222;
+      /* Dark grey */
+      border-radius: 10px;
+      border: None;
+      /* Creates a "padding" effect */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #333;
+      /* Darker grey for hover */
     }
   </style>
 </head>
