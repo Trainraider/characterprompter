@@ -964,12 +964,14 @@
           event.preventDefault(); // Prevent form submission if it's in a form
           const newTraitName = newTraitInput.value.trim();
           traitContainer.addTrait(newTraitName)
+          newTraitInput.value = "";
         }
       });
 
       addButton.onclick = function () {
         const newTraitName = newTraitInput.value.trim();
         traitContainer.addTrait(newTraitName)
+        newTraitInput.value = "";
       };
 
       attributeContainer.reset();
