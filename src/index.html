@@ -542,7 +542,65 @@
       }
       return `unknown amount of ${trait}`;
     }
-    
+
+    //UI functions
+    function setupNewTraitInput() {
+      const newTraitInput = document.getElementById('newTraitInput');
+      const addButton = document.querySelector('.trait-input button');
+
+      newTraitInput.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault(); // Prevent form submission if it's in a form
+          addNewTrait();
+        }
+      });
+
+      // Keep the existing click event for the button
+      addButton.onclick = addNewTrait;
+    }
+
+    function initializeTraits() {
+      DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
+      const traitsElement = document.getElementById('traits');
+      traitContainer.generateElements(traitsElement);
+    }
+
+    function setupAttributeListeners() {
+      const attributesElement = document.getElementById('attributes');
+      const attributeInputs = attributesElement.querySelectorAll('input');
+
+      attributeInputs.forEach(input => {
+        const attributeName = input.closest('.attribute').textContent.split(':')[0].trim();
+        const attribute = attributeContainer.attributes[attributeName];
+
+        input.addEventListener('input', (e) => {
+          if (!attribute.locked) {
+            attribute.value = e.target.value;
+          }
+        });
+      });
+    }
+
+    function generateAll() {
+      rerollAttributes();
+      rerollTraits();
+    }
+
+    function generateAttributes() {
+      const attributesElement = document.getElementById('attributes');
+      attributeContainer.generateElements(attributesElement);
+
+      // Special case for race if World Type is not fantasy
+      const worldTypeAttribute = attributeContainer.attributes['World Type'];
+      const raceAttribute = attributeContainer.attributes['Race'];
+      if (worldTypeAttribute && raceAttribute) {
+        if (worldTypeAttribute.value !== 'Fantasy') {
+          raceAttribute.updateValue('Human');
+        }
+      }
+    }
+
+
     class Attribute {
       constructor(name, options) {
         this.name = name;
@@ -600,22 +658,6 @@
           }
         }
       }
-    }
-
-    function setupAttributeListeners() {
-      const attributesElement = document.getElementById('attributes');
-      const attributeInputs = attributesElement.querySelectorAll('input');
-
-      attributeInputs.forEach(input => {
-        const attributeName = input.closest('.attribute').textContent.split(':')[0].trim();
-        const attribute = attributeContainer.attributes[attributeName];
-
-        input.addEventListener('input', (e) => {
-          if (!attribute.locked) {
-            attribute.value = e.target.value;
-          }
-        });
-      });
     }
 
     class AttributeContainer {
@@ -766,69 +808,7 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', (event) => {
-      const toggleButton = document.getElementById('toggleDescription');
-      const description = document.getElementById('description');
 
-      toggleButton.addEventListener('click', () => {
-        if (description.style.display === 'none') {
-          description.style.display = 'block';
-          toggleButton.textContent = 'Hide';
-        } else {
-          description.style.display = 'none';
-          toggleButton.textContent = 'How does this work?';
-        }
-      });
-
-      const scrollToTopButton = document.getElementById('scrollToTop');
-
-      scrollToTopButton.addEventListener('click', () => {
-        window.scrollTo({ top: 0 });
-      });
-
-      const backgroundImageWrapper = document.querySelector('.background-image-wrapper');
-      const backgroundImage = document.querySelector('.background-image');
-
-      function checkHover(event) {
-        const rect = backgroundImageWrapper.getBoundingClientRect();
-        let clientX, clientY;
-
-        if (event.type.includes('touch')) {
-          clientX = event.touches[0].clientX;
-          clientY = event.touches[0].clientY;
-        } else {
-          clientX = event.clientX;
-          clientY = event.clientY;
-        }
-
-        const isHovering = (
-          clientX >= rect.left &&
-          clientX <= rect.right &&
-          clientY >= rect.top &&
-          clientY <= rect.bottom
-        );
-
-        if (isHovering) {
-          backgroundImage.src = 'image2.webp';
-        } else {
-          backgroundImage.src = 'image.webp';
-        }
-      }
-
-      document.addEventListener('mousemove', checkHover);
-      document.addEventListener('touchmove', checkHover);
-      document.addEventListener('touchstart', checkHover); // for initial touch
-    });
-
-    const traitContainer = new TraitContainer();
-
-    DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
-
-    function initializeTraits() {
-      DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
-      const traitsElement = document.getElementById('traits');
-      traitContainer.generateElements(traitsElement);
-    }
 
     function rerollTraits() {
       for (const trait of Object.values(traitContainer.traits)) {
@@ -900,40 +880,11 @@
       attributeContainer.addAttribute(key, options);
     });
 
-    function generateAll() {
-      rerollAttributes();
-      rerollTraits();
-    }
-
-    function generateAttributes() {
-      const attributesElement = document.getElementById('attributes');
-      attributeContainer.generateElements(attributesElement);
-
-      // Special case for race if World Type is not fantasy
-      const worldTypeAttribute = attributeContainer.attributes['World Type'];
-      const raceAttribute = attributeContainer.attributes['Race'];
-      if (worldTypeAttribute && raceAttribute) {
-        if (worldTypeAttribute.value !== 'Fantasy') {
-          raceAttribute.updateValue('Human');
-        }
-      }
-    }
 
     function toggleAttributeLock(attributeName) {
       const attribute = attributeContainer.attributes[attributeName];
       if (attribute) {
         attribute.toggleLock();
-      }
-    }
-
-    function generateTraits() {
-      const traitsElement = document.getElementById('traits');
-      traitsElement.innerHTML = '';
-      for (const [name, trait] of Object.entries(traitContainer.traits)) {
-        if (!trait.locked) {
-          trait.value = Math.floor(Math.random() * 101);
-        }
-        traitsElement.appendChild(trait.generateElement());
       }
     }
 
@@ -969,14 +920,6 @@
       copyToClipboard(finalText);
     }
 
-    document.getElementById('digestedTraits').addEventListener('input', function () {
-      const step2Prompts = document.getElementById('step2Prompts');
-      if (this.value.trim()) {
-        step2Prompts.classList.add('active');
-      } else {
-        step2Prompts.classList.remove('active');
-      }
-    });
 
     function generateAttributeText() {
       let attributesText = '';
@@ -1046,24 +989,73 @@
 
       copyToClipboard(finalText);
     }
+    
+    const traitContainer = new TraitContainer();
 
+    DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
 
-    function setupNewTraitInput() {
-      const newTraitInput = document.getElementById('newTraitInput');
-      const addButton = document.querySelector('.trait-input button');
+    document.getElementById('digestedTraits').addEventListener('input', function () {
+      const step2Prompts = document.getElementById('step2Prompts');
+      if (this.value.trim()) {
+        step2Prompts.classList.add('active');
+      } else {
+        step2Prompts.classList.remove('active');
+      }
+    });
 
-      newTraitInput.addEventListener('keypress', function (event) {
-        if (event.key === 'Enter') {
-          event.preventDefault(); // Prevent form submission if it's in a form
-          addNewTrait();
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const toggleButton = document.getElementById('toggleDescription');
+      const description = document.getElementById('description');
+
+      toggleButton.addEventListener('click', () => {
+        if (description.style.display === 'none') {
+          description.style.display = 'block';
+          toggleButton.textContent = 'Hide';
+        } else {
+          description.style.display = 'none';
+          toggleButton.textContent = 'How does this work?';
         }
       });
 
-      // Keep the existing click event for the button
-      addButton.onclick = addNewTrait;
-    }
-    
-    document.addEventListener('DOMContentLoaded', () => {
+      const scrollToTopButton = document.getElementById('scrollToTop');
+
+      scrollToTopButton.addEventListener('click', () => {
+        window.scrollTo({ top: 0 });
+      });
+
+      const backgroundImageWrapper = document.querySelector('.background-image-wrapper');
+      const backgroundImage = document.querySelector('.background-image');
+
+      function checkHover(event) {
+        const rect = backgroundImageWrapper.getBoundingClientRect();
+        let clientX, clientY;
+
+        if (event.type.includes('touch')) {
+          clientX = event.touches[0].clientX;
+          clientY = event.touches[0].clientY;
+        } else {
+          clientX = event.clientX;
+          clientY = event.clientY;
+        }
+
+        const isHovering = (
+          clientX >= rect.left &&
+          clientX <= rect.right &&
+          clientY >= rect.top &&
+          clientY <= rect.bottom
+        );
+
+        if (isHovering) {
+          backgroundImage.src = 'image2.webp';
+        } else {
+          backgroundImage.src = 'image.webp';
+        }
+      }
+
+      document.addEventListener('mousemove', checkHover);
+      document.addEventListener('touchmove', checkHover);
+      document.addEventListener('touchstart', checkHover); // for initial touch
+
       const foldableBoxes = document.querySelectorAll('.prompt-box.foldable');
 
       foldableBoxes.forEach(box => {
@@ -1072,6 +1064,7 @@
           box.classList.toggle('active');
         });
       });
+
 
       setupNewTraitInput();
       initializeTraits();
