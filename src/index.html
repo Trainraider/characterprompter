@@ -22,11 +22,6 @@
       }
     }
 
-    a {
-      color: #00aaaa;
-      /* Light blue color */
-    }
-
     body {
       color: #aaa;
       font-family: Arial, sans-serif;
@@ -41,6 +36,19 @@
       animation: rainbow 60s linear infinite;
     }
 
+    a {
+      color: #0aa;
+    }
+
+    h1,
+    h4 {
+      margin-bottom: 20px;
+    }
+
+    #title {
+      text-align: center;
+    }
+
     #attributes,
     #traits {
       margin-bottom: 20px;
@@ -53,18 +61,21 @@
 
     input,
     button,
-    #customPrompt {
-      background: #33333344
+    #customPrompt,
+    #toggleDescription,
+    #scrollToTop {
+      background: #33333344;
+      color: #fff;
+      border: none;
+      border-radius: 15px;
+      padding: 10px 20px;
+      transition: background-color 0.3s;
     }
 
     input,
     #customPrompt {
-      color: #fff;
-      border: none;
-      padding: 10px;
       width: 100%;
       box-sizing: border-box;
-      border-radius: 15px;
     }
 
     #customPrompt {
@@ -79,36 +90,24 @@
     }
 
     button {
-      color: #fff;
-      border: none;
+      cursor: pointer;
       margin-top: 10px;
       margin-right: 10px;
-      cursor: pointer;
-      padding: 10px 20px;
-      border-radius: 15px;
-      transition: background-color 0.3s;
     }
 
-    button:hover {
+    button:hover,
+    #toggleDescription:hover,
+    #scrollToTop:hover {
       background-color: #333;
     }
 
-    h1,
-    h4 {
-      margin-bottom: 20px;
-    }
-
     .spacer {
-      padding: 0px 0px;
+      padding: 0;
       flex-grow: 1;
     }
 
     [title] {
       cursor: help;
-    }
-
-    #title {
-      text-align: center;
     }
 
     .background-image-wrapper {
@@ -121,10 +120,8 @@
 
     .background-image {
       width: 200px;
-      /* Adjust as needed */
       height: auto;
       opacity: 0.5;
-      /* Optional: Adjust opacity */
       transition: opacity 0.3s;
     }
 
@@ -133,19 +130,9 @@
       pointer-events: none;
     }
 
-    #toggleDescription {
-      background: #33333344;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 15px;
-      cursor: pointer;
-      transition: background-color 0.3s;
+    #toggleDescription,
+    #scrollToTop {
       margin-bottom: 10px;
-    }
-
-    #toggleDescription:hover {
-      background-color: #333;
     }
 
     #description {
@@ -158,17 +145,6 @@
     #scrollToTop {
       bottom: 20px;
       right: 50%;
-      background: #33333344;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 15px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    #scrollToTop:hover {
-      background-color: #333;
     }
 
     .trait-input {
@@ -183,28 +159,20 @@
     }
 
     .trait-input button {
-      background: #33333344;
-      color: #fff;
-      border: none;
       padding: 5px 10px;
-      border-radius: 15px;
-      cursor: pointer;
-      transition: background-color 0.3s;
     }
 
-    .trait-input button:hover {
-      background-color: #333;
+    .delete-trait,
+    .lock {
+      background: #33333344;
+      padding: 2px 10px;
+      border-radius: 5px;
+      margin-left: 5px;
+      font-size: 16px;
     }
 
     .delete-trait {
       background: #33000044;
-      color: #fff;
-      border: none;
-      padding: 2px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      margin-left: 10px;
     }
 
     .delete-trait:hover {
@@ -215,7 +183,7 @@
       display: flex;
       flex-direction: column;
       margin-bottom: 15px;
-      width: 100%
+      width: 100%;
     }
 
     .trait-header {
@@ -244,60 +212,29 @@
       height: 10px;
       width: auto;
       max-width: 50%;
-      offset: 0px 10px;
-      padding: 0px;
+      offset: 0 10px;
+      padding: 0;
       margin-top: 20px;
       outline: none;
-
     }
 
-    .trait-slider::-webkit-slider-thumb {
+    .trait-slider::-webkit-slider-thumb,
+    .trait-slider::-moz-range-thumb {
       -webkit-appearance: none;
       appearance: none;
       width: 25px;
       height: 25px;
       background: #8888;
       border-radius: 25px;
-    }
-
-    .trait-slider::-moz-range-thumb {
       border: 0;
-      width: 25px;
-      height: 25px;
-      background: #8888;
-      border-radius: 25px;
-    }
-
-    .delete-trait,
-    .lock {
-      background: #33333344;
-      color: #fff;
-      border: none;
-      padding: 2px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      margin-left: 5px;
-      font-size: 16px;
-    }
-
-    .delete-trait:hover,
-    .lock:hover {
-      background-color: #333;
-    }
-
-    .trait input[type="text"] {
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .lock {
-      transition: background-color 0.3s ease;
     }
 
     .lock.locked {
       background-color: rgba(0, 100, 0, 0.5);
-      /* Dark transparent green */
+    }
+
+    .trait input[type="text"] {
+      width: 100%;
     }
 
     .prompt-box {
@@ -333,11 +270,6 @@
       border-radius: 15px;
       padding: 10px;
       resize: vertical;
-    }
-
-    .trait-input {
-      display: flex;
-      margin-bottom: 10px;
     }
 
     .prompt-box.foldable {
