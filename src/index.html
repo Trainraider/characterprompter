@@ -454,7 +454,7 @@
   </div>
   <button onclick="rerollAll()">Reroll Traits</button>
   <button onclick="copyAll()">Copy Traits</button>
-  <button onclick="traitContainer.resetTraits()">Reset Traits</button><br><br>
+  <button onclick="traitContainer.reset()">Reset Traits</button><br><br>
   <div id="attributes"></div>
   <div id="traits"></div>
   <div class="trait-input">
@@ -651,6 +651,14 @@
           }
         }
       }
+
+      reset() {
+        this.attributes = {};
+        Object.entries(ATTRIBUTES_INFO).forEach(([key, options]) => {
+          this.addAttribute(key, options);
+        })
+        this.generateElements();
+      }
     }
 
     class Trait {
@@ -775,9 +783,10 @@
         }
       }
 
-      generateElements(parentElement) {
-        parentElement.innerHTML = '';
-        this._forEach(trait => parentElement.appendChild(trait.generateElement()));
+      generateElements() {
+        const traitsElement = document.getElementById('traits');
+        traitsElement.innerHTML = '';
+        this._forEach(trait => traitsElement.appendChild(trait.generateElement()));
       }
 
       generateText() {
@@ -790,68 +799,17 @@
         this._forEach(trait => trait.reroll());
       }
 
-      resetTraits() {
+      reset() {
         this.traits = {};
         DEFAULT_TRAITS.forEach(traitName => this.addTrait(traitName));
-        this.generateElements(document.getElementById('traits'));
+        this.generateElements();
       }
 
       deleteTrait(traitName) {
         delete this.traits[traitName];
-        const traitsElement = document.getElementById('traits');
-        this.generateElements(traitsElement);
+        this.generateElements();
       }
     }
-    
-    function setupNewTraitInput() {
-      const newTraitInput = document.getElementById('newTraitInput');
-      const addButton = document.querySelector('.trait-input button');
-
-      newTraitInput.addEventListener('keypress', function (event) {
-        const newTraitInput = document.getElementById('newTraitInput');
-        const newTraitName = newTraitInput.value.trim();
-        if (event.key === 'Enter') {
-          event.preventDefault(); // Prevent form submission if it's in a form
-          traitContainer.addTrait(newTraitName);
-        }
-      });
-
-      addButton.onclick = function () {
-        const newTraitInput = document.getElementById('newTraitInput');
-        const newTraitName = newTraitInput.value.trim();
-        traitContainer.addTrait(newTraitName);
-      };
-    }
-
-    function initializeTraits() {
-      DEFAULT_TRAITS.forEach(traitName => traitContainer.addTrait(traitName));
-      const traitsElement = document.getElementById('traits');
-      traitContainer.generateElements(traitsElement);
-    }
-
-    function setupAttributeListeners() {
-      const attributesElement = document.getElementById('attributes');
-      const attributeInputs = attributesElement.querySelectorAll('input');
-
-      attributeInputs.forEach(input => {
-        const attributeName = input.closest('.attribute').textContent.split(':')[0].trim();
-        const attribute = attributeContainer.attributes[attributeName];
-
-        input.addEventListener('input', (e) => {
-          if (!attribute.locked) {
-            attribute.value = e.target.value;
-          }
-        });
-      });
-    }
-
-    // Initialize the attribute container
-    const attributeContainer = new AttributeContainer();
-
-    // Populate the attribute container
-    Object.entries(ATTRIBUTES_INFO).forEach(([key, options]) => {
-      attributeContainer.addAttribute(key, options);
-    });
 
     function rerollAll() {
       attributeContainer.reroll();
@@ -927,8 +885,6 @@
       copyToClipboard(finalText);
     }
 
-    const traitContainer = new TraitContainer();
-
     document.getElementById('digestedTraits').addEventListener('input', function () {
       const step2Prompts = document.getElementById('step2Prompts');
       if (this.value.trim()) {
@@ -989,7 +945,7 @@
 
       document.addEventListener('mousemove', checkHover);
       document.addEventListener('touchmove', checkHover);
-      document.addEventListener('touchstart', checkHover); // for initial touch
+      document.addEventListener('touchstart', checkHover);
 
       const foldableBoxes = document.querySelectorAll('.prompt-box.foldable');
 
@@ -1000,10 +956,27 @@
         });
       });
 
+      const newTraitInput = document.getElementById('newTraitInput');
+      const addButton = document.querySelector('.trait-input button');
 
-      setupNewTraitInput();
-      initializeTraits();
-      attributeContainer.generateElements();
+      newTraitInput.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault(); // Prevent form submission if it's in a form
+          const newTraitName = newTraitInput.value.trim();
+          traitContainer.addTrait(newTraitName)
+        }
+      });
+
+      addButton.onclick = function () {
+        const newTraitName = newTraitInput.value.trim();
+        traitContainer.addTrait(newTraitName)
+      };
+
+      attributeContainer.reset();
+      traitContainer.reset();
       rerollAll();
-      setupAttributeListeners();
     });
+
+    // Initialize containers
+    const attributeContainer = new AttributeContainer();
+    const traitContainer = new TraitContainer();
