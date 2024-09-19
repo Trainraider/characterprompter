@@ -34,6 +34,7 @@ def build_index_html():
     script_files = [
         'constants.js',
         'LockButton.js',
+        'Dropdown.js',
         'Attribute.js',
         'AttributeContainer.js',
         'Trait.js',
