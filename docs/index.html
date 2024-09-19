@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>✨Character Traits and Attributes Generator✨</title>
   <style>
-    @property --hue {
+        @property --hue {
       syntax: '<number>';
       initial-value: 0;
       inherits: false;
@@ -461,7 +461,7 @@
     </p>
   </footer>
   <script>
-
+    
     const ATTRIBUTES_INFO = {
       'Gender': ['Man', 'Woman'],
       'Age': Array.from({ length: 18 }, (_, i) => i + 18),
@@ -795,7 +795,7 @@
       deleteTrait(traitName) {
         delete this.traits[traitName];
         this.generateElements();
-      }
+      }      
     }
 
     function rerollAll() {
@@ -970,7 +970,7 @@
     const attributeContainer = new AttributeContainer();
     const traitContainer = new TraitContainer();
     const prompt_template = `
-Character card example:
+    Character card example:
 
 Character Archetypes: The Mastermind, The Manipulator, The Tempter, The Tyrant
 Story Archetype: The Descent into the Underworld
@@ -1191,7 +1191,7 @@ Use this information to create a character card for role-play. The character car
 
 `;
     const nsfw_prompt_template = `
-Character card example:
+    Character card example:
 
 Character Archetypes: The Simpleton, The Mask, The Stoic, The Scapegoater, The Shadow, The Unfeeling Judge, The Narcissist, The Psychopath, The Seductress
 Story Archetype: The Overbearing Guardian
