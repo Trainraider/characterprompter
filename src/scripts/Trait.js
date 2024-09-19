@@ -1,6 +1,7 @@
 class Trait {
-  constructor(name, category) {
+  constructor(name, antonym, category) {
     this.name = name;
+    this.antonym = antonym;
     this.category = category;
     this.value = Math.floor(Math.random() * 101);
     this.element = null;
@@ -67,11 +68,12 @@ class Trait {
   generateText() {
     const textInput = this.element ? this.element.querySelector('.trait-input').value : '';
     if (textInput) {
-      // Check if the input contains the trait name (case-insensitive)
-      if (textInput.toLowerCase().includes(this.name.toLowerCase())) {
+      // Check if the input contains the trait name or antonym (case-insensitive)
+      if (textInput.toLowerCase().includes(this.name.toLowerCase()) || 
+          textInput.toLowerCase().includes(this.antonym.toLowerCase())) {
         return `${textInput}\n`;
       }
-      return `${this.name}: ${textInput}\n`;
+      return `${this.name} - ${this.antonym}: ${textInput}\n`;
     } else {
       const strengthModifier = this.getStrengthModifier();
       return `${strengthModifier}\n`;
@@ -80,12 +82,6 @@ class Trait {
 
   getStrengthModifier() {
     const levels = [
-      { threshold: 0, modifier: "no {{trait}} at all" },
-      { threshold: 10, modifier: "practically nonexistent {{trait}}" },
-      { threshold: 20, modifier: "almost no {{trait}}" },
-      { threshold: 25, modifier: "very low {{trait}}" },
-      { threshold: 35, modifier: "considerably below average {{trait}}" },
-      { threshold: 40, modifier: "less than average {{trait}}" },
       { threshold: 45, modifier: "average {{trait}}" },
       { threshold: 50, modifier: "moderate {{trait}}" },
       { threshold: 60, modifier: "above average {{trait}}" },
@@ -95,11 +91,27 @@ class Trait {
       { threshold: 94, modifier: "unparalleled {{trait}}" }
     ];
 
-    for (let i = levels.length - 1; i >= 0; i--) {
-      if (this.value >= levels[i].threshold) {
-        return levels[i].modifier.replace("{{trait}}", this.name.toLowerCase());
+    let trait, modifier;
+
+    if (this.value >= 45) {
+      trait = this.name;
+      for (let i = levels.length - 1; i >= 0; i--) {
+        if (this.value >= levels[i].threshold) {
+          modifier = levels[i].modifier;
+          break;
+        }
+      }
+    } else {
+      trait = this.antonym;
+      const invertedValue = 100 - this.value;
+      for (let i = levels.length - 1; i >= 0; i--) {
+        if (invertedValue >= levels[i].threshold) {
+          modifier = levels[i].modifier;
+          break;
+        }
       }
     }
-    return "invalid {{trait}}".replace("{{trait}}", this.name.toLowerCase());
+
+    return modifier.replace("{{trait}}", trait.toLowerCase());
   }
 }

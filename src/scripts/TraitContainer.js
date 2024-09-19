@@ -11,9 +11,9 @@ class TraitContainer {
     Object.values(this.traits).forEach(callback);
   }
 
-  addTrait(newTraitName, category) {
+  addTrait(newTraitName, antonym, category) {
     if (newTraitName && !this.traits[newTraitName] && this.categories[category]) {
-      this.traits[newTraitName] = new Trait(newTraitName, category);
+      this.traits[newTraitName] = new Trait(newTraitName, antonym, category);
       this.categories[category].push(this.traits[newTraitName]);
       this.updateDropdowns();
     }
@@ -55,7 +55,7 @@ class TraitContainer {
       "Personality Traits": [],
       "Status Traits": []
     };
-    DEFAULT_TRAITS.forEach(traitData => this.addTrait(traitData.name, traitData.category));
+    DEFAULT_TRAITS.forEach(traitData => this.addTrait(traitData.name, traitData.antonym, traitData.category));
     this.updateDropdowns();
   }
 

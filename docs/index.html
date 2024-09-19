@@ -173,6 +173,7 @@
 
     .trait-input {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       margin-top: 20px;
       gap: 10px;
@@ -180,6 +181,7 @@
 
     .trait-input input {
       flex-grow: 1;
+      min-width: 120px;
     }
 
     .trait-input select {
@@ -484,6 +486,19 @@
       padding: 5px;
       font-size: 14px;
     }
+
+    @media (max-width: 600px) {
+      .trait-input {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .trait-input input,
+      .trait-input select,
+      .trait-input button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 
@@ -550,7 +565,8 @@
   <div id="attributes"></div>
   <div id="traits"></div>
   <div class="trait-input">
-    <input type="text" id="newTraitInput" placeholder="Add new trait">
+    <input type="text" id="newTraitInput" placeholder="Add new trait (e.g. Brave)">
+    <input type="text" id="newTraitAntonymInput" placeholder="Add trait antonym (e.g. Cowardly)">
     <select id="traitCategory">
       <option value="Personality Traits">Personality Traits</option>
       <option value="Status Traits">Status Traits</option>
@@ -571,49 +587,49 @@
     </p>
   </footer>
   <script>
-    
     const ATTRIBUTES_INFO = {
-      'Gender': ['Man', 'Woman'],
-      'Age': Array.from({ length: 18 }, (_, i) => i + 18),
-      'Era': ['Medieval', 'Modern', 'Futuristic'],
-      'World Type': ['Realistic', 'Fantasy'],
-      'Race': ['Human', 'Elf', 'Goblin', 'Orc'] // Only if fantasy
-    };
+  'Gender': ['Man', 'Woman'],
+  'Age': Array.from({ length: 18 }, (_, i) => i + 18),
+  'Era': ['Medieval', 'Modern', 'Futuristic'],
+  'World Type': ['Realistic', 'Fantasy'],
+  'Race': ['Human', 'Elf', 'Goblin', 'Orc'] // Only if fantasy
+};
 
-    const DEFAULT_TRAITS = [
-      { name: "Openness", category: "Personality Traits" }, 
-      { name: "Conscientiousness", category: "Personality Traits" }, 
-      { name: "Extroversion", category: "Personality Traits" }, 
-      { name: "Agreeableness", category: "Personality Traits" }, 
-      { name: "Neuroticism", category: "Personality Traits" }, 
-      { name: "Narcissism", category: "Personality Traits" }, 
-      { name: "Machiavellianism", category: "Personality Traits" }, 
-      { name: "Sadism", category: "Personality Traits" }, 
-      { name: "Psychopathy", category: "Personality Traits" }, 
-      { name: "Wealth", category: "Status Traits" }, 
-      { name: "Societal status", category: "Status Traits" }, 
-      { name: "Strength", category: "Status Traits" }, 
-      { name: "Intelligence", category: "Status Traits" }, 
-      { name: "Wisdom", category: "Status Traits" }, 
-      { name: "Physical attractiveness", category: "Status Traits" }, 
-      { name: "Horniness", category: "Status Traits" } ];
+const DEFAULT_TRAITS = [
+  { name: "Openness", antonym: "Closed-mindedness", category: "Personality Traits" },
+  { name: "Conscientiousness", antonym: "Carelessness", category: "Personality Traits" },
+  { name: "Extroversion", antonym: "Introversion", category: "Personality Traits" },
+  { name: "Agreeableness", antonym: "Antagonism", category: "Personality Traits" },
+  { name: "Neuroticism", antonym: "Emotional Stability", category: "Personality Traits" },
+  { name: "Narcissism", antonym: "Selflessness", category: "Personality Traits" },
+  { name: "Machiavellianism", antonym: "Sincerity", category: "Personality Traits" },
+  { name: "Sadism", antonym: "Gentleness", category: "Personality Traits" },
+  { name: "Psychopathy", antonym: "Altruism", category: "Personality Traits" },
+  { name: "Wealth", antonym: "Poverty", category: "Status Traits" },
+  { name: "Social Status", antonym: "Social Adversity", category: "Status Traits" },
+  { name: "Strength", antonym: "Weakness", category: "Status Traits" },
+  { name: "Intelligence", antonym: "Stupidity", category: "Status Traits" },
+  { name: "Wisdom", antonym: "Ignorance", category: "Status Traits" },
+  { name: "Attractiveness", antonym: "Unattractiveness", category: "Status Traits" },
+  { name: "Horniness", antonym: "Sexual Indifference", category: "Status Traits" }
+];
 
-    const PERSONALITY_TRAITS = [
-      "Adventurous", "Ambitious", "Analytical", "Arrogant", "Assertive", "Bigotted", "Brave",
-      "Careless", "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
-      "Conservative", "Creative", "Cynical", "Decisive", "Determined", "Diligent", "Dramatic",
-      "Dishonest", "Disorganized", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious", "Focused",
-      "Forgiving", "Generous", "Greedy", "Honest", "Humble", "Idealistic", "Imaginative", "Impulsive",
-      "Independent", "Intelligent", "Introverted", "Intuitive", "Irresponsible", "Jealous", "Lazy", "Lecherous", "Liberal",
-      "Logical", "Loyal", "Lustful", "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
-      "Narcissistic", "Neurotic", "Observant", "Optimistic", "Passionate", "Patient", "Perfectionist",
-      "Persistent", "Persuasive", "Pessimistic", "Philosophical", "Pragmatic", "Procrastinates", "Prideful", "Rational", "Rebellious",
-      "Reckless", "Reserved", "Resourceful", "Romantic", "Sarcastic", "Scholarly", "Self-absorbed", "Selfish",
-      "Sensitive", "Sensual", "Skeptical", "Slutty", "Socially awkward", "Stoic", "Stubborn",
-      "Suspicious", "Sympathetic", "Tactful", "Temperamental", "Tenacious", "Thoughtful", "Timid",
-      "Tolerant", "Treacherous", "Trustworthy", "Uncompromising", "Unpredictable", "Vengeful",
-      "Visionary", "Witty", "Wrathful"
-    ];
+const PERSONALITY_TRAITS = [
+  "Adventurous", "Ambitious", "Analytical", "Arrogant", "Assertive", "Bigotted", "Brave",
+  "Careless", "Captivating", "Cautious", "Charismatic", "Cheerful", "Compassionate", "Competent", "Confident",
+  "Conservative", "Creative", "Cynical", "Decisive", "Determined", "Diligent", "Dramatic",
+  "Dishonest", "Disorganized", "Eccentric", "Empathetic", "Enthusiastic", "Extroverted", "Flirtatious", "Focused",
+  "Forgiving", "Generous", "Greedy", "Honest", "Humble", "Idealistic", "Imaginative", "Impulsive",
+  "Independent", "Intelligent", "Introverted", "Intuitive", "Irresponsible", "Jealous", "Lazy", "Lecherous", "Liberal",
+  "Logical", "Loyal", "Lustful", "Manipulative", "Melancholic", "Meticulous", "Modest", "Naive",
+  "Narcissistic", "Neurotic", "Observant", "Optimistic", "Passionate", "Patient", "Perfectionist",
+  "Persistent", "Persuasive", "Pessimistic", "Philosophical", "Pragmatic", "Procrastinates", "Prideful", "Rational", "Rebellious",
+  "Reckless", "Reserved", "Resourceful", "Romantic", "Sarcastic", "Scholarly", "Self-absorbed", "Selfish",
+  "Sensitive", "Sensual", "Skeptical", "Slutty", "Socially awkward", "Stoic", "Stubborn",
+  "Suspicious", "Sympathetic", "Tactful", "Temperamental", "Tenacious", "Thoughtful", "Timid",
+  "Tolerant", "Treacherous", "Trustworthy", "Uncompromising", "Unpredictable", "Vengeful",
+  "Visionary", "Witty", "Wrathful"
+];
 
     class LockButton {
       constructor(name) {
@@ -804,8 +820,9 @@ class Dropdown {
   }
 }
 class Trait {
-  constructor(name, category) {
+  constructor(name, antonym, category) {
     this.name = name;
+    this.antonym = antonym;
     this.category = category;
     this.value = Math.floor(Math.random() * 101);
     this.element = null;
@@ -872,11 +889,12 @@ class Trait {
   generateText() {
     const textInput = this.element ? this.element.querySelector('.trait-input').value : '';
     if (textInput) {
-      // Check if the input contains the trait name (case-insensitive)
-      if (textInput.toLowerCase().includes(this.name.toLowerCase())) {
+      // Check if the input contains the trait name or antonym (case-insensitive)
+      if (textInput.toLowerCase().includes(this.name.toLowerCase()) || 
+          textInput.toLowerCase().includes(this.antonym.toLowerCase())) {
         return `${textInput}\n`;
       }
-      return `${this.name}: ${textInput}\n`;
+      return `${this.name} - ${this.antonym}: ${textInput}\n`;
     } else {
       const strengthModifier = this.getStrengthModifier();
       return `${strengthModifier}\n`;
@@ -885,12 +903,6 @@ class Trait {
 
   getStrengthModifier() {
     const levels = [
-      { threshold: 0, modifier: "no {{trait}} at all" },
-      { threshold: 10, modifier: "practically nonexistent {{trait}}" },
-      { threshold: 20, modifier: "almost no {{trait}}" },
-      { threshold: 25, modifier: "very low {{trait}}" },
-      { threshold: 35, modifier: "considerably below average {{trait}}" },
-      { threshold: 40, modifier: "less than average {{trait}}" },
       { threshold: 45, modifier: "average {{trait}}" },
       { threshold: 50, modifier: "moderate {{trait}}" },
       { threshold: 60, modifier: "above average {{trait}}" },
@@ -900,12 +912,28 @@ class Trait {
       { threshold: 94, modifier: "unparalleled {{trait}}" }
     ];
 
-    for (let i = levels.length - 1; i >= 0; i--) {
-      if (this.value >= levels[i].threshold) {
-        return levels[i].modifier.replace("{{trait}}", this.name.toLowerCase());
+    let trait, modifier;
+
+    if (this.value >= 45) {
+      trait = this.name;
+      for (let i = levels.length - 1; i >= 0; i--) {
+        if (this.value >= levels[i].threshold) {
+          modifier = levels[i].modifier;
+          break;
+        }
+      }
+    } else {
+      trait = this.antonym;
+      const invertedValue = 100 - this.value;
+      for (let i = levels.length - 1; i >= 0; i--) {
+        if (invertedValue >= levels[i].threshold) {
+          modifier = levels[i].modifier;
+          break;
+        }
       }
     }
-    return "invalid {{trait}}".replace("{{trait}}", this.name.toLowerCase());
+
+    return modifier.replace("{{trait}}", trait.toLowerCase());
   }
 }
 class TraitContainer {
@@ -921,9 +949,9 @@ class TraitContainer {
     Object.values(this.traits).forEach(callback);
   }
 
-  addTrait(newTraitName, category) {
+  addTrait(newTraitName, antonym, category) {
     if (newTraitName && !this.traits[newTraitName] && this.categories[category]) {
-      this.traits[newTraitName] = new Trait(newTraitName, category);
+      this.traits[newTraitName] = new Trait(newTraitName, antonym, category);
       this.categories[category].push(this.traits[newTraitName]);
       this.updateDropdowns();
     }
@@ -965,7 +993,7 @@ class TraitContainer {
       "Personality Traits": [],
       "Status Traits": []
     };
-    DEFAULT_TRAITS.forEach(traitData => this.addTrait(traitData.name, traitData.category));
+    DEFAULT_TRAITS.forEach(traitData => this.addTrait(traitData.name, traitData.antonym, traitData.category));
     this.updateDropdowns();
   }
 
@@ -1001,7 +1029,6 @@ class TraitContainer {
     function generateTraitAttributeText(attributeContainer, traitContainer) {
       return attributeContainer.generateText() + traitContainer.generateText();
     }
-
 function rerollAll() {
   attributeContainer.reroll();
   traitContainer.reroll();
@@ -1011,11 +1038,13 @@ function generateStep1Prompt() {
   let allText = generateTraitAttributeText(attributeContainer, traitContainer);
   const customPromptText = document.getElementById('customPrompt').value.trim();
 
+  const personalityTraitsList = PERSONALITY_TRAITS.join(', ');
+
   const step1Prompt = `Based on the following information about a character:
     ${allText}
     ${customPromptText}
 
-    And considering this list of personality traits: ${PERSONALITY_TRAITS.join(', ')}
+    And considering this list of personality traits: ${personalityTraitsList}
     Please list the personality traits from the provided list that most apply to this character based on the information given. Your list should only be space separated. You can also use traits that weren't listed in your list. Put your answer in a code block.`;
 
   copyToClipboard(step1Prompt);
@@ -1126,25 +1155,36 @@ document.addEventListener('DOMContentLoaded', (event) => {
   });
 
   const newTraitInput = document.getElementById('newTraitInput');
+  const newTraitAntonymInput = document.getElementById('newTraitAntonymInput');
   const addButton = document.querySelector('.trait-input button');
   const categorySelect = document.getElementById('traitCategory');
 
+  function addNewTrait() {
+    const newTraitName = newTraitInput.value.trim();
+    const newTraitAntonym = newTraitAntonymInput.value.trim();
+    const category = categorySelect.value;
+    if (newTraitName && newTraitAntonym) {
+      traitContainer.addTrait(newTraitName, newTraitAntonym, category);
+      newTraitInput.value = "";
+      newTraitAntonymInput.value = "";
+    }
+  }
+
   newTraitInput.addEventListener('keypress', function (event) {
     if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent form submission if it's in a form
-      const newTraitName = newTraitInput.value.trim();
-      const category = categorySelect.value;
-      traitContainer.addTrait(newTraitName, category);
-      newTraitInput.value = "";
+      event.preventDefault();
+      addNewTrait();
     }
   });
 
-  addButton.onclick = function () {
-    const newTraitName = newTraitInput.value.trim();
-    const category = categorySelect.value;
-    traitContainer.addTrait(newTraitName, category);
-    newTraitInput.value = "";
-  };
+  newTraitAntonymInput.addEventListener('keypress', function (event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      addNewTrait();
+    }
+  });
+
+  addButton.onclick = addNewTrait;
 
   attributeContainer.reset();
   traitContainer.reset();

@@ -1,4 +1,3 @@
-
 function rerollAll() {
   attributeContainer.reroll();
   traitContainer.reroll();
@@ -8,11 +7,13 @@ function generateStep1Prompt() {
   let allText = generateTraitAttributeText(attributeContainer, traitContainer);
   const customPromptText = document.getElementById('customPrompt').value.trim();
 
+  const personalityTraitsList = PERSONALITY_TRAITS.join(', ');
+
   const step1Prompt = `Based on the following information about a character:
     ${allText}
     ${customPromptText}
 
-    And considering this list of personality traits: ${PERSONALITY_TRAITS.join(', ')}
+    And considering this list of personality traits: ${personalityTraitsList}
     Please list the personality traits from the provided list that most apply to this character based on the information given. Your list should only be space separated. You can also use traits that weren't listed in your list. Put your answer in a code block.`;
 
   copyToClipboard(step1Prompt);
@@ -123,25 +124,36 @@ document.addEventListener('DOMContentLoaded', (event) => {
   });
 
   const newTraitInput = document.getElementById('newTraitInput');
+  const newTraitAntonymInput = document.getElementById('newTraitAntonymInput');
   const addButton = document.querySelector('.trait-input button');
   const categorySelect = document.getElementById('traitCategory');
 
+  function addNewTrait() {
+    const newTraitName = newTraitInput.value.trim();
+    const newTraitAntonym = newTraitAntonymInput.value.trim();
+    const category = categorySelect.value;
+    if (newTraitName && newTraitAntonym) {
+      traitContainer.addTrait(newTraitName, newTraitAntonym, category);
+      newTraitInput.value = "";
+      newTraitAntonymInput.value = "";
+    }
+  }
+
   newTraitInput.addEventListener('keypress', function (event) {
     if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent form submission if it's in a form
-      const newTraitName = newTraitInput.value.trim();
-      const category = categorySelect.value;
-      traitContainer.addTrait(newTraitName, category);
-      newTraitInput.value = "";
+      event.preventDefault();
+      addNewTrait();
     }
   });
 
-  addButton.onclick = function () {
-    const newTraitName = newTraitInput.value.trim();
-    const category = categorySelect.value;
-    traitContainer.addTrait(newTraitName, category);
-    newTraitInput.value = "";
-  };
+  newTraitAntonymInput.addEventListener('keypress', function (event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      addNewTrait();
+    }
+  });
+
+  addButton.onclick = addNewTrait;
 
   attributeContainer.reset();
   traitContainer.reset();
