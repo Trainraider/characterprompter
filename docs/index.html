@@ -41,6 +41,15 @@
       animation: rainbow 60s linear infinite;
     }
 
+    @-moz-document url-prefix() {
+      body {
+        background-image: linear-gradient(to bottom right,
+        hsl(0, 100%, 5%),
+        hsl(180, 100%, 10%));
+        animation: none;
+      }
+    }
+
     a {
       color: #0aa;
     }
