@@ -44,8 +44,8 @@
     @-moz-document url-prefix() {
       body {
         background-image: linear-gradient(to bottom right,
-        hsl(0, 100%, 5%),
-        hsl(180, 100%, 10%));
+            hsl(0, 100%, 5%),
+            hsl(180, 100%, 10%));
         animation: none;
       }
     }
@@ -71,6 +71,10 @@
     .attribute,
     .trait {
       margin-bottom: 10px;
+    }
+
+    .attribute-input {
+      margin-top: 20px;
     }
 
     input,
@@ -189,10 +193,11 @@
     .delete-trait,
     .lock {
       background: #33333344;
-      padding: 2px 10px;
+      padding: 5px 10px;
       border-radius: 5px;
-      margin-left: 5px;
-      font-size: 16px;
+      margin-left: 10px;
+      font-size: 14px;
+      cursor: pointer;
     }
 
     .delete-trait {
@@ -267,12 +272,13 @@
       width: 100%;
     }
 
-    .prompt-box {
-      border: 1px solid #33333344;
+    .prompt-box,
+    .custom-trait-box {
+      border: 1px solid #3334;
       border-radius: 10px;
       padding: 15px;
       margin-bottom: 20px;
-      background-color: #33333344;
+      background-color: #3334;
     }
 
     .prompt-box h2 {
@@ -302,11 +308,11 @@
       resize: vertical;
     }
 
-    .prompt-box.foldable {
-      border: 1px solid rgba(204, 204, 204, 0.2);
+    .prompt-box.foldable,
+    .custom-trait-box {
+      border: 1px solid #444;
       margin-bottom: 10px;
-      background-color: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(5px);
+      background-color: #3334;
     }
 
     .prompt-title {
@@ -394,7 +400,7 @@
       border: 1px solid #444;
       border-radius: 15px;
     }
-    
+
     .dropdown-button {
       width: 100%;
       text-align: left;
@@ -406,77 +412,85 @@
       transition: background-color 0.3s, border-radius 0.3s;
       margin-top: 0;
     }
-    
+
     .dropdown-button:hover {
       background-color: #444;
     }
-    
+
     .dropdown-button::after {
       content: '▼';
       float: right;
       transition: transform 0.3s ease;
     }
-    
+
     .dropdown-container.active .dropdown-button {
       border-radius: 15px 15px 0 0;
     }
-    
+
     .dropdown-container.active .dropdown-button::after {
       transform: rotate(180deg);
     }
-    
+
     .dropdown-content {
       background-color: #1115;
       width: 100%;
       border-radius: 0 0 15px 15px;
-      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
       max-height: 0;
       overflow: scroll;
       transition: max-height 0.1s ease-out, opacity 0.3s ease-out;
       opacity: 0;
     }
-    
+
     .dropdown-container.active .dropdown-content {
       max-height: 100%;
       opacity: 1;
       transition: max-height 0.1s ease-in, opacity 0.3s ease-in;
     }
-    
-    .dropdown-content .attribute {
-      padding: 10px 20px;
-      transition: background-color 0.3s;
+
+    .trait {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+      width: 100%;
     }
-    
+
     .dropdown-content .attribute:hover {
       background-color: #222;
     }
-    
+
     .attribute-content {
       display: flex;
       align-items: center;
       justify-content: space-between;
       width: 100%;
     }
-    
-    .attribute-name {
-      flex: 0 0 30%;
+
+    .trait-label {
+      display: inline-block;
+      width: 150px;
+      max-width: 150px;
       font-weight: bold;
       margin-right: 10px;
     }
-    
-    .attribute-input {
+
+    .trait input[type="text"] {
       flex: 1;
       background: #44444455;
       color: #fff;
       border: none;
       border-radius: 5px;
       padding: 5px 10px;
+      width: 100%;
     }
-    
-    .attribute .lock {
+
+    .lock {
+      background: #33333344;
+      padding: 5px 10px;
+      border-radius: 5px;
       margin-right: 10px;
-      padding: 5px;
       font-size: 14px;
+      cursor: pointer;
     }
 
     @media (max-width: 600px) {
@@ -490,4 +504,58 @@
       .trait-input button {
         width: 100%;
       }
+    }
+
+    .trait {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+      width: 100%;
+    }
+
+    .trait-top-row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .trait-label {
+      display: inline-block;
+      width: 150px;
+      max-width: 150px;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    .trait input[type="text"] {
+      flex: 1;
+      background: #44444455;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      width: 100%;
+    }
+
+    .lock.locked {
+      background-color: rgba(0, 100, 0, 0.5);
+    }
+
+    .trait {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+      width: 100%;
+    }
+
+    .dropdown-content .attribute:hover {
+      background-color: #222;
+    }
+
+    .trait-top-row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      flex-wrap: wrap;
     }

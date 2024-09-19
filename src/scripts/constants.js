@@ -10,7 +10,7 @@ const DEFAULT_TRAITS = [
   { name: "Openness", antonym: "Closed-mindedness", category: "Personality Traits" },
   { name: "Conscientiousness", antonym: "Carelessness", category: "Personality Traits" },
   { name: "Extroversion", antonym: "Introversion", category: "Personality Traits" },
-  { name: "Agreeableness", antonym: "Antagonism", category: "Personality Traits" },
+  { name: "Agreeableness", antonym: "Disagreeableness", category: "Personality Traits" },
   { name: "Neuroticism", antonym: "Emotional Stability", category: "Personality Traits" },
   { name: "Narcissism", antonym: "Selflessness", category: "Personality Traits" },
   { name: "Machiavellianism", antonym: "Sincerity", category: "Personality Traits" },
