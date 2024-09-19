@@ -1,45 +1,62 @@
+class TraitContainer {
+  constructor() {
+    this.traits = {};
+    this.categories = {
+      "Personality Traits": [],
+      "Status Traits": []
+    };
+  }
 
-    class TraitContainer {
-      constructor() {
-        this.traits = {};
-      }
+  _forEach(callback) {
+    Object.values(this.traits).forEach(callback);
+  }
 
-      _forEach(callback) {
-        Object.values(this.traits).forEach(callback);
-      }
-
-      addTrait(newTraitName) {
-        if (newTraitName && !this.traits[newTraitName]) {
-          this.traits[newTraitName] = new Trait(newTraitName);
-          const traitsElement = document.getElementById('traits');
-          traitsElement.appendChild(this.traits[newTraitName].generateElement());
-        }
-      }
-
-      generateElements() {
-        const traitsElement = document.getElementById('traits');
-        traitsElement.innerHTML = '';
-        this._forEach(trait => traitsElement.appendChild(trait.generateElement()));
-      }
-
-      generateText() {
-        let allTraitText = '';
-        this._forEach(trait => allTraitText += trait.generateText());
-        return allTraitText;
-      }
-
-      reroll() {
-        this._forEach(trait => trait.reroll());
-      }
-
-      reset() {
-        this.traits = {};
-        DEFAULT_TRAITS.forEach(traitName => this.addTrait(traitName));
-        this.generateElements();
-      }
-
-      deleteTrait(traitName) {
-        delete this.traits[traitName];
-        this.generateElements();
-      }      
+  addTrait(newTraitName, category) {
+    if (newTraitName && !this.traits[newTraitName] && this.categories[category]) {
+      this.traits[newTraitName] = new Trait(newTraitName, category);
+      this.categories[category].push(this.traits[newTraitName]);
+      this.updateDropdowns();
     }
+  }
+
+  updateDropdowns() {
+    const traitsElement = document.getElementById('traits');
+    traitsElement.innerHTML = '';
+
+    for (const [category, traits] of Object.entries(this.categories)) {
+      const dropdownContent = traits.map(trait => trait.generateElement());
+      const dropdown = new Dropdown(category, dropdownContent);
+      traitsElement.appendChild(dropdown.generateElement());
+    }
+  }
+
+  generateText() {
+    let allTraitText = '';
+    this._forEach(trait => allTraitText += trait.generateText());
+    return allTraitText;
+  }
+
+  reroll() {
+    this._forEach(trait => trait.reroll());
+  }
+
+  reset() {
+    this.traits = {};
+    this.categories = {
+      "Personality Traits": [],
+      "Status Traits": []
+    };
+    DEFAULT_TRAITS.forEach(traitData => this.addTrait(traitData.name, traitData.category));
+    this.updateDropdowns();
+  }
+
+  deleteTrait(traitName) {
+    const trait = this.traits[traitName];
+    if (trait) {
+      const category = trait.category;
+      this.categories[category] = this.categories[category].filter(t => t.name !== traitName);
+      delete this.traits[traitName];
+      this.updateDropdowns();
+    }
+  }
+}

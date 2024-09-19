@@ -8,11 +8,22 @@
     };
 
     const DEFAULT_TRAITS = [
-      'Openness', 'Conscientiousness', 'Extroversion', 'Agreeableness', 'Neuroticism',
-      'Narcissism', 'Machiavellianism', 'Sadism', 'Psychopathy',
-      'Wealth', 'Societal status', 'Strength', 'Intelligence', 'Wisdom',
-      'Physical attractiveness', 'Horniness'
-    ];
+      { name: "Openness", category: "Personality Traits" }, 
+      { name: "Conscientiousness", category: "Personality Traits" }, 
+      { name: "Extroversion", category: "Personality Traits" }, 
+      { name: "Agreeableness", category: "Personality Traits" }, 
+      { name: "Neuroticism", category: "Personality Traits" }, 
+      { name: "Narcissism", category: "Personality Traits" }, 
+      { name: "Machiavellianism", category: "Personality Traits" }, 
+      { name: "Sadism", category: "Personality Traits" }, 
+      { name: "Psychopathy", category: "Personality Traits" }, 
+      { name: "Wealth", category: "Status Traits" }, 
+      { name: "Societal status", category: "Status Traits" }, 
+      { name: "Strength", category: "Status Traits" }, 
+      { name: "Intelligence", category: "Status Traits" }, 
+      { name: "Wisdom", category: "Status Traits" }, 
+      { name: "Physical attractiveness", category: "Status Traits" }, 
+      { name: "Horniness", category: "Status Traits" } ];
 
     const PERSONALITY_TRAITS = [
       "Adventurous", "Ambitious", "Analytical", "Arrogant", "Assertive", "Bigotted", "Brave",
