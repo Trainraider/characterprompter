@@ -23,11 +23,20 @@ class TraitContainer {
     const traitsElement = document.getElementById('traits');
     traitsElement.innerHTML = '';
 
-    for (const [category, traits] of Object.entries(this.categories)) {
+    const categories = Object.entries(this.categories);
+    categories.forEach(([category, traits], index) => {
       const dropdownContent = traits.map(trait => trait.generateElement());
       const dropdown = new Dropdown(category, dropdownContent);
       traitsElement.appendChild(dropdown.generateElement());
-    }
+
+      // Add a spacer div between dropdowns, but not after the last one
+      if (index < categories.length - 1) {
+        const spacer = document.createElement('div');
+        spacer.className = 'dropdown-spacer';
+        spacer.style.height = '20px'; // Adjust this value to increase or decrease space
+        traitsElement.appendChild(spacer);
+      }
+    });
   }
 
   generateText() {

@@ -17,12 +17,15 @@
     html,
     body {
       overscroll-behavior: none;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
     }
 
     body {
       color: #aaa;
       font-family: Arial, sans-serif;
-      padding: 20px;
+      padding: 20px 20px 0;
       max-width: 800px;
       margin: 0 auto;
       --value: 5%;
@@ -30,7 +33,12 @@
       background-image: linear-gradient(to bottom right,
           hsl(calc(var(--hue) * 1deg), 100%, var(--value)),
           hsl(calc((var(--hue) + 180) * 1deg), 100%, var(--value-2)));
+      background-attachment: fixed;
+      background-size: cover;
       animation: rainbow 60s linear infinite;
+      box-sizing: border-box;
+      max-height: 100vh;
+      overflow-y: auto;
     }
 
     @-moz-document url-prefix() {
@@ -69,7 +77,8 @@
     button,
     #customPrompt,
     #toggleDescription,
-    #scrollToTop {
+    #scrollToTop,
+    select {
       background: #33333344;
       color: #fff;
       border: none;
@@ -103,7 +112,8 @@
 
     button:hover,
     #toggleDescription:hover,
-    #scrollToTop:hover {
+    #scrollToTop:hover,
+    select:hover {
       background-color: #333;
     }
 
@@ -157,15 +167,21 @@
       display: flex;
       align-items: center;
       margin-top: 20px;
+      gap: 10px;
     }
 
     .trait-input input {
       flex-grow: 1;
-      margin-right: 10px;
+    }
+
+    .trait-input select {
+      width: 180px;
+      flex-shrink: 0;
     }
 
     .trait-input button {
-      padding: 5px 10px;
+      padding: 10px 20px;
+      margin-top: 0;
     }
 
     .delete-trait,
