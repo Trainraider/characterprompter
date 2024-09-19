@@ -19,6 +19,7 @@ def encode_image_to_base64(image_path):
 
 def build_index_html():
     src_dir = './src'
+    script_dir = './src/scripts'
     docs_dir = './docs'
 
     os.makedirs(docs_dir, exist_ok=True)
@@ -28,7 +29,21 @@ def build_index_html():
     prompt = read_file(os.path.join(src_dir, 'prompt.txt'))
     nsfw_prompt = read_file(os.path.join(src_dir, 'nsfw_prompt.txt'))
     style_css = read_file(os.path.join(src_dir, 'style.css'))
-    script_js = read_file(os.path.join(src_dir, 'script.js'))
+
+    # Combine all JavaScript modules into one
+    script_files = [
+        'constants.js',
+        'LockButton.js',
+        'Attribute.js',
+        'AttributeContainer.js',
+        'Trait.js',
+        'TraitContainer.js',
+        'utils.js',
+        'main.js'
+    ]
+    script_js = ''
+    for script_file in script_files:
+        script_js += read_file(os.path.join(script_dir, script_file))
 
     # Escape backticks in prompts
     prompt = escape_backticks(prompt)

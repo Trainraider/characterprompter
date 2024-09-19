@@ -643,7 +643,7 @@
         this.attributes = {};
         Object.entries(ATTRIBUTES_INFO).forEach(([key, options]) => {
           this.addAttribute(key, options);
-        })
+        });
         this.generateElements();
       }
     }
@@ -664,7 +664,7 @@
 
         div.innerHTML = `
                 <div class="trait-top-row">
-                    <button class="delete-trait" onclick="traitContainer.deleteTrait('${this.name}')">❌</button>
+                    <button class="delete-trait" onclick="traitContainer.deleteTrait('${this.name}')">\u274c</button>
                     <span class="trait-label">${this.name}:</span>
                     <input type="range" class="trait-slider" min="0" max="100" value="${this.value}">
                 </div>
@@ -798,13 +798,35 @@
       }      
     }
 
+    function copyToClipboard(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      // Show copy notification
+      const notification = document.getElementById('copyNotification');
+      notification.style.opacity = '1';
+      notification.style.visibility = 'visible';
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.visibility = 'hidden';
+      }, 1000);
+    }
+
+    function generateTraitAttributeText(attributeContainer, traitContainer) {
+      return attributeContainer.generateText() + traitContainer.generateText();
+    }
+
     function rerollAll() {
       attributeContainer.reroll();
       traitContainer.reroll();
     }
 
     function generateStep1Prompt() {
-      let allText = generateTraitAttributeText();
+      let allText = generateTraitAttributeText(attributeContainer, traitContainer);
       const customPromptText = document.getElementById('customPrompt').value.trim();
 
       const step1Prompt = `Based on the following information about a character:
@@ -835,35 +857,13 @@
       copyToClipboard(finalText);
     }
 
-    function generateTraitAttributeText() {
-      return attributeContainer.generateText() + traitContainer.generateText();
-    }
-
-    function copyToClipboard(text) {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-
-      //show copy notification
-      const notification = document.getElementById('copyNotification');
-      notification.style.opacity = '1';
-      notification.style.visibility = 'visible';
-      setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.visibility = 'hidden';
-      }, 1000);
-    }
-
     function copyAll() {
-      let allText = generateTraitAttributeText();
+      let allText = generateTraitAttributeText(attributeContainer, traitContainer);
       copyToClipboard(allText);
     }
 
     function copyWithPrompt(prompt) {
-      let allText = generateTraitAttributeText();
+      let allText = generateTraitAttributeText(attributeContainer, traitContainer);
       const customPromptText = document.getElementById('customPrompt').value.trim();
       const finalText = prompt
         .replace('{{traits}}', allText)
@@ -871,7 +871,7 @@
 
       copyToClipboard(finalText);
     }
-
+    
     document.getElementById('digestedTraits').addEventListener('input', function () {
       const step2Prompts = document.getElementById('step2Prompts');
       if (this.value.trim()) {
