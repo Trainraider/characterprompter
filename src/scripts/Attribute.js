@@ -1,4 +1,3 @@
-
     class Attribute {
       constructor(name, options) {
         this.name = name;
@@ -18,6 +17,7 @@
           }
           this.updateValue(value);
         }
+        return this.value;
       }
 
       generateElement() {
@@ -27,15 +27,19 @@
         const lockButton = this.lock.createLockButton();
 
         div.innerHTML = `
-            ${this.name}: <br><br>
-            <input type="text" value="${this.value}">
-          `;
-        div.insertBefore(lockButton, div.firstChild);
+          <div class="attribute-content">
+            <span class="attribute-name">${this.name}:</span>
+            <input type="text" class="attribute-input" value="${this.value}">
+          </div>
+        `;
+        
+        const attributeContent = div.querySelector('.attribute-content');
+        attributeContent.insertBefore(lockButton, attributeContent.firstChild);
 
         this.element = div;
         this.lock.setElement(div);
 
-        const input = div.querySelector('input');
+        const input = div.querySelector('.attribute-input');
         input.addEventListener('input', (e) => {
           if (!this.lock.isLocked()) {
             this.value = e.target.value;
@@ -53,7 +57,7 @@
         if (!this.lock.isLocked()) {
           this.value = newValue;
           if (this.element) {
-            const input = this.element.querySelector('input');
+            const input = this.element.querySelector('.attribute-input');
             input.value = newValue;
           }
         }

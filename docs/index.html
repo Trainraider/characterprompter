@@ -378,6 +378,96 @@
       background: #333;
       /* Darker grey for hover */
     }
+
+    .dropdown-container {
+      width: 100%;
+      border: 1px solid #444;
+      border-radius: 15px;
+    }
+    
+    .dropdown-button {
+      width: 100%;
+      text-align: left;
+      background: #33333344;
+      color: #fff;
+      border-radius: 15px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background-color 0.3s, border-radius 0.3s;
+      margin-top: 0;
+    }
+    
+    .dropdown-button:hover {
+      background-color: #444;
+    }
+    
+    .dropdown-button::after {
+      content: '▼';
+      float: right;
+      transition: transform 0.3s ease;
+    }
+    
+    .dropdown-container.active .dropdown-button {
+      border-radius: 15px 15px 0 0;
+    }
+    
+    .dropdown-container.active .dropdown-button::after {
+      transform: rotate(180deg);
+    }
+    
+    .dropdown-content {
+      background-color: #1115;
+      width: 100%;
+      border-radius: 0 0 15px 15px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      max-height: 0;
+      overflow: scroll;
+      transition: max-height 0.1s ease-out, opacity 0.3s ease-out;
+      opacity: 0;
+    }
+    
+    .dropdown-container.active .dropdown-content {
+      max-height: 100%;
+      opacity: 1;
+      transition: max-height 0.1s ease-in, opacity 0.3s ease-in;
+    }
+    
+    .dropdown-content .attribute {
+      padding: 10px 20px;
+      transition: background-color 0.3s;
+    }
+    
+    .dropdown-content .attribute:hover {
+      background-color: #222;
+    }
+    
+    .attribute-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    
+    .attribute-name {
+      flex: 0 0 30%;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    
+    .attribute-input {
+      flex: 1;
+      background: #44444455;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+    }
+    
+    .attribute .lock {
+      margin-right: 10px;
+      padding: 5px;
+      font-size: 14px;
+    }
   </style>
 </head>
 
@@ -536,7 +626,6 @@
         return this.locked;
       }
     }
-
     class Attribute {
       constructor(name, options) {
         this.name = name;
@@ -556,6 +645,7 @@
           }
           this.updateValue(value);
         }
+        return this.value;
       }
 
       generateElement() {
@@ -565,15 +655,19 @@
         const lockButton = this.lock.createLockButton();
 
         div.innerHTML = `
-            ${this.name}: <br><br>
-            <input type="text" value="${this.value}">
-          `;
-        div.insertBefore(lockButton, div.firstChild);
+          <div class="attribute-content">
+            <span class="attribute-name">${this.name}:</span>
+            <input type="text" class="attribute-input" value="${this.value}">
+          </div>
+        `;
+        
+        const attributeContent = div.querySelector('.attribute-content');
+        attributeContent.insertBefore(lockButton, attributeContent.firstChild);
 
         this.element = div;
         this.lock.setElement(div);
 
-        const input = div.querySelector('input');
+        const input = div.querySelector('.attribute-input');
         input.addEventListener('input', (e) => {
           if (!this.lock.isLocked()) {
             this.value = e.target.value;
@@ -591,14 +685,12 @@
         if (!this.lock.isLocked()) {
           this.value = newValue;
           if (this.element) {
-            const input = this.element.querySelector('input');
+            const input = this.element.querySelector('.attribute-input');
             input.value = newValue;
           }
         }
       }
-    }
-
-    class AttributeContainer {
+    }    class AttributeContainer {
       constructor() {
         this.attributes = {};
       }
@@ -614,7 +706,23 @@
       generateElements() {
         const attributesElement = document.getElementById('attributes');
         attributesElement.innerHTML = '';
-        this._forEach(attribute => attributesElement.appendChild(attribute.generateElement()));
+
+        const dropdownContainer = document.createElement('div');
+        dropdownContainer.className = 'dropdown-container';
+
+        const dropdownButton = document.createElement('button');
+        dropdownButton.className = 'dropdown-button';
+        dropdownButton.textContent = 'Attributes';
+        dropdownButton.onclick = () => dropdownContainer.classList.toggle('active');
+
+        const dropdownContent = document.createElement('div');
+        dropdownContent.className = 'dropdown-content';
+
+        this._forEach(attribute => dropdownContent.appendChild(attribute.generateElement()));
+
+        dropdownContainer.appendChild(dropdownButton);
+        dropdownContainer.appendChild(dropdownContent);
+        attributesElement.appendChild(dropdownContainer);
       }
 
       generateText() {

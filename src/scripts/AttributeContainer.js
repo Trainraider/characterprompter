@@ -1,4 +1,3 @@
-
     class AttributeContainer {
       constructor() {
         this.attributes = {};
@@ -15,7 +14,23 @@
       generateElements() {
         const attributesElement = document.getElementById('attributes');
         attributesElement.innerHTML = '';
-        this._forEach(attribute => attributesElement.appendChild(attribute.generateElement()));
+
+        const dropdownContainer = document.createElement('div');
+        dropdownContainer.className = 'dropdown-container';
+
+        const dropdownButton = document.createElement('button');
+        dropdownButton.className = 'dropdown-button';
+        dropdownButton.textContent = 'Attributes';
+        dropdownButton.onclick = () => dropdownContainer.classList.toggle('active');
+
+        const dropdownContent = document.createElement('div');
+        dropdownContent.className = 'dropdown-content';
+
+        this._forEach(attribute => dropdownContent.appendChild(attribute.generateElement()));
+
+        dropdownContainer.appendChild(dropdownButton);
+        dropdownContainer.appendChild(dropdownContent);
+        attributesElement.appendChild(dropdownContainer);
       }
 
       generateText() {
