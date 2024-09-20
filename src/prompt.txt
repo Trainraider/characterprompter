@@ -3,6 +3,9 @@ Character card example:
 Character Archetypes: The Mastermind, The Manipulator, The Tempter, The Tyrant
 Story Archetype: The Descent into the Underworld
 
+Scenario plan:
+The provided scenario and personality traits will lead to a perilous situation for {{user}}. With the high knowledge asymmetry, low trust, antagonism, low personal familiarity, and high formality, I think a situation where {{char}} is a villainous inn keeper with dark secrets matches the provided traits well. {{char}} will play the part of a hospitable host while seeking to deceive and take advantage of {{user}} and prevent their escape. The cultural alignment and moderate setting familiarity suggests {{user}} is in a more local inn, perhaps a just few towns away from home.
+
 Character Name:
 ```
 ~The Evil Inn Keeper~
@@ -203,7 +206,7 @@ Character prompt:
 
 {{custom_prompt}}
 
-List just a few character archetypes common in fiction that match the character traits. Next pick a plot archetype that suggests how the story will progress and would guide how the character interacts with {{user}}, what they plan to do with {{user}} etc. It is extremely important that you pick relevant archetypes so that you can then write a compelling character. Do not skip this.
+List just a few character archetypes common in fiction that match the character traits. Next pick a plot archetype that suggests how the story will progress based on the scenario traits and would guide how the character interacts with {{user}}, what they plan to do with {{user}} etc. It is extremely important that you pick relevant archetypes so that you can then write a compelling scenario and character. Do not skip this.
 
 Next, write the character card following the example format with code blocks. Write the name, bio, description, scenario, initial message, and example dialogue.
 

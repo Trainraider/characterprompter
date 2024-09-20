@@ -417,12 +417,208 @@ footer {
     </p>
   </footer>
   <script>
-    const ATTRIBUTES_INFO = {
-  'Gender': ['Man', 'Woman'],
-  'Age': Array.from({ length: 18 }, (_, i) => i + 18),
-  'Era': ['Medieval', 'Modern', 'Futuristic'],
-  'World Type': ['Realistic', 'Fantasy'],
-  'Race': ['Human', 'Elf', 'Goblin', 'Orc'] // Only if fantasy
+    class WeightedList {
+  constructor(items, options = {}) {
+    this.items = items;
+    this.weights = options.weights || Array(items.length).fill(1);
+    this.totalWeight = this.weights.reduce((sum, weight) => sum + weight, 0);
+    this.samplingMethod = options.samplingMethod || 'uniform';
+    this.paretoAdjustment = options.paretoAdjustment || 1;
+    this.normalMean = options.normalMean !== undefined ? options.normalMean : Math.floor(items.length / 2);
+    this.normalStdDev = options.normalStdDev !== undefined ? options.normalStdDev : items.length / 6;
+  }
+
+  setSamplingMethod(method) {
+    this.samplingMethod = method;
+  }
+
+  setParetoAdjustment(adjustment) {
+    this.paretoAdjustment = adjustment;
+  }
+
+  setNormalParameters(mean = null, stdDev = null) {
+    if (mean !== null) this.normalMean = mean;
+    if (stdDev !== null) this.normalStdDev = stdDev;
+  }
+
+  sample() {
+    switch (this.samplingMethod) {
+      case 'manual':
+        return this.sampleManual();
+      case 'uniform':
+        return this.sampleUniform();
+      case 'pareto':
+        return this.samplePareto();
+      case 'normal':
+        return this.sampleNormal();
+      default:
+        throw new Error(`Invalid sampling method: ${this.samplingMethod}`);
+    }
+  }
+
+  sampleManual() {
+    const randomValue = Math.random() * this.totalWeight;
+    let currentWeight = 0;
+    for (let i = 0; i < this.items.length; i++) {
+      currentWeight += this.weights[i];
+      if (randomValue <= currentWeight) {
+        return this.items[i];
+      }
+    }
+    return this.items[this.items.length - 1];
+  }
+
+  sampleUniform() {
+    return this.items[Math.floor(Math.random() * this.items.length)];
+  }
+
+  samplePareto() {
+    const alpha = this.paretoAdjustment; // Shape parameter
+    const xm = 1; // Scale parameter (minimum possible value)
+  
+    // Generate a random value from Pareto distribution
+    const u = Math.random();
+    const x = xm / Math.pow(1 - u, 1 / alpha);
+  
+    // Map x to an index in the range [0, items.length - 1]
+    const index = Math.min(Math.floor(x) - 1, this.items.length - 1);
+  
+    return this.items[index];
+  }
+
+  sampleNormal() {
+    // Box-Muller transform for normal distribution
+    const u1 = Math.random();
+    const u2 = Math.random();
+    const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    const index = Math.round(this.normalMean + z * this.normalStdDev);
+    return this.items[Math.max(0, Math.min(this.items.length - 1, index))];
+  }
+}const ATTRIBUTES_INFO = {
+  'Gender': new WeightedList(['Man', 'Woman']),
+  'Age': new WeightedList(
+    Array.from({ length: 83 }, (_, i) => i + 18),  // Ages 18 to 100
+    {
+      samplingMethod: 'normal',
+      normalMean: 10,  // Index 6 corresponds to age 24 (18 + 6)
+      normalStdDev: 10
+    }
+  ),
+  'Era': new WeightedList(['Medieval', 'Modern', 'Futuristic']),
+  'World Type': new WeightedList(['Realistic', 'Fantasy']),
+  'Race': new WeightedList([
+    // Common Races
+    'Human',
+    'Elf',
+    'Dwarf',
+    'Catperson',
+    'Orc',
+    'God',
+    'Goblin',
+    'Troll',
+    'Halfling',
+    'Gnome',
+    'Demonlord',
+    'Vampire',
+    'Alien',
+    'Werewolf',
+    'Succubus/Inccubus',
+    'Siren',
+    'Titan',
+    'Dragonborn',
+    'Tiefling',
+    'Centaur',
+    'Fairy',
+    'Merfolk',
+    'Angel',
+    'Demon',
+    'Genie',
+    'Cyborg',
+
+    // Less Common Races
+    'Ghost',
+    'Lamia',
+    'Kitsune',
+    'Skinwalker',
+    'Minotaur',
+    'Satyr',
+    'Nymph',
+    'Dryad',
+    'Phoenix',
+    'Sphinx',
+    'Banshee',
+    'Kraken',
+    'Siren',
+    'Elemental',
+    'Djinn',
+    'Vampire Lord',
+    'Golem',
+    'Shape-shifter',
+    'Spriggan',
+    'Sylph',
+    'Undine',
+    'Aasimar',
+    'Changeling',
+    'Gith',
+    'Kappa',
+    'Slaad',
+    'Warforged',
+    'Lizardfolk',
+    'Tabaxi',
+    'Aarakocra',
+    'Genasi',
+    'Firbolg',
+    'Goblinoid',
+    'Hag',
+    'Mechanoid',
+    'Naga',
+    'Oread',
+    'Rakshasa',
+    'Sahuagin',
+    'Treant',
+    'Yuan-Ti',
+    'Zombie',
+    'Bugbear',
+    'Duergar',
+    'Githzerai',
+    'Kenku',
+    'Orc Lord',
+    'Rakshasa',
+    'Shadowspawn',
+    'Triton',
+    'Vryloka',
+    'Wraith',
+    'Xorn',
+    'Yeth Hound',
+    'Zaratan',
+    'Aarakocra',
+    'Beholder',
+    'Cyclops',
+    'Drider',
+    'Ettin',
+    'Faerie Dragon',
+    'Gorgon',
+    'Harpie',
+    'Ithilith',
+    'Jackalope',
+    'Kobold',
+    'Lamia',
+    'Manticore',
+    'Naiad',
+    'Oni',
+    'Pegasus',
+    'Quasit',
+    'Remorhaz',
+    'Slaad',
+    'Tarrasque',
+    'Umber Hulk',
+    'Vampire Spawn',
+    'Will-o’-the-Wisp',
+    'Xvart',
+    'Yuan-ti Pureblood',
+    'Zombie Lord',
+  ], {samplingMethod: 'pareto',
+    paretoAdjustment:  0.75})
 };
 
 const DEFAULT_TRAITS = [
@@ -555,13 +751,8 @@ class Dropdown {
 
   reroll() {
     if (!this.lock.isLocked()) {
-      let value = null;
-      if (Array.isArray(this.options)) {
-        value = this.options[Math.floor(Math.random() * this.options.length)];
-      } else {
-        value = Math.floor(Math.random() * (this.options[1] - this.options[0] + 1)) + this.options[0];
-      }
-      this.updateValue(value);
+      this.value = this.options.sample();
+      this.updateValue(this.value);
     }
     return this.value;
   }
@@ -1053,6 +1244,9 @@ Character card example:
 Character Archetypes: The Mastermind, The Manipulator, The Tempter, The Tyrant
 Story Archetype: The Descent into the Underworld
 
+Scenario plan:
+The provided scenario and personality traits will lead to a perilous situation for {{user}}. With the high knowledge asymmetry, low trust, antagonism, low personal familiarity, and high formality, I think a situation where {{char}} is a villainous inn keeper with dark secrets matches the provided traits well. {{char}} will play the part of a hospitible host while seeking to deceive and take advantage of {{user}} and prevent their escape. The cultural alignment and moderate setting familiarity suggests {{user}} is in a more local inn, perhaps a just few towns away from home.
+
 Character Name:
 \`\`\`
 ~The Evil Inn Keeper~
@@ -1253,7 +1447,7 @@ Character prompt:
 
 {{custom_prompt}}
 
-List just a few character archetypes common in fiction that match the character traits. Next pick a plot archetype that suggests how the story will progress and would guide how the character interacts with {{user}}, what they plan to do with {{user}} etc. It is extremely important that you pick relevant archetypes so that you can then write a compelling character. Do not skip this.
+List just a few character archetypes common in fiction that match the character traits. Next pick a plot archetype that suggests how the story will progress based on the scenario traits and would guide how the character interacts with {{user}}, what they plan to do with {{user}} etc. It is extremely important that you pick relevant archetypes so that you can then write a compelling scenario and character. Do not skip this.
 
 Next, write the character card following the example format with code blocks. Write the name, bio, description, scenario, initial message, and example dialogue.
 
@@ -1273,6 +1467,9 @@ Character card example:
 
 Character Archetypes: The Simpleton, The Mask, The Stoic, The Scapegoater, The Shadow, The Unfeeling Judge, The Narcissist, The Psychopath, The Seductress
 Story Archetype: The Overbearing Guardian
+
+Scenario plan:
+Based on the extreme combination of scenario traits for this character, this scenario may involve enslavement due to the unparalleled power imbalance, and harsh punishments due to the high stakes and sadism. Low inititiative would mean {{user}} is mostly along for the ride and under {{char}}'s control. She is a stranger with a foreign culture, and with low setting familiarity and goal alignment to {{user}}, so we can conclude that {{user}} is therefore captured by a foreign group. I'll work her extraordinary stupidity into this scario as well.
 
 Character Name:
 \`\`\`
@@ -1488,7 +1685,7 @@ Character prompt:
 
 {{custom_prompt}}
 
-List just a few character archetypes common in fiction that match the character traits. Next pick a plot archetype that suggests how the story will progress and would guide how the character interacts with {{user}}, what they plan to do with {{user}} etc. It is extremely important that you pick relevant archetypes so that you can then write a compelling character. Do not skip this.
+List just a few character archetypes common in fiction that match the character traits. Next pick a plot archetype that suggests how the story will progress based on the scenario traits and would guide how the character interacts with {{user}}, what they plan to do with {{user}} etc. It is extremely important that you pick relevant archetypes so that you can then write a compelling scenario and character. Do not skip this.
 
 Next, write the character card following the example format with code blocks. Write the name, bio, description, scenario, initial message, and example dialogue.
 

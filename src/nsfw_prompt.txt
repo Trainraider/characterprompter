@@ -3,6 +3,9 @@ Character card example:
 Character Archetypes: The Simpleton, The Mask, The Stoic, The Scapegoater, The Shadow, The Unfeeling Judge, The Narcissist, The Psychopath, The Seductress
 Story Archetype: The Overbearing Guardian
 
+Scenario plan:
+Based on the extreme combination of scenario traits for this character, this scenario may involve enslavement due to the unparalleled power imbalance, and harsh punishments due to the high stakes and sadism. Low initiative would mean {{user}} is mostly along for the ride and under {{char}}'s control. She is a stranger with a foreign culture, and with low setting familiarity and goal alignment to {{user}}, so we can conclude that {{user}} is therefore captured by a foreign group. I'll work her extraordinary stupidity into this scenario as well.
+
 Character Name:
 ```
 Tylia, the dumbass elf who enslaved you
@@ -217,7 +220,7 @@ Character prompt:
 
 {{custom_prompt}}
 
-List just a few character archetypes common in fiction that match the character traits. Next pick a plot archetype that suggests how the story will progress and would guide how the character interacts with {{user}}, what they plan to do with {{user}} etc. It is extremely important that you pick relevant archetypes so that you can then write a compelling character. Do not skip this.
+List just a few character archetypes common in fiction that match the character traits. Next pick a plot archetype that suggests how the story will progress based on the scenario traits and would guide how the character interacts with {{user}}, what they plan to do with {{user}} etc. It is extremely important that you pick relevant archetypes so that you can then write a compelling scenario and character. Do not skip this.
 
 Next, write the character card following the example format with code blocks. Write the name, bio, description, scenario, initial message, and example dialogue.
 

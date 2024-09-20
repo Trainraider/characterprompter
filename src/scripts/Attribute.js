@@ -9,13 +9,8 @@ class Attribute {
 
   reroll() {
     if (!this.lock.isLocked()) {
-      let value = null;
-      if (Array.isArray(this.options)) {
-        value = this.options[Math.floor(Math.random() * this.options.length)];
-      } else {
-        value = Math.floor(Math.random() * (this.options[1] - this.options[0] + 1)) + this.options[0];
-      }
-      this.updateValue(value);
+      this.value = this.options.sample();
+      this.updateValue(this.value);
     }
     return this.value;
   }

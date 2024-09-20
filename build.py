@@ -32,6 +32,7 @@ def build_index_html():
 
     # Combine all JavaScript modules into one
     script_files = [
+        'WeightedList.js',
         'constants.js',
         'LockButton.js',
         'Dropdown.js',
