@@ -19,6 +19,8 @@
 
 body, input, button, textarea, select {
   font-family: Arial, sans-serif;
+  color: #aaa;
+  background-color: var(--background-color);
 }
 
 html, body {
@@ -29,7 +31,6 @@ html, body {
 }
 
 body {
-  color: #aaa;
   padding: 20px 20px 0;
   max-width: 800px;
   margin: 0 auto;
@@ -52,14 +53,11 @@ body {
 
 a { color: #0aa; }
 
-h1, h4 { margin-bottom: 20px; }
+h1, h4, .margin-bottom { margin-bottom: 20px; }
 
 #title { text-align: center; }
 
-.margin-bottom { margin-bottom: 20px; }
-
 input, button, textarea, select, #description {
-  background: var(--background-color);
   color: var(--text-color);
   border: none;
   border-radius: var(--border-radius);
@@ -75,14 +73,11 @@ input, textarea {
 textarea {
   height: 100px;
   resize: vertical;
-  font-family: inherit;
 }
 
 textarea::placeholder { color: #888; }
 
-button, select {
-  margin: 10px;
-}
+button, select { margin: 10px; }
 
 select * {
   background-color: #333;
@@ -128,9 +123,10 @@ button:hover, select:hover, .dropdown-content { background-color: #3338; }
 .trait-input input { min-width: 120px; }
 
 .trait-input select {
-	width: 20%;
-	cursor: pointer;
+  width: 20%;
+  cursor: pointer;
 }
+
 .delete-trait, .lock {
   padding: 5px 10px;
   border-radius: 5px;
@@ -187,15 +183,11 @@ button:hover, select:hover, .dropdown-content { background-color: #3338; }
 
 .lock.locked { background-color: rgba(0, 100, 0, 0.5); }
 
-.prompt-box,
-.custom-trait-box,
-.box-container,
-.dropdown-container {
+.prompt-box, .custom-trait-box, .box-container, .dropdown-container {
   border: 1px solid #3334;
   border-radius: 15px;
   padding: 2px 10px;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin: 10px 0;
   background-color: #3334;
 }
 
@@ -233,6 +225,7 @@ button:hover, select:hover, .dropdown-content { background-color: #3338; }
 
 ::-webkit-scrollbar {
   width: 8px;
+  background: #111;
 }
 
 ::-webkit-scrollbar:hover {
@@ -266,7 +259,7 @@ button:hover, select:hover, .dropdown-content { background-color: #3338; }
 }
 
 .dropdown-container {
-	padding: 0;
+  padding: 0;
 }
 
 .dropdown-container.active .dropdown-button {
