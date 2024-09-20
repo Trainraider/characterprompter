@@ -68,7 +68,6 @@ class Trait {
   generateText() {
     const textInput = this.element ? this.element.querySelector('.trait-input').value : '';
     if (textInput) {
-      // Check if the input contains the trait name or antonym (case-insensitive)
       if (textInput.toLowerCase().includes(this.name.toLowerCase()) || 
           textInput.toLowerCase().includes(this.antonym.toLowerCase())) {
         return `${textInput}\n`;
@@ -80,15 +79,25 @@ class Trait {
     }
   }
 
-  getStrengthModifier() {
+  isScenarioTrait() {
+    return this.category === "Scenario Traits";
+  }
+
+  getStrengthModifier() { 
     const levels = [
-      { threshold: 45, modifier: "average {{trait}}" },
-      { threshold: 50, modifier: "moderate {{trait}}" },
-      { threshold: 60, modifier: "above average {{trait}}" },
-      { threshold: 70, modifier: "substantial {{trait}}" },
-      { threshold: 80, modifier: "remarkable {{trait}}" },
-      { threshold: 87, modifier: "extraordinary {{trait}}" },
-      { threshold: 94, modifier: "unparalleled {{trait}}" }
+      { threshold: 45, modifier: "no {{trait}} at all" },
+      { threshold: 50, modifier: "practically nonexistent {{trait}}" },
+      { threshold: 56, modifier: "almost no {{trait}}" },
+      { threshold: 59, modifier: "very low {{trait}}" },
+      { threshold: 64, modifier: "considerably below average {{trait}}" },
+      { threshold: 67, modifier: "less than average {{trait}}" },
+      { threshold: 70, modifier: "average {{trait}}" },
+      { threshold: 73, modifier: "moderate {{trait}}" },
+      { threshold: 78, modifier: "above average {{trait}}" },
+      { threshold: 84, modifier: "substantial {{trait}}" },
+      { threshold: 89, modifier: "remarkable {{trait}}" },
+      { threshold: 93, modifier: "extraordinary {{trait}}" },
+      { threshold: 97, modifier: "unparalleled {{trait}}" }
     ];
 
     let trait, modifier;

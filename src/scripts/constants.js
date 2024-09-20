@@ -22,7 +22,21 @@ const DEFAULT_TRAITS = [
   { name: "Intelligence", antonym: "Stupidity", category: "Status Traits" },
   { name: "Wisdom", antonym: "Ignorance", category: "Status Traits" },
   { name: "Attractiveness", antonym: "Unattractiveness", category: "Status Traits" },
-  { name: "Horniness", antonym: "Sexual Indifference", category: "Status Traits" }
+  { name: "Horniness", antonym: "Sexual Indifference", category: "Status Traits" },
+  { name: "Personal Familiarity", antonym: "Personal Unfamiliarity", category: "Scenario Traits" },
+  { name: "Balance of Power", antonym: "Imbalance of Power", category: "Scenario Traits" },
+  { name: "Cooperation", antonym: "Antagonism", category: "Scenario Traits" },
+  { name: "Trust", antonym: "Distrust", category: "Scenario Traits" },
+  { name: "Open Communication", antonym: "Secret Keeping", category: "Scenario Traits" },
+  { name: "Remote Interaction", antonym: "Close Physical Proximity", category: "Scenario Traits" },
+  { name: "Formality", antonym: "Casualness", category: "Scenario Traits" },
+  { name: "High Stakes", antonym: "Safety", category: "Scenario Traits" },
+  { name: "Time Urgency", antonym: "Leisureliness", category: "Scenario Traits" },
+  { name: "Cultural Alignment", antonym: "Cultural Difference", category: "Scenario Traits" },
+  { name: "Goal Alignment", antonym: "Goal Conflict", category: "Scenario Traits" },
+  { name: "Setting Familiarity", antonym: "Setting Unfamiliarity", category: "Scenario Traits" },
+  { name: "Initiative", antonym: "Passivity", category: "Scenario Traits" },
+  { name: "Knowledge Asymmetry", antonym: "Knowledge Equality", category: "Scenario Traits" },
 ];
 
 const PERSONALITY_TRAITS = [

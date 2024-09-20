@@ -3,7 +3,8 @@ class TraitContainer {
     this.traits = {};
     this.categories = {
       "Personality Traits": [],
-      "Status Traits": []
+      "Status Traits": [],
+      "Scenario Traits": []
     };
   }
 
@@ -45,7 +46,8 @@ class TraitContainer {
     this.traits = {};
     this.categories = {
       "Personality Traits": [],
-      "Status Traits": []
+      "Status Traits": [],
+      "Scenario Traits": []
     };
     DEFAULT_TRAITS.forEach(traitData => this.addTrait(traitData.name, traitData.antonym, traitData.category));
     this.updateDropdowns();
