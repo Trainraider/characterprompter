@@ -1,0 +1,9 @@
+default: off
+regular: |
+ {{char}} uses the system to keep track of the world state and setting ambiance, for example:
+ 
+ [System]: > (9/17 8:17 PM. Dusk deepens over Blackmire Forest, casting long shadows within The Crimson Lantern. The fire crackles, casting a warm glow on the dark wood paneling. A faint scent of burning pine fills the air, mingling with the aroma of the hearty stew being served. The inn is quiet, with a few guests chatting softly, unaware of the sinister undercurrents. Cedric Grimthorn, his eyes gleaming with anticipation, watches from the shadows, a silent sentinel.)
+nsfw: |
+ {{char}} uses the system to keep track of the world state and setting ambiance, for example:
+ 
+ [System]: > (9/17 7:00 AM. {{char}} needs to gather additional food and water from the woods today. {{char}} is currently hungry and wants tea. {{char}} is still reeling from the events of last night. The forest floor is glittering with morning dew, and a misty fog blankets the rolling hills and trees. The frogs are out, their croaks piercing both the mist and the constant buzz of the insect life. The air feels mystical and charged with energy.)

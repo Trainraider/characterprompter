@@ -1,3 +1,51 @@
+// Prompt components object
+const promptComponents = {{PROMPT_COMPONENTS}};
+
+function loadPromptComponents() {
+  const dropdown = document.getElementById('promptComponentsDropdown');
+  for (const [key, component] of Object.entries(promptComponents)) {
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = `component-${key}`;
+    checkbox.checked = component.default;
+
+    const label = document.createElement('label');
+    label.htmlFor = checkbox.id;
+    label.textContent = key;
+
+    const div = document.createElement('div');
+    div.appendChild(checkbox);
+    div.appendChild(label);
+
+    dropdown.appendChild(div);
+  }
+}
+
+function getSelectedComponents(promptType) {
+  const selected = {};
+  for (const [key, component] of Object.entries(promptComponents)) {
+    const checkbox = document.getElementById(`component-${key}`);
+    if (checkbox && checkbox.checked) {
+      selected[key] = component[promptType] || component['universal'];
+    }
+  }
+  return selected;
+}
+
+function replaceComponentPlaceholders(text, selectedComponents) {
+  for (const [key, content] of Object.entries(selectedComponents)) {
+    const placeholder = `{{${key}}}`;
+    text = text.replace(placeholder, content);
+  }
+  // Remove any remaining placeholders for unselected components, except {{user}} and {{char}}
+  text = text.replace(/{{(?!user|char)[^}]+}}/g, '');
+  return text;
+}
+
+function getPromptType(promptTemplate) {
+  return promptTemplate === nsfw_prompt_template ? 'nsfw' : 'regular';
+}
+
 function rerollAll() {
   attributeContainer.reroll();
   traitContainer.reroll();
@@ -9,7 +57,8 @@ function generateStep1Prompt() {
 
   const personalityTraitsList = PERSONALITY_TRAITS.join(', ');
 
-  const step1Prompt = `Based on the following information about a character:
+  const selectedComponents = getSelectedComponents('regular');
+  let step1Prompt = `Based on the following information about a character:
     ${allText}
     ${customPromptText}
 
@@ -21,6 +70,7 @@ function generateStep1Prompt() {
     Plan out how to answer while meeting all requirements and crafting a compelling story narrative.
     Then, put your final answer with those three elements in a code block.`;
 
+  step1Prompt = replaceComponentPlaceholders(step1Prompt, selectedComponents);
   copyToClipboard(step1Prompt);
 }
 
@@ -35,10 +85,13 @@ function copyWithStep2Prompt(promptTemplate) {
   let allText = attributesText + digestedTraits;
 
   const customPromptText = document.getElementById('customPrompt').value.trim();
-  const finalText = promptTemplate
+  const promptType = getPromptType(promptTemplate);
+  const selectedComponents = getSelectedComponents(promptType);
+  let finalText = promptTemplate
     .replace('{{traits}}', allText)
     .replace('{{custom_prompt}}', customPromptText);
 
+  finalText = replaceComponentPlaceholders(finalText, selectedComponents);
   copyToClipboard(finalText);
 }
 
@@ -50,10 +103,13 @@ function copyAll() {
 function copyWithPrompt(prompt) {
   let allText = generateTraitAttributeText(attributeContainer, traitContainer);
   const customPromptText = document.getElementById('customPrompt').value.trim();
-  const finalText = prompt
+  const promptType = getPromptType(prompt);
+  const selectedComponents = getSelectedComponents(promptType);
+  let finalText = prompt
     .replace('{{traits}}', allText)
     .replace('{{custom_prompt}}', customPromptText);
 
+  finalText = replaceComponentPlaceholders(finalText, selectedComponents);
   copyToClipboard(finalText);
 }
 
@@ -67,6 +123,8 @@ document.getElementById('digestedTraits').addEventListener('input', function () 
 });
 
 document.addEventListener('DOMContentLoaded', (event) => {
+  loadPromptComponents();
+
   const toggleButton = document.getElementById('toggleDescription');
   const description = document.getElementById('description');
 

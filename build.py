@@ -1,5 +1,7 @@
 import os
 import base64
+import json
+import yaml
 
 def escape_backticks(text):
     return text.replace('`', '\\`')
@@ -16,6 +18,22 @@ def encode_image_to_base64(image_path):
     image_content = read_binary_file(image_path)
     base64_encoded = base64.b64encode(image_content).decode('utf-8')
     return f"data:image/webp;base64,{base64_encoded}"
+
+def process_prompt_components():
+    prompts_dir = './src/prompts'
+    components = {}
+    for filename in os.listdir(prompts_dir):
+        if filename.endswith('.txt'):
+            with open(os.path.join(prompts_dir, filename), 'r') as file:
+                component_data = yaml.safe_load(file)
+                key = os.path.splitext(filename)[0]
+                components[key] = {
+                    'default': component_data.get('default', 'off'),
+                    'universal': component_data.get('universal', ''),
+                    'regular': component_data.get('regular', ''),
+                    'nsfw': component_data.get('nsfw', '')
+                }
+    return json.dumps(components)
 
 def build_index_html():
     src_dir = './src'
@@ -51,9 +69,13 @@ def build_index_html():
     prompt = escape_backticks(prompt)
     nsfw_prompt = escape_backticks(nsfw_prompt)
 
+    # Process prompt components
+    prompt_components = process_prompt_components()
+
     # Replace placeholders in script_js
     script_js = script_js.replace('{{PROMPT}}', prompt)
     script_js = script_js.replace('{{NSFW_PROMPT}}', nsfw_prompt)
+    script_js = script_js.replace('{{PROMPT_COMPONENTS}}', prompt_components)
 
     # Replace placeholders in index_html
     index_html = index_html.replace('<!-- STYLES -->', f'{style_css}')

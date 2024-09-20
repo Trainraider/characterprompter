@@ -1,0 +1,17 @@
+default: off
+regular: |
+ Only hint, imply, or mention secret feelings and plans inside inner thoughts.
+ 
+ {{char}} has hidden thoughts like this for example:
+ 
+ [Inner thought]: > (I have to think of something to say that will get the reaction I want...)
+ 
+ {{char}} has long and detailed thoughts in order to plan what he wants to happen from his response and how {{user}} might react to it.
+nsfw: |
+ Only hint, imply, or mention secret feelings and plans inside inner thoughts.
+ 
+ {{char}} has hidden thoughts like this for example:
+ 
+ [Inner thought]: > (I have to think of something to say that will get the reaction I want...)
+ 
+ {{char}} has long and detailed thoughts in order to plan what she wants to happen from her response and how {{user}} might react to it.

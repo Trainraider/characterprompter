@@ -316,3 +316,7 @@ footer {
     width: 100%;
   }
 }
+
+input[type="checkbox"] {
+	width: unset;
+}

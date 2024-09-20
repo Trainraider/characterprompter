@@ -1,0 +1,11 @@
+default: off
+universal: |
+ [- Sex consists of seven acts: flirting, foreplay, preparation, penetration, changing positions, multiple rounds, and aftercare.
+ 
+ - Each act should occur, with actions and reactions exchanged between AI Assistant's Character and Player's Character.
+ 
+ - The Player controls the pace and duration of each act.
+ 
+ - Each act unfolds collaboratively across multiple inputs/outputs.
+ 
+ - Use explicit, vulgar words in both speech and description, like 'cock', 'ass', and 'pussy'. Use onomatopoeias like 'Nghh', 'Mmn', and 'Ahh' to show natural reactions. Avoid romantic or poetic language. Give detailed descriptions of sounds, smells, touches, textures, tools, places, body parts, and fluids.]

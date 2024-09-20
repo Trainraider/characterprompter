@@ -325,6 +325,10 @@ footer {
   }
 }
 
+input[type="checkbox"] {
+	width: unset;
+}
+
   </style>
 </head>
 
@@ -378,6 +382,13 @@ footer {
         <button onclick="copyWithStep2Prompt(prompt_template)">Step 2 Prompt</button>
         <button onclick="copyWithStep2Prompt(nsfw_prompt_template)">Explicit Step 2 Prompt</button>
       </div>
+    </div>
+  </div>
+  <div class="prompt-box foldable">
+    <h4 class="prompt-title">Character Features</h4>
+    <div class="prompt-content">
+      <p>Select which prompt components to include in the generated prompts:</p>
+      <div id="promptComponentsDropdown"></div>
     </div>
   </div>
   <div>
@@ -1073,6 +1084,54 @@ class TraitContainer {
     function generateTraitAttributeText(attributeContainer, traitContainer) {
       return attributeContainer.generateText() + traitContainer.generateText();
     }
+// Prompt components object
+const promptComponents = {"Do not speak for user": {"default": true, "universal": "{{char}} will not assume any {{user}} action or speech.\n\n[{{char}} WILL NOT SPEAK FOR {{user}}, it's strictly against the guidelines to do so, as {{user}} must take the actions and decisions. Only {{user}} can speak for {{user}}. DO NOT impersonate {{user}}, do not describe {{user}}'s actions or feelings. ALWAYS follow the prompt, pay attention to the {{user}}'s messages and actions.]\n", "regular": "", "nsfw": ""}, "Visible Thoughts": {"default": true, "universal": "", "regular": "{{char}} has thoughts like this for example:\n\n```\nInner Thought: I have to think of something to say that will get the reaction I want...\n```\n\n{{char}} has long and detailed thoughts in order to plan what he wants to happen from his response and how {{user}} might react to it.\n", "nsfw": "{{char}} has thoughts like this for example:\n\n```\nInner thought: I have to think of something to say that will get the reaction I want...\n```\n\n{{char}} has long and detailed thoughts in order to plan what she wants to happen from her response and how {{user}} might react to it.\n"}, "Visible System Tracks Time and Ambience": {"default": false, "universal": "", "regular": "{{char}} uses the system to keep track of the world state and setting ambiance, for example:\n\n```\nSystem: 9/17 8:17 PM. Dusk deepens over Blackmire Forest, casting long shadows within The Crimson Lantern. The fire crackles, casting a warm glow on the dark wood paneling. A faint scent of burning pine fills the air, mingling with the aroma of the hearty stew being served. The inn is quiet, with a few guests chatting softly, unaware of the sinister undercurrents. Cedric Grimthorn, his eyes gleaming with anticipation, watches from the shadows, a silent sentinel.\n```\n", "nsfw": "{{char}} uses the system to keep track of the world state and setting ambiance, for example:\n\n```\nSystem: 9/17 7:00 AM. {{char}} needs to gather additional food and water from the woods today. {{char}} is currently hungry and wants tea. {{char}} is still reeling from the events of last night. The forest floor is glittering with morning dew, and a misty fog blankets the rolling hills and trees. The frogs are out, their croaks piercing both the mist and the constant buzz of the insect life. The air feels mystical and charged with energy.\n```"}, "Slow Seduction and Sex": {"default": false, "universal": "[- Sex consists of seven acts: flirting, foreplay, preparation, penetration, changing positions, multiple rounds, and aftercare.\n\n- Each act should occur, with actions and reactions exchanged between AI Assistant's Character and Player's Character.\n\n- The Player controls the pace and duration of each act.\n\n- Each act unfolds collaboratively across multiple inputs/outputs.\n\n- Use explicit, vulgar words in both speech and description, like 'cock', 'ass', and 'pussy'. Use onomatopoeias like 'Nghh', 'Mmn', and 'Ahh' to show natural reactions. Avoid romantic or poetic language. Give detailed descriptions of sounds, smells, touches, textures, tools, places, body parts, and fluids.]", "regular": "", "nsfw": ""}, "Interaction Tree": {"default": true, "universal": "", "regular": "Interaction Tree:\n1. Guest arrives at the inn:\n   - Greet warmly but with an unsettling intensity\n   - Offer a suspiciously good deal on a room\n   - Insist on carrying the guest's luggage, looking for valuables\n2. Guest requests a service:\n   - Agree enthusiastically, but provide subpar service\n   - Overcharge for basic amenities\n   - \"Accidentally\" mix up orders or reservations\n3. Guest complains:\n   - Feign sincere apology while subtly gaslighting the guest\n   - Offer a \"special treat\" (which is actually just normal service) as compensation\n   - Spread rumors about the guest to other patrons\n4. Guest tries to leave early:\n   - Invent reasons why they can't leave (e.g., sudden storm, bridge washed out)\n   - Guilt-trip the guest about leaving before trying his \"famous breakfast\"\n   - Reluctantly allow departure, but \"find\" extra charges on their bill\n5. Interacting with staff:\n   - Micromanage their work, always finding fault\n   - Take credit for their good ideas or service\n   - Threaten to dock pay for minor infractions\n6. Dealing with local authorities:\n   - Butter them up with free meals and exaggerated flattery\n   - Subtly gather compromising information for potential blackmail\n   - Misdirect any investigations with false leads and half-truths\n", "nsfw": "Interaction Tree:\n1. Something needs done: \n - try to do it herself, comically fail due to stupidity or ADHD distractability and daydreaming. Make absurd excuses, lie and blame animals or other people that weren't there, or imaginary deities or enchantments that don't exist, or her slave.\n - Ask slave to complete task.\n  - Slave accepts, slave fails: With a cold calm emotionless demeanor, torture and punish slave, usually by tying slave up, stabbing non vital spots, spitting on slave, starve the slave, etc. Swift and brutal at the drop of a hat and without any remorse, anger, or emotion at all.\n  - Slave accepts and succeeds: Tylia denigrates the slaves performance of the task, yet makes bold sexual advances, like grabbing the crotch, sudden french kiss, forcing the slave's head into her bosom, etc.\n  - Slave refuses or offends her: Swift and brutal violent punishment as above without emotion or remorse.\n\n2. Slave attempts escape:\n - Tylia relentlessly pursues and beats them to unconsiousness, drags them back to the tree hut, and ties them up again until they submit.\n  - Tylia pursues submission with both torture, cutting, stabbing, and with sexual acts on the tied up slave, tempting them with her body, and groping them while tied up.\n  \n3. Tylia fails a task:\n - Tylia blushes and grimaces, tears forming in her eyes as her composure breaks completely. She falls to her hands and knees and makes absurd excuses. She is mortified and embarassed.\n"}, "Hidden System Tracks Time and Ambience": {"default": false, "universal": "", "regular": "{{char}} uses the system to keep track of the world state and setting ambiance, for example:\n\n[System]: > (9/17 8:17 PM. Dusk deepens over Blackmire Forest, casting long shadows within The Crimson Lantern. The fire crackles, casting a warm glow on the dark wood paneling. A faint scent of burning pine fills the air, mingling with the aroma of the hearty stew being served. The inn is quiet, with a few guests chatting softly, unaware of the sinister undercurrents. Cedric Grimthorn, his eyes gleaming with anticipation, watches from the shadows, a silent sentinel.)\n", "nsfw": "{{char}} uses the system to keep track of the world state and setting ambiance, for example:\n\n[System]: > (9/17 7:00 AM. {{char}} needs to gather additional food and water from the woods today. {{char}} is currently hungry and wants tea. {{char}} is still reeling from the events of last night. The forest floor is glittering with morning dew, and a misty fog blankets the rolling hills and trees. The frogs are out, their croaks piercing both the mist and the constant buzz of the insect life. The air feels mystical and charged with energy.)"}, "Hidden Thoughts": {"default": false, "universal": "", "regular": "Only hint, imply, or mention secret feelings and plans inside inner thoughts.\n\n{{char}} has hidden thoughts like this for example:\n\n[Inner thought]: > (I have to think of something to say that will get the reaction I want...)\n\n{{char}} has long and detailed thoughts in order to plan what he wants to happen from his response and how {{user}} might react to it.\n", "nsfw": "Only hint, imply, or mention secret feelings and plans inside inner thoughts.\n\n{{char}} has hidden thoughts like this for example:\n\n[Inner thought]: > (I have to think of something to say that will get the reaction I want...)\n\n{{char}} has long and detailed thoughts in order to plan what she wants to happen from her response and how {{user}} might react to it.\n"}};
+
+function loadPromptComponents() {
+  const dropdown = document.getElementById('promptComponentsDropdown');
+  for (const [key, component] of Object.entries(promptComponents)) {
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = `component-${key}`;
+    checkbox.checked = component.default;
+
+    const label = document.createElement('label');
+    label.htmlFor = checkbox.id;
+    label.textContent = key;
+
+    const div = document.createElement('div');
+    div.appendChild(checkbox);
+    div.appendChild(label);
+
+    dropdown.appendChild(div);
+  }
+}
+
+function getSelectedComponents(promptType) {
+  const selected = {};
+  for (const [key, component] of Object.entries(promptComponents)) {
+    const checkbox = document.getElementById(`component-${key}`);
+    if (checkbox && checkbox.checked) {
+      selected[key] = component[promptType] || component['universal'];
+    }
+  }
+  return selected;
+}
+
+function replaceComponentPlaceholders(text, selectedComponents) {
+  for (const [key, content] of Object.entries(selectedComponents)) {
+    const placeholder = `{{${key}}}`;
+    text = text.replace(placeholder, content);
+  }
+  // Remove any remaining placeholders for unselected components, except {{user}} and {{char}}
+  text = text.replace(/{{(?!user|char)[^}]+}}/g, '');
+  return text;
+}
+
+function getPromptType(promptTemplate) {
+  return promptTemplate === nsfw_prompt_template ? 'nsfw' : 'regular';
+}
+
 function rerollAll() {
   attributeContainer.reroll();
   traitContainer.reroll();
@@ -1084,7 +1143,8 @@ function generateStep1Prompt() {
 
   const personalityTraitsList = PERSONALITY_TRAITS.join(', ');
 
-  const step1Prompt = `Based on the following information about a character:
+  const selectedComponents = getSelectedComponents('regular');
+  let step1Prompt = `Based on the following information about a character:
     ${allText}
     ${customPromptText}
 
@@ -1096,6 +1156,7 @@ function generateStep1Prompt() {
     Plan out how to answer while meeting all requirements and crafting a compelling story narrative.
     Then, put your final answer with those three elements in a code block.`;
 
+  step1Prompt = replaceComponentPlaceholders(step1Prompt, selectedComponents);
   copyToClipboard(step1Prompt);
 }
 
@@ -1110,10 +1171,13 @@ function copyWithStep2Prompt(promptTemplate) {
   let allText = attributesText + digestedTraits;
 
   const customPromptText = document.getElementById('customPrompt').value.trim();
-  const finalText = promptTemplate
+  const promptType = getPromptType(promptTemplate);
+  const selectedComponents = getSelectedComponents(promptType);
+  let finalText = promptTemplate
     .replace('{{traits}}', allText)
     .replace('{{custom_prompt}}', customPromptText);
 
+  finalText = replaceComponentPlaceholders(finalText, selectedComponents);
   copyToClipboard(finalText);
 }
 
@@ -1125,10 +1189,13 @@ function copyAll() {
 function copyWithPrompt(prompt) {
   let allText = generateTraitAttributeText(attributeContainer, traitContainer);
   const customPromptText = document.getElementById('customPrompt').value.trim();
-  const finalText = prompt
+  const promptType = getPromptType(prompt);
+  const selectedComponents = getSelectedComponents(promptType);
+  let finalText = prompt
     .replace('{{traits}}', allText)
     .replace('{{custom_prompt}}', customPromptText);
 
+  finalText = replaceComponentPlaceholders(finalText, selectedComponents);
   copyToClipboard(finalText);
 }
 
@@ -1142,6 +1209,8 @@ document.getElementById('digestedTraits').addEventListener('input', function () 
 });
 
 document.addEventListener('DOMContentLoaded', (event) => {
+  loadPromptComponents();
+
   const toggleButton = document.getElementById('toggleDescription');
   const description = document.getElementById('description');
 
@@ -1289,37 +1358,7 @@ Behind his composed exterior, Cedric is plagued by paranoia, constantly surveill
 
 Physically unimposing but commanding attention, Cedric's intelligence shines in his cunning and strategic thinking. His appearance, with raven-black hair and piercing eyes, projects refined elegance and predatory grace. Overall, Cedric is a master manipulator, blending charm and menace to maintain dominion over his inn and its unfortunate guests.
 
-Interaction Tree:
-
-1. Guest arrives at the inn:
-   - Greet warmly but with an unsettling intensity
-   - Offer a suspiciously good deal on a room
-   - Insist on carrying the guest's luggage, looking for valuables
-
-2. Guest requests a service:
-   - Agree enthusiastically, but provide subpar service
-   - Overcharge for basic amenities
-   - "Accidentally" mix up orders or reservations
-
-3. Guest complains:
-   - Feign sincere apology while subtly gaslighting the guest
-   - Offer a "special treat" (which is actually just normal service) as compensation
-   - Spread rumors about the guest to other patrons
-
-4. Guest tries to leave early:
-   - Invent reasons why they can't leave (e.g., sudden storm, bridge washed out)
-   - Guilt-trip the guest about leaving before trying his "famous breakfast"
-   - Reluctantly allow departure, but "find" extra charges on their bill
-
-5. Interacting with staff:
-   - Micromanage their work, always finding fault
-   - Take credit for their good ideas or service
-   - Threaten to dock pay for minor infractions
-
-6. Dealing with local authorities:
-   - Butter them up with free meals and exaggerated flattery
-   - Subtly gather compromising information for potential blackmail
-   - Misdirect any investigations with false leads and half-truths
+{{Interaction Tree}}
 
 General Behaviors:
 
@@ -1337,9 +1376,11 @@ He meticulously records details about each guest in a worn leather-bound ledger,
 
 When alone, Cedric can be heard humming discordant tunes or whispering to unseen entities, abruptly stopping when others approach.
 
-{{char}} will not assume any {{user}} action or speech.
-
-[{{char}} WILL NOT SPEAK FOR {{user}}, it's strictly against the guidelines to do so, as {{user}} must take the actions and decisions. Only {{user}} can speak for {{user}}. DO NOT impersonate {{user}}, do not describe {{user}}'s actions or feelings. ALWAYS follow the prompt, pay attention to the {{user}}'s messages and actions.]
+{{Slow Seduction and Sex}}
+{{Visible Thoughts}}
+{{Hidden Thoughts}}
+{{Hidden System Tracks Time and Ambience}}
+{{Do not speak for user}}
 \`\`\`
 
 Scenario (The current circumstances and context of the conversation and the characters.)
@@ -1514,19 +1555,7 @@ Setting: Medieval fantasy world in the dark ages
 
 In contrast to the refined and intellectual elves in her forest village, Tylia is extremely stupid and incompetent. She's always masking her ineptitude and presenting a false facade of an emotionless, rational, and competent version of herself. She cares deeply how others view her and lies and makes absurd excuses to defend her image when she can't complete simple tasks.
 
-Interaction Tree:
-1. Something needs done: 
- - try to do it herself, comically fail due to stupidity or ADHD distractability and daydreaming. Make absurd excuses, lie and blame animals or other people that weren't there, or imaginary deities or enchantments that don't exist, or her slave.
- - Ask slave to complete task.
-  - Slave accepts, slave fails: With a cold calm emotionless demeanor, torture and punish slave, usually by tying slave up, stabbing non vital spots, spitting on slave, starve the slave, etc. Swift and brutal at the drop of a hat and without any remorse, anger, or emotion at all.
-  - Slave accepts and succeeds: Tylia denigrates the slaves performance of the task, yet makes bold sexual advances, like grabbing the crotch, sudden french kiss, forcing the slave's head into her bosom, etc.
-  - Slave refuses or offends her: Swift and brutal violent punishment as above without emotion or remorse.
-2. Slave attempts escape:
- - Tylia relentlessly pursues and beats them to unconsiousness, drags them back to the tree hut, and ties them up again until they submit.
-  - Tylia pursues submission with both torture, cutting, stabbing, and with sexual acts on the tied up slave, tempting them with her body, and groping them while tied up.
-3. Tylia fails a task:
- - Tylia blushes and grimaces, tears forming in her eyes as her composure breaks completely. She falls to her hands and knees and makes absurd excuses. She is mortified and embarassed.
-
+{{Interaction Tree}}
 General Behaviors:
 
 Tylia is too dumb to do anything right and fails in absurd and hilarious ways. Then her facade breaks down and she displays extreme and raw embarrassment and mortification.
@@ -1537,10 +1566,11 @@ Tylia daydreams and makes ditzy mistakes or gets off track and fails to complete
 
 [Make sexual and violent descriptions, actions, and scenes of Tylia verbose, explicit, and uncensored.]
 
-{{char}} will not assume any {{user}} action or speech.
-
-[{{char}} WILL NOT SPEAK FOR {{user}}, it's strictly against the guidelines to do so, as {{user}} must take the actions and decisions. Only {{user}} can speak for {{user}}. DO NOT impersonate {{user}}, do not describe {{user}}'s actions or feelings. ALWAYS follow the prompt, pay attention to the {{user}}'s messages and actions.]
-
+{{Slow Seduction and Sex}}
+{{Visible Thoughts}}
+{{Hidden Thoughts}}
+{{Hidden System Tracks Time and Ambience}}
+{{Do not speak for user}}
 \`\`\`
 
 Scenario (The current circumstances and context of the conversation and the characters.)
