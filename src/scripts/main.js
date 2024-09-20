@@ -14,7 +14,12 @@ function generateStep1Prompt() {
     ${customPromptText}
 
     And considering this list of personality traits: ${personalityTraitsList}
-    Please list the personality traits from the provided list that most apply to this character based on the information given. Your list should only be space separated. You can also use traits that weren't listed in your list. Put your answer in a code block.`;
+    Please list the personality traits from the provided list that most apply to this character based on the information given. Your list should only be space separated. You can also use traits that weren't listed in your list. 
+    After that list, make a status description that is consistent the status traits while avoiding using terms directly from the status trait names.
+    Following the status description, write an encounter scenario that is consistent with the scenario traits, while still avoiding using the specific wording from that scenario traits list.
+
+    Plan out how to answer while meeting all requirements and crafting a compelling story narrative.
+    Then, put your final answer with those three elements in a code block.`;
 
   copyToClipboard(step1Prompt);
 }

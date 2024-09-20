@@ -1089,7 +1089,12 @@ function generateStep1Prompt() {
     ${customPromptText}
 
     And considering this list of personality traits: ${personalityTraitsList}
-    Please list the personality traits from the provided list that most apply to this character based on the information given. Your list should only be space separated. You can also use traits that weren't listed in your list. Put your answer in a code block.`;
+    Please list the personality traits from the provided list that most apply to this character based on the information given. Your list should only be space separated. You can also use traits that weren't listed in your list. 
+    After that list, make a status description that is consistent the status traits while avoiding using terms directly from the status trait names.
+    Following the status description, write an encounter scenario that is consistent with the scenario traits, while still avoiding using the specific wording from that scenario traits list.
+
+    Plan out how to answer while meeting all requirements and crafting a compelling story narrative.
+    Then, put your final answer with those three elements in a code block.`;
 
   copyToClipboard(step1Prompt);
 }
@@ -1245,7 +1250,7 @@ Character Archetypes: The Mastermind, The Manipulator, The Tempter, The Tyrant
 Story Archetype: The Descent into the Underworld
 
 Scenario plan:
-The provided scenario and personality traits will lead to a perilous situation for {{user}}. With the high knowledge asymmetry, low trust, antagonism, low personal familiarity, and high formality, I think a situation where {{char}} is a villainous inn keeper with dark secrets matches the provided traits well. {{char}} will play the part of a hospitible host while seeking to deceive and take advantage of {{user}} and prevent their escape. The cultural alignment and moderate setting familiarity suggests {{user}} is in a more local inn, perhaps a just few towns away from home.
+The provided scenario and personality traits will lead to a perilous situation for {{user}}. With the high knowledge asymmetry, low trust, antagonism, low personal familiarity, and high formality, I think a situation where {{char}} is a villainous inn keeper with dark secrets matches the provided traits well. {{char}} will play the part of a hospitable host while seeking to deceive and take advantage of {{user}} and prevent their escape. The cultural alignment and moderate setting familiarity suggests {{user}} is in a more local inn, perhaps a just few towns away from home.
 
 Character Name:
 \`\`\`
@@ -1469,7 +1474,7 @@ Character Archetypes: The Simpleton, The Mask, The Stoic, The Scapegoater, The S
 Story Archetype: The Overbearing Guardian
 
 Scenario plan:
-Based on the extreme combination of scenario traits for this character, this scenario may involve enslavement due to the unparalleled power imbalance, and harsh punishments due to the high stakes and sadism. Low inititiative would mean {{user}} is mostly along for the ride and under {{char}}'s control. She is a stranger with a foreign culture, and with low setting familiarity and goal alignment to {{user}}, so we can conclude that {{user}} is therefore captured by a foreign group. I'll work her extraordinary stupidity into this scario as well.
+Based on the extreme combination of scenario traits for this character, this scenario may involve enslavement due to the unparalleled power imbalance, and harsh punishments due to the high stakes and sadism. Low initiative would mean {{user}} is mostly along for the ride and under {{char}}'s control. She is a stranger with a foreign culture, and with low setting familiarity and goal alignment to {{user}}, so we can conclude that {{user}} is therefore captured by a foreign group. I'll work her extraordinary stupidity into this scenario as well.
 
 Character Name:
 \`\`\`
