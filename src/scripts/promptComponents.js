@@ -1,4 +1,3 @@
-// Prompt components object
 const promptComponents = {{PROMPT_COMPONENTS}};
 
 function loadPromptComponents() {

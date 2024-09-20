@@ -191,4 +191,4 @@ The scenario outlines how {{user}} and {{char}} ended up in their situation, giv
 
 Next, write example dialogues as well. Make use of dialogues to set the unique and interesting mannerisms of speech and actions of the character, and make the speech patterns interesting and unique to the character. Example dialogue should also explore hypothetical future scenarios and show how the character would react to different possible situations.
 
-Use this information to create a character card for role-play. The character card should follow the example format and use code blocks for easy copy/pasting of each section.
+Use this information to create a character card for role-play. The character card should closely follow the example card structure, and use code blocks for easy copy/pasting of each section.

@@ -14,8 +14,29 @@ function generateStep1Prompt() {
     After that list, make a status description that is consistent the status traits while avoiding using terms directly from the status trait names.
     Following the status description, write an encounter scenario that is consistent with the scenario traits, while still avoiding using the specific wording from that scenario traits list.
 
-    Plan out how to answer while meeting all requirements and crafting a compelling story narrative.
-    Then, put your final answer with those three elements in a code block.`;
+    Before answering, plan out how to answer while meeting all requirements and crafting a compelling story narrative. You must write 3 unique possible scenarios in your plan that are highly specific and detailed and then pick the most compelling.
+    Then, put your final answer with those personality traits, status description, and chosen scenario in a code block. The scenario is primarily between two people, {{char}} and {{user}}.
+    
+    Write your response in the following format:
+    
+    Plan:
+    Scenario 1:
+
+    Scenario 2:
+
+    Scenario 3:
+
+    Chosen Scenario:
+
+    Final Answer in Code block:
+    \`\`\`
+    Personality:
+
+    Status:
+
+    Scenario:
+    \`\`\`
+    `;
 
   step1Prompt = replaceComponentPlaceholders(step1Prompt, selectedComponents);
   copyToClipboard(step1Prompt);

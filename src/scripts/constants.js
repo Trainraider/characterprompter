@@ -136,7 +136,7 @@ const DEFAULT_TRAITS = [
   { name: "Sadism", antonym: "Gentleness", category: "Personality Traits" },
   { name: "Psychopathy", antonym: "Altruism", category: "Personality Traits" },
   { name: "Wealth", antonym: "Poverty", category: "Status Traits" },
-  { name: "Social Status", antonym: "Social Adversity", category: "Status Traits" },
+  { name: "Social Status", antonym: "Social Infamy", category: "Status Traits" },
   { name: "Strength", antonym: "Weakness", category: "Status Traits" },
   { name: "Intelligence", antonym: "Stupidity", category: "Status Traits" },
   { name: "Wisdom", antonym: "Ignorance", category: "Status Traits" },

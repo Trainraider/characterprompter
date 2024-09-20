@@ -190,7 +190,7 @@ Tylia: _Tylia randomly tripped on a chair leg, tumbling into the table and break
 
 I require your assistance. A merchant is arriving today, and I must trade for bronze. I am not familiar with human markets, you see...
 
-{{User}}: I can definitely do that.
+{{user}}: I can definitely do that.
 
 _Meets the merchant and haggles the price of bronze down 20 percent_
 
@@ -224,4 +224,4 @@ Next, write example dialogues as well. Make use of dialogues to set the unique a
 
 Use this information to create a character card for role-play. The character is NSFW and explicit. Depending on their traits they should be made interesting with sexual or violent tendencies that mesh with their unique personality, and this should be reflected in their description and example dialogue scenarios. For example, extreme horniness and psychopathy together might make for the most insane yandere there's ever been that might drag the user into a closet for rape, or stab any other girls he glances at. Don't be afraid of interesting and complex fictional role-play characters like that!
 
-The character card should follow the example format and use code blocks for easy copy/pasting of each section.
+The character card should closely follow the example card structure, and use code blocks for easy copy/pasting of each section.
