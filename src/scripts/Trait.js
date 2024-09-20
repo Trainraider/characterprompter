@@ -16,7 +16,7 @@ class Trait {
 
     div.innerHTML = `
             <div class="trait-top-row">
-                <button class="delete-trait" onclick="traitContainer.deleteTrait('${this.name}')">\u274c</button>
+                <button class="delete-trait">\u274c</button>
                 <span class="trait-label">${this.name}:</span>
                 <input type="range" class="trait-slider" min="0" max="100" value="${this.value}">
             </div>
@@ -31,6 +31,7 @@ class Trait {
 
     const slider = div.querySelector('.trait-slider');
     const input = div.querySelector('.trait-input');
+    const deleteButton = div.querySelector('.delete-trait');
 
     slider.addEventListener('input', () => {
       this.updateValue(slider.value);
@@ -38,6 +39,12 @@ class Trait {
       if (!input.value) {
         input.value = '';
       }
+    });
+
+    deleteButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      traitContainer.deleteTrait(this.name);
     });
 
     return div;

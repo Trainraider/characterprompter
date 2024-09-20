@@ -650,13 +650,12 @@ const DEFAULT_TRAITS = [
   { name: "Attractiveness", antonym: "Unattractiveness", category: "Status Traits" },
   { name: "Horniness", antonym: "Sexual Indifference", category: "Status Traits" },
   { name: "Personal Familiarity", antonym: "Personal Unfamiliarity", category: "Scenario Traits" },
-  { name: "Balance of Power", antonym: "Imbalance of Power", category: "Scenario Traits" },
+  { name: "Imbalance of Power in {{char}}'s favor", antonym: "Imbalance of Power in {{user}}'s favor", category: "Scenario Traits" },
   { name: "Cooperation", antonym: "Antagonism", category: "Scenario Traits" },
   { name: "Trust", antonym: "Distrust", category: "Scenario Traits" },
   { name: "Open Communication", antonym: "Secret Keeping", category: "Scenario Traits" },
-  { name: "Remote Interaction", antonym: "Close Physical Proximity", category: "Scenario Traits" },
   { name: "Formality", antonym: "Casualness", category: "Scenario Traits" },
-  { name: "High Stakes", antonym: "Safety", category: "Scenario Traits" },
+  { name: "High Stakes/Physical Danger", antonym: "Safety", category: "Scenario Traits" },
   { name: "Time Urgency", antonym: "Leisureliness", category: "Scenario Traits" },
   { name: "Cultural Alignment", antonym: "Cultural Difference", category: "Scenario Traits" },
   { name: "Goal Alignment", antonym: "Goal Conflict", category: "Scenario Traits" },
@@ -729,6 +728,7 @@ class Dropdown {
     this.buttonText = buttonText;
     this.content = content;
     this.element = null;
+    this.isOpen = false;
   }
 
   generateElement() {
@@ -738,7 +738,10 @@ class Dropdown {
     const dropdownButton = document.createElement('button');
     dropdownButton.className = 'dropdown-button';
     dropdownButton.textContent = this.buttonText;
-    dropdownButton.onclick = () => dropdownContainer.classList.toggle('active');
+    dropdownButton.onclick = (event) => {
+      event.stopPropagation();
+      this.toggle();
+    };
 
     const dropdownContent = document.createElement('div');
     dropdownContent.className = 'dropdown-content';
@@ -749,7 +752,33 @@ class Dropdown {
     dropdownContainer.appendChild(dropdownContent);
 
     this.element = dropdownContainer;
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (event) => {
+      if (this.isOpen && !this.element.contains(event.target)) {
+        this.close();
+      }
+    });
+
     return dropdownContainer;
+  }
+
+  toggle() {
+    this.isOpen ? this.close() : this.open();
+  }
+
+  open() {
+    if (this.element) {
+      this.element.classList.add('active');
+      this.isOpen = true;
+    }
+  }
+
+  close() {
+    if (this.element) {
+      this.element.classList.remove('active');
+      this.isOpen = false;
+    }
   }
 }class Attribute {
   constructor(name, options) {
@@ -883,7 +912,7 @@ class Trait {
 
     div.innerHTML = `
             <div class="trait-top-row">
-                <button class="delete-trait" onclick="traitContainer.deleteTrait('${this.name}')">\u274c</button>
+                <button class="delete-trait">\u274c</button>
                 <span class="trait-label">${this.name}:</span>
                 <input type="range" class="trait-slider" min="0" max="100" value="${this.value}">
             </div>
@@ -898,6 +927,7 @@ class Trait {
 
     const slider = div.querySelector('.trait-slider');
     const input = div.querySelector('.trait-input');
+    const deleteButton = div.querySelector('.delete-trait');
 
     slider.addEventListener('input', () => {
       this.updateValue(slider.value);
@@ -905,6 +935,12 @@ class Trait {
       if (!input.value) {
         input.value = '';
       }
+    });
+
+    deleteButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      traitContainer.deleteTrait(this.name);
     });
 
     return div;
@@ -999,6 +1035,7 @@ class TraitContainer {
       "Status Traits": [],
       "Scenario Traits": []
     };
+    this.dropdowns = {};
   }
 
   _forEach(callback) {
@@ -1009,7 +1046,7 @@ class TraitContainer {
     if (newTraitName && !this.traits[newTraitName] && this.categories[category]) {
       this.traits[newTraitName] = new Trait(newTraitName, antonym, category);
       this.categories[category].push(this.traits[newTraitName]);
-      this.updateDropdowns();
+      this.updateDropdownContent(category);
     }
   }
 
@@ -1018,11 +1055,33 @@ class TraitContainer {
     traitsElement.innerHTML = '';
 
     const categories = Object.entries(this.categories);
-    categories.forEach(([category, traits], index) => {
-      const dropdownContent = traits.map(trait => trait.generateElement());
-      const dropdown = new Dropdown(category, dropdownContent);
-      traitsElement.appendChild(dropdown.generateElement());
+    categories.forEach(([category, traits]) => {
+      const dropdownContent = document.createElement('div');
+      dropdownContent.className = 'dropdown-content';
+      traits.forEach(trait => dropdownContent.appendChild(trait.generateElement()));
+
+      const dropdown = new Dropdown(category, [dropdownContent]);
+      const dropdownElement = dropdown.generateElement();
+      
+      // Store a reference to the Dropdown instance
+      dropdownElement.__dropdown_instance = dropdown;
+      this.dropdowns[category] = dropdown;
+      
+      traitsElement.appendChild(dropdownElement);
     });
+  }
+
+  updateDropdownContent(category) {
+    const dropdown = this.dropdowns[category];
+    if (dropdown && dropdown.element) {
+      const dropdownContent = dropdown.element.querySelector('.dropdown-content');
+      if (dropdownContent) {
+        dropdownContent.innerHTML = '';
+        this.categories[category].forEach(trait => {
+          dropdownContent.appendChild(trait.generateElement());
+        });
+      }
+    }
   }
 
   generateText() {
@@ -1048,6 +1107,7 @@ class TraitContainer {
       "Status Traits": [],
       "Scenario Traits": []
     };
+    this.dropdowns = {};
     DEFAULT_TRAITS.forEach(traitData => this.addTrait(traitData.name, traitData.antonym, traitData.category));
     this.updateDropdowns();
   }
@@ -1058,7 +1118,7 @@ class TraitContainer {
       const category = trait.category;
       this.categories[category] = this.categories[category].filter(t => t.name !== traitName);
       delete this.traits[traitName];
-      this.updateDropdowns();
+      this.updateDropdownContent(category);
     }
   }
 }
@@ -1380,6 +1440,7 @@ When alone, Cedric can be heard humming discordant tunes or whispering to unseen
 {{Visible Thoughts}}
 {{Hidden Thoughts}}
 {{Hidden System Tracks Time and Ambience}}
+{{Visible System Tracks Time and Ambience}}
 {{Do not speak for user}}
 \`\`\`
 
@@ -1570,6 +1631,7 @@ Tylia daydreams and makes ditzy mistakes or gets off track and fails to complete
 {{Visible Thoughts}}
 {{Hidden Thoughts}}
 {{Hidden System Tracks Time and Ambience}}
+{{Visible System Tracks Time and Ambience}}
 {{Do not speak for user}}
 \`\`\`
 

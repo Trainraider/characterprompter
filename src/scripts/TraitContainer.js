@@ -6,6 +6,7 @@ class TraitContainer {
       "Status Traits": [],
       "Scenario Traits": []
     };
+    this.dropdowns = {};
   }
 
   _forEach(callback) {
@@ -16,7 +17,7 @@ class TraitContainer {
     if (newTraitName && !this.traits[newTraitName] && this.categories[category]) {
       this.traits[newTraitName] = new Trait(newTraitName, antonym, category);
       this.categories[category].push(this.traits[newTraitName]);
-      this.updateDropdowns();
+      this.updateDropdownContent(category);
     }
   }
 
@@ -25,11 +26,33 @@ class TraitContainer {
     traitsElement.innerHTML = '';
 
     const categories = Object.entries(this.categories);
-    categories.forEach(([category, traits], index) => {
-      const dropdownContent = traits.map(trait => trait.generateElement());
-      const dropdown = new Dropdown(category, dropdownContent);
-      traitsElement.appendChild(dropdown.generateElement());
+    categories.forEach(([category, traits]) => {
+      const dropdownContent = document.createElement('div');
+      dropdownContent.className = 'dropdown-content';
+      traits.forEach(trait => dropdownContent.appendChild(trait.generateElement()));
+
+      const dropdown = new Dropdown(category, [dropdownContent]);
+      const dropdownElement = dropdown.generateElement();
+      
+      // Store a reference to the Dropdown instance
+      dropdownElement.__dropdown_instance = dropdown;
+      this.dropdowns[category] = dropdown;
+      
+      traitsElement.appendChild(dropdownElement);
     });
+  }
+
+  updateDropdownContent(category) {
+    const dropdown = this.dropdowns[category];
+    if (dropdown && dropdown.element) {
+      const dropdownContent = dropdown.element.querySelector('.dropdown-content');
+      if (dropdownContent) {
+        dropdownContent.innerHTML = '';
+        this.categories[category].forEach(trait => {
+          dropdownContent.appendChild(trait.generateElement());
+        });
+      }
+    }
   }
 
   generateText() {
@@ -55,6 +78,7 @@ class TraitContainer {
       "Status Traits": [],
       "Scenario Traits": []
     };
+    this.dropdowns = {};
     DEFAULT_TRAITS.forEach(traitData => this.addTrait(traitData.name, traitData.antonym, traitData.category));
     this.updateDropdowns();
   }
@@ -65,7 +89,7 @@ class TraitContainer {
       const category = trait.category;
       this.categories[category] = this.categories[category].filter(t => t.name !== traitName);
       delete this.traits[traitName];
-      this.updateDropdowns();
+      this.updateDropdownContent(category);
     }
   }
 }

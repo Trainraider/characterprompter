@@ -3,6 +3,7 @@ class Dropdown {
     this.buttonText = buttonText;
     this.content = content;
     this.element = null;
+    this.isOpen = false;
   }
 
   generateElement() {
@@ -12,7 +13,10 @@ class Dropdown {
     const dropdownButton = document.createElement('button');
     dropdownButton.className = 'dropdown-button';
     dropdownButton.textContent = this.buttonText;
-    dropdownButton.onclick = () => dropdownContainer.classList.toggle('active');
+    dropdownButton.onclick = (event) => {
+      event.stopPropagation();
+      this.toggle();
+    };
 
     const dropdownContent = document.createElement('div');
     dropdownContent.className = 'dropdown-content';
@@ -23,6 +27,32 @@ class Dropdown {
     dropdownContainer.appendChild(dropdownContent);
 
     this.element = dropdownContainer;
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (event) => {
+      if (this.isOpen && !this.element.contains(event.target)) {
+        this.close();
+      }
+    });
+
     return dropdownContainer;
+  }
+
+  toggle() {
+    this.isOpen ? this.close() : this.open();
+  }
+
+  open() {
+    if (this.element) {
+      this.element.classList.add('active');
+      this.isOpen = true;
+    }
+  }
+
+  close() {
+    if (this.element) {
+      this.element.classList.remove('active');
+      this.isOpen = false;
+    }
   }
 }
