@@ -28,13 +28,6 @@ class Dropdown {
 
     this.element = dropdownContainer;
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (event) => {
-      if (this.isOpen && !this.element.contains(event.target)) {
-        this.close();
-      }
-    });
-
     return dropdownContainer;
   }
 
