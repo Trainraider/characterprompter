@@ -48,22 +48,19 @@ def build_index_html():
     nsfw_prompt = read_file(os.path.join(src_dir, 'nsfw_prompt.txt'))
     style_css = read_file(os.path.join(src_dir, 'style.css'))
 
+    # Dynamically get all JavaScript files in src/scripts
+    script_files = [f for f in os.listdir(script_dir) if f.endswith('.js')]
+    script_files.sort()  # Ensure consistent order
+    
+    # Move main.js to the end of the list
+    if 'main.js' in script_files:
+        script_files.remove('main.js')
+        script_files.append('main.js')
+
     # Combine all JavaScript modules into one
-    script_files = [
-        'WeightedList.js',
-        'constants.js',
-        'LockButton.js',
-        'Dropdown.js',
-        'Attribute.js',
-        'AttributeContainer.js',
-        'Trait.js',
-        'TraitContainer.js',
-        'utils.js',
-        'main.js'
-    ]
     script_js = ''
     for script_file in script_files:
-        script_js += read_file(os.path.join(script_dir, script_file))
+        script_js += read_file(os.path.join(script_dir, script_file)) + '\n'
 
     # Escape backticks in prompts
     prompt = escape_backticks(prompt)
