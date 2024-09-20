@@ -34,7 +34,13 @@ class TraitContainer {
 
   generateText() {
     let allTraitText = '';
-    this._forEach(trait => allTraitText += trait.generateText());
+    for (const category of ['Personality Traits', 'Status Traits', 'Scenario Traits']) {
+      let categoryText = `${category}:\n`;
+      for (const trait of this.categories[category]) {
+        categoryText += trait.generateText();
+      }
+      allTraitText += categoryText + '\n';
+    }
     return allTraitText;
   }
 
