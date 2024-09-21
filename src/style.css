@@ -415,12 +415,6 @@ input[type="checkbox"] {
   color: var(--text-color);
 }
 
-.edit-popup textarea {
-  background-color: #333;
-  color: var(--text-color);
-  border: 1px solid #444;
-}
-
 .edit-popup button[type="submit"],
 .edit-popup button[type="button"] {
   background-color: #444;
@@ -432,6 +426,85 @@ input[type="checkbox"] {
 .edit-popup button[type="submit"]:hover,
 .edit-popup button[type="button"]:hover {
   background-color: #555;
+}
+
+.edit-preview-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.edit-preview-container textarea,
+.edit-preview-container .preview {
+  width: 100%;
+  min-height: 150px;
+  background-color: #333;
+  color: var(--text-color);
+  border: 1px solid #444;
+  border-radius: var(--border-radius);
+  padding: 10px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.edit-preview-container .preview {
+  display: none;
+  overflow-y: auto;
+}
+
+.edit-preview-container.show-preview textarea {
+  display: none;
+}
+
+.edit-preview-container.show-preview .preview {
+  display: block;
+}
+
+.slider {
+  position: absolute;
+  top: -25px;
+  right: 5px;
+  width: 120px;
+  height: 30px;
+  background-color: #111;
+  border-radius: 15px;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 2px;
+}
+
+.slider-button {
+  height: 100%;
+  background-color: #aaa;
+  border-radius: 13px;
+  position: absolute;
+  left: 2px;
+  transition: transform 0.3s ease, width 0.3s ease;
+}
+
+.edit-preview-container:not(.show-preview) .slider-button {
+  width: 50px;
+}
+
+.edit-preview-container.show-preview .slider-button {
+  width: 74px;
+  transform: translateX(42px);
+}
+
+.slider-text {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  pointer-events: none;
+}
+
+.slider-text span {
+  color: #222;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 @media (max-width: 600px) {

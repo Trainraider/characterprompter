@@ -63,11 +63,9 @@ function createEditPopup(key, component) {
         if (typeof subValue === 'string') {
           const label = document.createElement('label');
           label.textContent = subKey;
-          const input = document.createElement('textarea');
-          input.value = subValue;
-          input.name = `${propKey}.${subKey}`;
+          const editPreviewContainer = createEditPreviewContainer(`${propKey}.${subKey}`, subValue);
           fieldset.appendChild(label);
-          fieldset.appendChild(input);
+          fieldset.appendChild(editPreviewContainer);
         } else if (Array.isArray(subValue)) {
           const arrayFieldset = document.createElement('fieldset');
           const arrayLegend = document.createElement('legend');
@@ -77,24 +75,21 @@ function createEditPopup(key, component) {
           subValue.forEach((item, index) => {
             const label = document.createElement('label');
             label.textContent = `Item ${index + 1}`;
-            const input = document.createElement('textarea');
-            input.value = item;
-            input.name = `${propKey}.${subKey}.${index}`;
+            const editPreviewContainer = createEditPreviewContainer(`${propKey}.${subKey}.${index}`, item);
             arrayFieldset.appendChild(label);
-            arrayFieldset.appendChild(input);
+            arrayFieldset.appendChild(editPreviewContainer);
           });
 
           const addButton = document.createElement('button');
           addButton.textContent = 'Add Item';
           addButton.type = 'button';
           addButton.onclick = () => {
-            const newIndex = arrayFieldset.querySelectorAll('textarea').length;
+            const newIndex = arrayFieldset.querySelectorAll('.edit-preview-container').length;
             const label = document.createElement('label');
             label.textContent = `Item ${newIndex + 1}`;
-            const input = document.createElement('textarea');
-            input.name = `${propKey}.${subKey}.${newIndex}`;
-            arrayFieldset.insertBefore(input, addButton);
-            arrayFieldset.insertBefore(label, input);
+            const editPreviewContainer = createEditPreviewContainer(`${propKey}.${subKey}.${newIndex}`, '');
+            arrayFieldset.insertBefore(editPreviewContainer, addButton);
+            arrayFieldset.insertBefore(label, editPreviewContainer);
           };
 
           arrayFieldset.appendChild(addButton);
@@ -106,11 +101,9 @@ function createEditPopup(key, component) {
     } else if (typeof propValue === 'string') {
       const label = document.createElement('label');
       label.textContent = propKey;
-      const input = document.createElement('textarea');
-      input.value = propValue;
-      input.name = propKey;
+      const editPreviewContainer = createEditPreviewContainer(propKey, propValue);
       form.appendChild(label);
-      form.appendChild(input);
+      form.appendChild(editPreviewContainer);
     }
   }
 
@@ -171,29 +164,86 @@ function createEditPopup(key, component) {
   document.body.appendChild(popup);
 }
 
+function createEditPreviewContainer(name, value) {
+  const container = document.createElement('div');
+  container.className = 'edit-preview-container';
+
+  const textarea = document.createElement('textarea');
+  textarea.name = name;
+  textarea.value = value;
+
+  const preview = document.createElement('div');
+  preview.className = 'preview';
+  preview.innerHTML = marked.parse(value);
+
+  const slider = document.createElement('div');
+  slider.className = 'slider';
+
+  const sliderButton = document.createElement('div');
+  sliderButton.className = 'slider-button';
+
+  const sliderText = document.createElement('div');
+  sliderText.className = 'slider-text';
+  
+  const editSpan = document.createElement('span');
+  editSpan.textContent = 'Edit';
+  
+  const previewSpan = document.createElement('span');
+  previewSpan.textContent = 'Preview';
+
+  sliderText.appendChild(editSpan);
+  sliderText.appendChild(previewSpan);
+
+  slider.appendChild(sliderButton);
+  slider.appendChild(sliderText);
+
+  container.appendChild(slider);
+  container.appendChild(textarea);
+  container.appendChild(preview);
+
+  slider.onclick = () => {
+    container.classList.toggle('show-preview');
+    if (container.classList.contains('show-preview')) {
+      preview.innerHTML = marked.parse(textarea.value);
+    }
+  };
+
+  textarea.oninput = () => {
+    if (container.classList.contains('show-preview')) {
+      preview.innerHTML = marked.parse(textarea.value);
+    }
+  };
+
+  return container;
+}
+
 function getSelectedComponents(promptType) {
   const selected = {
     components: {},
     dialogue_start: {},
     dialogue_end: {}
   };
-  for (const [key, component] of Object.entries(promptComponents)) {
-    const checkbox = document.getElementById(`component-${key}`);
-    if (checkbox && checkbox.checked) {
+
+  const dropdowns = document.querySelectorAll('#promptComponentsDropdown select');
+  dropdowns.forEach(dropdown => {
+    const selectedKey = dropdown.value;
+    if (selectedKey) {
+      const component = promptComponents[selectedKey];
       const content = component[promptType] || component['universal'];
       if (typeof content === 'object') {
-        selected.components[key] = content.description || '';
+        selected.components[selectedKey] = content.description || '';
         if (content.dialogue_start) {
-          selected.dialogue_start[key] = content.dialogue_start;
+          selected.dialogue_start[selectedKey] = content.dialogue_start;
         }
         if (content.dialogue_end) {
-          selected.dialogue_end[key] = content.dialogue_end;
+          selected.dialogue_end[selectedKey] = content.dialogue_end;
         }
       } else {
-        selected.components[key] = content;
+        selected.components[selectedKey] = content;
       }
     }
-  }
+  });
+
   return selected;
 }
 
