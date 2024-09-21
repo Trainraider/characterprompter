@@ -22,14 +22,19 @@ function generateStep1Prompt() {
     After that list, make a status description that is consistent the status traits while avoiding using terms directly from the status trait names.
     Following the status description, write an encounter scenario that is consistent with the scenario traits, while still avoiding using the specific wording from that scenario traits list.
 
-    Before answering, plan out how to answer while meeting all requirements and crafting a compelling story narrative. You must write 3 unique possible scenarios in your plan that are highly specific and detailed and then pick the most compelling.
+    Before answering, plan out how to answer while meeting all requirements and crafting a compelling story narrative. You must write 3 unique possible scenarios in your plan that are highly specific and detailed that dilineate the difference between what it seems to be to {{user}} vs what it is and then pick the most compelling. Well defined plot twists are encouraged)
     Then, put your final answer with those personality traits, status description, and chosen scenario in a code block. The scenario is primarily between two people, {{char}} and {{user}}.
     
+    Your response should not imply anything about {{user}}. {{user}} has a seperate character card that our scenario needs to be compatible with.
+
     Write your response in the following format:
     
     Plan:
     <reasoning about how the traits interact in unique ways, how traits that seem to conflict actually imply a unique backstory and current scenario etc.>
     
+    Plot twist possibilities:
+    <reasononing about modifying how the traits are presented so that a plot twist can happen. For example, a psychopathic character may seem empathetic. Consider a missrepresentation of many traits in the scenario so that they may be revealed in the twist.>
+
     Scenario 1:
 
     Scenario 2:

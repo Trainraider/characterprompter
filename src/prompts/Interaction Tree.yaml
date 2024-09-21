@@ -1,4 +1,4 @@
-default: on
+default: off
 regular: |
  Interaction Tree:
  1. Guest arrives at the inn:
