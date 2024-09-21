@@ -84,9 +84,9 @@ def build_index_html():
     prompt_components = process_prompt_components()
 
     # Replace placeholders in script_js
-    script_js = script_js.replace('{{PROMPT}}', prompt)
-    script_js = script_js.replace('{{NSFW_PROMPT}}', nsfw_prompt)
-    script_js = script_js.replace('{{PROMPT_COMPONENTS}}', prompt_components)
+    script_js = script_js.replace('__PROMPT__', prompt)
+    script_js = script_js.replace('__NSFW_PROMPT__', nsfw_prompt)
+    script_js = script_js.replace('__PROMPT_COMPONENTS__', prompt_components)
 
     # Replace placeholders in index_html
     index_html = index_html.replace('<!-- STYLES -->', f'{style_css}')

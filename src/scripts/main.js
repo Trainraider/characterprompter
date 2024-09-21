@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', (event) => {
-  loadPromptComponents();
+  promptComponentManager.loadPromptComponents();
   initializeEventListeners();
   initializeBackgroundImage();
 
@@ -8,12 +8,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
   rerollAll();
 });
 
-// Initialize containers
+// Initialize global classes.
+const promptComponents = __PROMPT_COMPONENTS__;
+const promptComponentManager = new PromptComponentManager(promptComponents);
 const attributeContainer = new AttributeContainer();
 const traitContainer = new TraitContainer();
 const prompt_template = `
-{{PROMPT}}
+__PROMPT__
 `;
 const nsfw_prompt_template = `
-{{NSFW_PROMPT}}
+__NSFW_PROMPT__
 `;
