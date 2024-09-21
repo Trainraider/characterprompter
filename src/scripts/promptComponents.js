@@ -30,13 +30,19 @@ function loadPromptComponents() {
 }
 
 function createEditPopup(key, component) {
+  const overlay = document.createElement('div');
+  overlay.className = 'popup-overlay';
+  
   const popup = document.createElement('div');
   popup.className = 'edit-popup';
   
   const closeButton = document.createElement('button');
   closeButton.innerHTML = '&times;';
   closeButton.className = 'close-button';
-  closeButton.onclick = () => document.body.removeChild(popup);
+  closeButton.onclick = () => {
+    document.body.removeChild(overlay);
+    document.body.removeChild(popup);
+  };
   
   popup.appendChild(closeButton);
 
@@ -62,6 +68,37 @@ function createEditPopup(key, component) {
           input.name = `${propKey}.${subKey}`;
           fieldset.appendChild(label);
           fieldset.appendChild(input);
+        } else if (Array.isArray(subValue)) {
+          const arrayFieldset = document.createElement('fieldset');
+          const arrayLegend = document.createElement('legend');
+          arrayLegend.textContent = subKey;
+          arrayFieldset.appendChild(arrayLegend);
+
+          subValue.forEach((item, index) => {
+            const label = document.createElement('label');
+            label.textContent = `Item ${index + 1}`;
+            const input = document.createElement('textarea');
+            input.value = item;
+            input.name = `${propKey}.${subKey}.${index}`;
+            arrayFieldset.appendChild(label);
+            arrayFieldset.appendChild(input);
+          });
+
+          const addButton = document.createElement('button');
+          addButton.textContent = 'Add Item';
+          addButton.type = 'button';
+          addButton.onclick = () => {
+            const newIndex = arrayFieldset.querySelectorAll('textarea').length;
+            const label = document.createElement('label');
+            label.textContent = `Item ${newIndex + 1}`;
+            const input = document.createElement('textarea');
+            input.name = `${propKey}.${subKey}.${newIndex}`;
+            arrayFieldset.insertBefore(input, addButton);
+            arrayFieldset.insertBefore(label, input);
+          };
+
+          arrayFieldset.appendChild(addButton);
+          fieldset.appendChild(arrayFieldset);
         }
       }
 
@@ -84,7 +121,10 @@ function createEditPopup(key, component) {
   const cancelButton = document.createElement('button');
   cancelButton.textContent = 'Cancel';
   cancelButton.type = 'button';
-  cancelButton.onclick = () => document.body.removeChild(popup);
+  cancelButton.onclick = () => {
+    document.body.removeChild(overlay);
+    document.body.removeChild(popup);
+  };
 
   form.appendChild(saveButton);
   form.appendChild(cancelButton);
@@ -96,14 +136,38 @@ function createEditPopup(key, component) {
       const keys = name.split('.');
       let target = component;
       for (let i = 0; i < keys.length - 1; i++) {
+        if (!target[keys[i]]) {
+          if (isNaN(parseInt(keys[i + 1]))) {
+            target[keys[i]] = {};
+          } else {
+            target[keys[i]] = [];
+          }
+        }
         target = target[keys[i]];
       }
-      target[keys[keys.length - 1]] = value;
+      const lastKey = keys[keys.length - 1];
+      if (Array.isArray(target)) {
+        target[parseInt(lastKey)] = value;
+      } else {
+        target[lastKey] = value;
+      }
     }
+    // Clean up empty array items
+    for (const [propKey, propValue] of Object.entries(component)) {
+      if (typeof propValue === 'object') {
+        for (const [subKey, subValue] of Object.entries(propValue)) {
+          if (Array.isArray(subValue)) {
+            component[propKey][subKey] = subValue.filter(item => item !== '');
+          }
+        }
+      }
+    }
+    document.body.removeChild(overlay);
     document.body.removeChild(popup);
   };
 
   popup.appendChild(form);
+  document.body.appendChild(overlay);
   document.body.appendChild(popup);
 }
 
