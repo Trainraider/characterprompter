@@ -23,8 +23,8 @@ function loadPromptComponents() {
 function getSelectedComponents(promptType) {
   const selected = {
     components: {},
-    dialogue_start: [],
-    dialogue_end: []
+    dialogue_start: {},
+    dialogue_end: {}
   };
   for (const [key, component] of Object.entries(promptComponents)) {
     const checkbox = document.getElementById(`component-${key}`);
@@ -33,10 +33,10 @@ function getSelectedComponents(promptType) {
       if (typeof content === 'object') {
         selected.components[key] = content.description || '';
         if (content.dialogue_start) {
-          selected.dialogue_start.push(...content.dialogue_start);
+          selected.dialogue_start[key] = content.dialogue_start;
         }
         if (content.dialogue_end) {
-          selected.dialogue_end.push(...content.dialogue_end);
+          selected.dialogue_end[key] = content.dialogue_end;
         }
       } else {
         selected.components[key] = content;
@@ -47,21 +47,19 @@ function getSelectedComponents(promptType) {
 }
 
 function injectDialoguePrompts(text, dialogueStart, dialogueEnd) {
-  let startIndex = 0;
-  let endIndex = 0;
+  let startCount = 0;
+  let endCount = 0;
 
-  text = text.replace(/{{dialogue start}}/g, (match) => {
-    if (startIndex < dialogueStart.length) {
-      return dialogueStart[startIndex++];
-    }
-    return '';
+  text = text.replace(/{{dialogue start}}/g, () => {
+    const prompts = Object.values(dialogueStart).map(arr => arr[startCount % arr.length]);
+    startCount++;
+    return prompts.join('\n\n') + '\n\n';
   });
 
-  text = text.replace(/{{dialogue end}}/g, (match) => {
-    if (endIndex < dialogueEnd.length) {
-      return dialogueEnd[endIndex++];
-    }
-    return '';
+  text = text.replace(/{{dialogue end}}/g, () => {
+    const prompts = Object.values(dialogueEnd).map(arr => arr[endCount % arr.length]);
+    endCount++;
+    return prompts.join('\n\n') + '\n';
   });
 
   return text;
