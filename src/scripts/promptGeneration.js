@@ -1,3 +1,11 @@
+function generateTraitAttributeText(attributeContainer, traitContainer) {
+  let allText = '';
+  
+  allText += attributeContainer.generateText();
+  allText += traitContainer.generateText();
+  return allText;
+}
+
 function generateStep1Prompt() {
   let allText = generateTraitAttributeText(attributeContainer, traitContainer);
   const customPromptText = document.getElementById('customPrompt').value.trim();

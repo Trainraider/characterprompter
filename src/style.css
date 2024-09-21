@@ -251,12 +251,15 @@ button:hover, select:hover, .dropdown-button:hover, .dropdown-content { backgrou
   text-align: left;
   transition: background-color var(--transition), border-radius var(--transition);
   margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .dropdown-button::after {
   content: '▼';
-  float: right;
   transition: transform var(--transition);
+  margin-left: 10px;
 }
 
 .dropdown-container {
@@ -319,5 +322,10 @@ footer {
 }
 
 input[type="checkbox"] {
-	width: unset;
+  width: unset;
+}
+
+.dropdown-button .lock {
+  margin-left: auto;
+  margin-right: 10px;
 }

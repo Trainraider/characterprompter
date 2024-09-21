@@ -22,6 +22,17 @@
       toggleLock() {
         this.locked = !this.locked;
         this.updateElementState();
+        updateContainerLocks();
+      }
+
+      lock() {
+        this.locked = true;
+        this.updateElementState();
+      }
+
+      unlock() {
+        this.locked = false;
+        this.updateElementState();
       }
 
       updateElementState() {

@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
   loadPromptComponents();
   initializeEventListeners();
   initializeBackgroundImage();
-  initializeNewTraitFunctionality();
 
   attributeContainer.reset();
   traitContainer.reset();

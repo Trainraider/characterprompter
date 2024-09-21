@@ -19,7 +19,7 @@ class AttributeContainer {
     const attributeElements = [];
     this._forEach(attribute => attributeElements.push(attribute.generateElement()));
 
-    this.dropdown = new Dropdown('Attributes', attributeElements);
+    this.dropdown = new Dropdown('Attributes', attributeElements, this.isLocked.bind(this), this.lockAll.bind(this), this.unlockAll.bind(this));
     attributesElement.appendChild(this.dropdown.generateElement());
   }
 
@@ -51,5 +51,17 @@ class AttributeContainer {
       this.addAttribute(key, options);
     });
     this.generateElements();
+  }
+
+  isLocked() {
+    return Object.values(this.attributes).every(attribute => attribute.lock.isLocked());
+  }
+
+  lockAll() {
+    this._forEach(attribute => attribute.lock.lock());
+  }
+
+  unlockAll() {
+    this._forEach(attribute => attribute.lock.unlock());
   }
 }

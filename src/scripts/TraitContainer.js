@@ -31,7 +31,13 @@ class TraitContainer {
       dropdownContent.className = 'dropdown-content';
       traits.forEach(trait => dropdownContent.appendChild(trait.generateElement()));
 
-      const dropdown = new Dropdown(category, [dropdownContent]);
+      const dropdown = new Dropdown(
+        category, 
+        [dropdownContent],
+        () => this.isLocked(category),
+        () => this.lockAll(category),
+        () => this.unlockAll(category)
+      );
       const dropdownElement = dropdown.generateElement();
       
       // Store a reference to the Dropdown instance
@@ -91,5 +97,17 @@ class TraitContainer {
       delete this.traits[traitName];
       this.updateDropdownContent(category);
     }
+  }
+
+  isLocked(category) {
+    return this.categories[category].every(trait => trait.lock.isLocked());
+  }
+
+  lockAll(category) {
+    this.categories[category].forEach(trait => trait.lock.lock());
+  }
+
+  unlockAll(category) {
+    this.categories[category].forEach(trait => trait.lock.unlock());
   }
 }
