@@ -10,7 +10,7 @@ class Dropdown {
     const dropdownContainer = document.createElement('div');
     dropdownContainer.className = 'dropdown-container';
 
-    const dropdownButton = document.createElement('button');
+    const dropdownButton = document.createElement('div');
     dropdownButton.className = 'dropdown-button';
     dropdownButton.textContent = this.buttonText;
     dropdownButton.onclick = (event) => {

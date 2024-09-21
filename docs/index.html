@@ -65,7 +65,7 @@ h1, h4, .margin-bottom { margin-bottom: 20px; }
 
 #title { text-align: center; }
 
-input, button, textarea, select, #description {
+input, button, textarea, select, #description, .dropdown-button {
   color: var(--text-color);
   border: none;
   border-radius: var(--border-radius);
@@ -85,14 +85,14 @@ textarea {
 
 textarea::placeholder { color: #888; }
 
-button, select { margin: 10px; }
+button, select, .dropdown-button { margin: 10px; }
 
 select * {
   background-color: #333;
   color: #fff;
 }
 
-button:hover, select:hover, .dropdown-content { background-color: #333; }
+button:hover, select:hover, .dropdown-button:hover, .dropdown-content { background-color: #333; }
 
 .spacer { flex-grow: 1; }
 
@@ -557,7 +557,7 @@ class Dropdown {
     const dropdownContainer = document.createElement('div');
     dropdownContainer.className = 'dropdown-container';
 
-    const dropdownButton = document.createElement('button');
+    const dropdownButton = document.createElement('div');
     dropdownButton.className = 'dropdown-button';
     dropdownButton.textContent = this.buttonText;
     dropdownButton.onclick = (event) => {
