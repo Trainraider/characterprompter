@@ -338,6 +338,28 @@ input[type="checkbox"] {
   margin-right: 10px;
 }
 
+/* New styles for two-column layout */
+.two-column-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.prompt-component-item {
+  display: flex;
+  align-items: center;
+}
+
+.prompt-component-item input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+@media (max-width: 600px) {
+  .two-column-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
   </style>
 </head>
 
@@ -1383,6 +1405,8 @@ const promptComponents = {"General Behaviors": {"default": false, "universal": "
 
 function loadPromptComponents() {
   const dropdown = document.getElementById('promptComponentsDropdown');
+  dropdown.className = 'two-column-grid';
+
   for (const [key, component] of Object.entries(promptComponents)) {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -1394,6 +1418,7 @@ function loadPromptComponents() {
     label.textContent = key;
 
     const div = document.createElement('div');
+    div.className = 'prompt-component-item';
     div.appendChild(checkbox);
     div.appendChild(label);
 

@@ -2,6 +2,8 @@ const promptComponents = {{PROMPT_COMPONENTS}};
 
 function loadPromptComponents() {
   const dropdown = document.getElementById('promptComponentsDropdown');
+  dropdown.className = 'two-column-grid';
+
   for (const [key, component] of Object.entries(promptComponents)) {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -13,6 +15,7 @@ function loadPromptComponents() {
     label.textContent = key;
 
     const div = document.createElement('div');
+    div.className = 'prompt-component-item';
     div.appendChild(checkbox);
     div.appendChild(label);
 

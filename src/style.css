@@ -329,3 +329,25 @@ input[type="checkbox"] {
   margin-left: auto;
   margin-right: 10px;
 }
+
+/* New styles for two-column layout */
+.two-column-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.prompt-component-item {
+  display: flex;
+  align-items: center;
+}
+
+.prompt-component-item input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+@media (max-width: 600px) {
+  .two-column-grid {
+    grid-template-columns: 1fr;
+  }
+}
