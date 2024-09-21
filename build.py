@@ -30,9 +30,23 @@ def process_prompt_components():
                 components[key] = {
                     'default': component_data.get('default', 'off'),
                     'universal': component_data.get('universal', ''),
-                    'regular': component_data.get('regular', ''),
-                    'nsfw': component_data.get('nsfw', '')
                 }
+                
+                for prompt_type in ['regular', 'nsfw']:
+                    if prompt_type in component_data:
+                        if isinstance(component_data[prompt_type], str):
+                            components[key][prompt_type] = component_data[prompt_type]
+                        elif isinstance(component_data[prompt_type], dict):
+                            components[key][prompt_type] = {
+                                'description': component_data[prompt_type].get('description', ''),
+                                'dialogue_start': component_data[prompt_type].get('dialogue_start', []),
+                                'dialogue_end': component_data[prompt_type].get('dialogue_end', [])
+                            }
+                        else:
+                            components[key][prompt_type] = ''
+                    else:
+                        components[key][prompt_type] = ''
+    
     return json.dumps(components)
 
 def build_index_html():
