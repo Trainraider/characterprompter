@@ -23,7 +23,7 @@ def process_prompt_components():
     prompts_dir = './src/prompts'
     components = {}
     for filename in os.listdir(prompts_dir):
-        if filename.endswith('.txt'):
+        if filename.endswith('.yaml'):
             with open(os.path.join(prompts_dir, filename), 'r') as file:
                 component_data = yaml.safe_load(file)
                 key = os.path.splitext(filename)[0]

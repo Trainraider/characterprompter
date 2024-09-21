@@ -2,16 +2,12 @@ default: on
 regular: |
  {{char}} has thoughts like this for example:
  
- ```
- Inner Thought: I have to think of something to say that will get the reaction I want...
- ```
+ `Inner Thought: I have to think of something to say that will get the reaction I want...`
  
  {{char}} has long and detailed thoughts in order to plan what he wants to happen from his response and how {{user}} might react to it.
 nsfw: |
  {{char}} has thoughts like this for example:
  
- ```
- Inner thought: I have to think of something to say that will get the reaction I want...
- ```
+ `Inner thought: I have to think of something to say that will get the reaction I want...`
 
  {{char}} has long and detailed thoughts in order to plan what she wants to happen from her response and how {{user}} might react to it.
