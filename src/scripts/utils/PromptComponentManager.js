@@ -1,4 +1,3 @@
-
 class PromptComponentManager {
   constructor(promptComponents) {
     this.promptComponents = promptComponents;
@@ -143,6 +142,10 @@ class PromptComponentManager {
     }
   }
 
+  getPromptType(promptTemplate) {
+    return promptTemplate === nsfw_prompt_template ? 'nsfw' : 'regular';
+  }
+
   getSelectedComponents(promptType) {
     const selected = {
       components: {},
@@ -150,22 +153,22 @@ class PromptComponentManager {
       dialogue_end: {}
     };
 
-    const dropdowns = document.querySelectorAll('#promptComponentsDropdown select');
-    dropdowns.forEach(dropdown => {
-      const selectedKey = dropdown.value;
-      if (selectedKey) {
-        const component = this.promptComponents[selectedKey];
+    const checkboxes = document.querySelectorAll('#promptComponentsDropdown input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+      if (checkbox.checked) {
+        const key = checkbox.id.replace('component-', '');
+        const component = this.promptComponents[key];
         const content = component[promptType] || component['universal'];
         if (typeof content === 'object') {
-          selected.components[selectedKey] = content.description || '';
+          selected.components[key] = content.description || '';
           if (content.dialogue_start) {
-            selected.dialogue_start[selectedKey] = content.dialogue_start;
+            selected.dialogue_start[key] = content.dialogue_start;
           }
           if (content.dialogue_end) {
-            selected.dialogue_end[selectedKey] = content.dialogue_end;
+            selected.dialogue_end[key] = content.dialogue_end;
           }
         } else {
-          selected.components[selectedKey] = content;
+          selected.components[key] = content;
         }
       }
     });

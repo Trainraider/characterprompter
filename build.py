@@ -49,6 +49,19 @@ def process_prompt_components():
     
     return json.dumps(components)
 
+def get_script_files(script_dir):
+    regular_scripts = []
+    main_js = None
+    for root, _, files in os.walk(script_dir):
+        for file in sorted(files):
+            if file.endswith('.js'):
+                full_path = os.path.join(root, file)
+                if file == 'main.js':
+                    main_js = full_path
+                else:
+                    regular_scripts.append(full_path)
+    return regular_scripts, main_js
+
 def build_index_html():
     src_dir = './src'
     script_dir = './src/scripts'
@@ -62,19 +75,17 @@ def build_index_html():
     nsfw_prompt = read_file(os.path.join(src_dir, 'nsfw_prompt.txt'))
     style_css = read_file(os.path.join(src_dir, 'style.css'))
 
-    # Dynamically get all JavaScript files in src/scripts
-    script_files = [f for f in os.listdir(script_dir) if f.endswith('.js')]
-    script_files.sort()  # Ensure consistent order
+    # Get all JavaScript files recursively
+    regular_scripts, main_js = get_script_files(script_dir)
     
-    # Move main.js to the end of the list
-    if 'main.js' in script_files:
-        script_files.remove('main.js')
-        script_files.append('main.js')
-
     # Combine all JavaScript modules into one
     script_js = ''
-    for script_file in script_files:
-        script_js += read_file(os.path.join(script_dir, script_file)) + '\n'
+    for script_file in regular_scripts:
+        script_js += read_file(script_file) + '\n'
+    
+    # Add main.js at the end if it exists
+    if main_js:
+        script_js += read_file(main_js) + '\n'
 
     # Escape backticks in prompts
     prompt = escape_backticks(prompt)
@@ -89,8 +100,8 @@ def build_index_html():
     script_js = script_js.replace('__PROMPT_COMPONENTS__', prompt_components)
 
     # Replace placeholders in index_html
-    index_html = index_html.replace('<!-- STYLES -->', f'{style_css}')
-    index_html = index_html.replace('<!-- SCRIPTS -->', f'{script_js}')
+    index_html = index_html.replace('<!-- STYLES -->', f'<style>\n{style_css}\n</style>')
+    index_html = index_html.replace('<!-- SCRIPTS -->', f'<script>\n{script_js}\n</script>')
 
     # Encode images to base64
     image_base64 = encode_image_to_base64(os.path.join(src_dir, 'image.webp'))

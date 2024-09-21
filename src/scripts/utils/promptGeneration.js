@@ -12,7 +12,7 @@ function generateStep1Prompt() {
 
   const personalityTraitsList = PERSONALITY_TRAITS.join(', ');
 
-  const selectedComponents = getSelectedComponents('regular');
+  const selectedComponents = promptComponentManager.getSelectedComponents('regular');
   let step1Prompt = `Based on the following information about a character:
     ${allText}
     ${customPromptText}
@@ -53,7 +53,7 @@ function generateStep1Prompt() {
     \`\`\`
     `;
 
-  step1Prompt = replaceComponentPlaceholders(step1Prompt, selectedComponents);
+  step1Prompt = promptComponentManager.replaceComponentPlaceholders(step1Prompt, selectedComponents);
   copyToClipboard(step1Prompt);
 }
 
@@ -68,13 +68,13 @@ function copyWithStep2Prompt(promptTemplate) {
   let allText = attributesText + digestedTraits;
 
   const customPromptText = document.getElementById('customPrompt').value.trim();
-  const promptType = getPromptType(promptTemplate);
-  const selectedComponents = getSelectedComponents(promptType);
+  const promptType = promptComponentManager.getPromptType(promptTemplate);
+  const selectedComponents = promptComponentManager.getSelectedComponents(promptType);
   let finalText = promptTemplate
     .replace('{{traits}}', allText)
     .replace('{{custom_prompt}}', customPromptText);
 
-  finalText = replaceComponentPlaceholders(finalText, selectedComponents);
+  finalText = promptComponentManager.replaceComponentPlaceholders(finalText, selectedComponents);
   copyToClipboard(finalText);
 }
 
@@ -86,12 +86,12 @@ function copyAll() {
 function copyWithPrompt(prompt) {
   let allText = generateTraitAttributeText(attributeContainer, traitContainer);
   const customPromptText = document.getElementById('customPrompt').value.trim();
-  const promptType = getPromptType(prompt);
-  const selectedComponents = getSelectedComponents(promptType);
+  const promptType = promptComponentManager.getPromptType(prompt);
+  const selectedComponents = promptComponentManager.getSelectedComponents(promptType);
   let finalText = prompt
     .replace('{{traits}}', allText)
     .replace('{{custom_prompt}}', customPromptText);
 
-  finalText = replaceComponentPlaceholders(finalText, selectedComponents);
+  finalText = promptComponentManager.replaceComponentPlaceholders(finalText, selectedComponents);
   copyToClipboard(finalText);
 }

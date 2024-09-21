@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>✨Character Traits and Attributes Generator✨</title>
   <style>
-    :root {
+:root {
   --hue: 0;
   --background-color: #3338;
   --text-color: #fff;
@@ -526,7 +526,7 @@ input[type="checkbox"] {
   }
 }
 
-  </style>
+</style>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 
@@ -626,301 +626,6 @@ input[type="checkbox"] {
     </p>
   </footer>
   <script>
-    class Attribute {
-  constructor(name, options) {
-    this.name = name;
-    this.options = options;
-    this.element = null;
-    this.lock = new LockButton(name);
-    this.value = this.reroll();
-  }
-
-  reroll() {
-    if (!this.lock.isLocked()) {
-      this.value = this.options.sample();
-      this.updateValue(this.value);
-    }
-    return this.value;
-  }
-
-  generateElement() {
-    const div = document.createElement('div');
-    div.className = 'attribute';
-
-    const lockButton = this.lock.createLockButton();
-
-    div.innerHTML = `
-      <div class="attribute-top-row">
-        <span class="attribute-name">${this.name}:</span>
-        <input type="text" class="attribute-input" value="${this.value}">
-      </div>
-    `;
-    
-    const attributeTopRow = div.querySelector('.attribute-top-row');
-    attributeTopRow.insertBefore(lockButton, attributeTopRow.firstChild);
-
-    this.element = div;
-    this.lock.setElement(div);
-
-    const input = div.querySelector('.attribute-input');
-    input.addEventListener('input', (e) => {
-      if (!this.lock.isLocked()) {
-        this.value = e.target.value;
-      }
-    });
-
-    return div;
-  }
-
-  generateText() {
-    return `${this.name}: ${this.value}`;
-  }
-
-  updateValue(newValue) {
-    if (!this.lock.isLocked()) {
-      this.value = newValue;
-      if (this.element) {
-        const input = this.element.querySelector('.attribute-input');
-        input.value = newValue;
-      }
-    }
-  }
-}
-class AttributeContainer {
-  constructor() {
-    this.attributes = {};
-    this.dropdown = null;
-  }
-
-  _forEach(callback) {
-    Object.values(this.attributes).forEach(callback);
-  }
-
-  addAttribute(name, options) {
-    this.attributes[name] = new Attribute(name, options);
-  }
-
-  generateElements() {
-    const attributesElement = document.getElementById('attributes');
-    attributesElement.innerHTML = '';
-
-    const attributeElements = [];
-    this._forEach(attribute => attributeElements.push(attribute.generateElement()));
-
-    this.dropdown = new Dropdown('Attributes', attributeElements, this.isLocked.bind(this), this.lockAll.bind(this), this.unlockAll.bind(this));
-    attributesElement.appendChild(this.dropdown.generateElement());
-  }
-
-  generateText() {
-    let attributesText = '';
-    this._forEach(attribute => {
-      attributesText += attribute.generateText() + '\n';
-    });
-    // Remove any leading/trailing whitespace and ensure no empty lines
-    attributesText = attributesText.trim().replace(/^\s+/gm, '');
-    // Add a single newline at the end
-    return attributesText + '\n';
-  }
-
-  reroll() {
-    this._forEach(attribute => attribute.reroll())
-    const worldTypeAttribute = this.attributes['World Type'];
-    const raceAttribute = this.attributes['Race'];
-    if (worldTypeAttribute && raceAttribute && !raceAttribute.lock.isLocked()) {
-      if (worldTypeAttribute.value !== 'Fantasy') {
-        raceAttribute.updateValue('Human');
-      }
-    }
-  }
-
-  reset() {
-    this.attributes = {};
-    Object.entries(ATTRIBUTES_INFO).forEach(([key, options]) => {
-      this.addAttribute(key, options);
-    });
-    this.generateElements();
-  }
-
-  isLocked() {
-    return Object.values(this.attributes).every(attribute => attribute.lock.isLocked());
-  }
-
-  lockAll() {
-    this._forEach(attribute => attribute.lock.lock());
-  }
-
-  unlockAll() {
-    this._forEach(attribute => attribute.lock.unlock());
-  }
-}
-
-class Dropdown {
-  constructor(buttonText, content, isLocked, lockAll, unlockAll) {
-    this.buttonText = buttonText;
-    this.content = content;
-    this.element = null;
-    this.isOpen = false;
-    this.lockButton = new LockButton(buttonText);
-    this.isLocked = isLocked;
-    this.lockAll = lockAll;
-    this.unlockAll = unlockAll;
-  }
-
-  generateElement() {
-    const dropdownContainer = document.createElement('div');
-    dropdownContainer.className = 'dropdown-container';
-
-    const dropdownButton = document.createElement('div');
-    dropdownButton.className = 'dropdown-button';
-    
-    const buttonText = document.createElement('span');
-    buttonText.textContent = this.buttonText;
-    dropdownButton.onclick = (event) => {
-      event.stopPropagation();
-      this.toggle();
-    };
-    dropdownButton.appendChild(buttonText);
-
-    const lockButtonElement = this.lockButton.createLockButton();
-    lockButtonElement.onclick = (event) => {
-      event.stopPropagation();
-      this.toggleLock();
-    };
-    dropdownButton.appendChild(lockButtonElement);
-
-    const dropdownContent = document.createElement('div');
-    dropdownContent.className = 'dropdown-content';
-
-    this.content.forEach(item => dropdownContent.appendChild(item));
-
-    dropdownContainer.appendChild(dropdownButton);
-    dropdownContainer.appendChild(dropdownContent);
-
-    this.element = dropdownContainer;
-    this.lockButton.setElement(dropdownContainer);
-
-    // Initial sync of lock button state
-    this.syncLockButtonState();
-
-    return dropdownContainer;
-  }
-
-  toggle() {
-    this.isOpen ? this.close() : this.open();
-  }
-
-  open() {
-    if (this.element) {
-      this.element.classList.add('active');
-      this.isOpen = true;
-    }
-  }
-
-  close() {
-    if (this.element) {
-      this.element.classList.remove('active');
-      this.isOpen = false;
-    }
-  }
-
-  toggleLock() {
-    if (this.isLocked()) {
-      this.unlockAll();
-    } else {
-      this.lockAll();
-    }
-    this.syncLockButtonState();
-  }
-
-  syncLockButtonState() {
-    const isLocked = this.isLocked();
-    this.lockButton.locked = isLocked;
-    this.lockButton.updateElementState();
-  }
-}
-class EditPreviewContainer {
-  constructor(name, value) {
-    this.container = document.createElement('div');
-    this.container.className = 'edit-preview-container';
-
-    this.textarea = this.createTextarea(name, value);
-    this.preview = this.createPreview(value);
-    this.slider = this.createSlider();
-
-    this.container.appendChild(this.slider);
-    this.container.appendChild(this.textarea);
-    this.container.appendChild(this.preview);
-
-    this.setupEventListeners();
-  }
-
-  createTextarea(name, value) {
-    const textarea = document.createElement('textarea');
-    textarea.name = name;
-    textarea.value = value;
-    return textarea;
-  }
-
-  createPreview(value) {
-    const preview = document.createElement('div');
-    preview.className = 'preview';
-    preview.innerHTML = marked.parse(value);
-    return preview;
-  }
-
-  createSlider() {
-    const slider = document.createElement('div');
-    slider.className = 'slider';
-
-    const sliderButton = document.createElement('div');
-    sliderButton.className = 'slider-button';
-
-    const sliderText = document.createElement('div');
-    sliderText.className = 'slider-text';
-    
-    const editSpan = document.createElement('span');
-    editSpan.textContent = 'Edit';
-    
-    const previewSpan = document.createElement('span');
-    previewSpan.textContent = 'Preview';
-
-    sliderText.appendChild(editSpan);
-    sliderText.appendChild(previewSpan);
-
-    slider.appendChild(sliderButton);
-    slider.appendChild(sliderText);
-
-    return slider;
-  }
-
-  setupEventListeners() {
-    this.slider.onclick = () => {
-      this.container.classList.toggle('show-preview');
-      if (this.container.classList.contains('show-preview')) {
-        this.updatePreview();
-      }
-    };
-
-    this.textarea.oninput = () => {
-      if (this.container.classList.contains('show-preview')) {
-        this.updatePreview();
-      }
-    };
-  }
-
-  updatePreview() {
-    this.preview.innerHTML = marked.parse(this.textarea.value);
-  }
-
-  getElement() {
-    return this.container;
-  }
-
-  getValue() {
-    return this.textarea.value;
-  }
-}
-
 class LLMApiManager {
   constructor() {
     this.apiBaseUrl = '';
@@ -1017,125 +722,6 @@ class LLMApiManager {
     return this.samplerSettings;
   }
 }
-
-    class LockButton {
-      constructor(name) {
-        this.name = name;
-        this.locked = false;
-        this.element = null;
-      }
-
-      createLockButton() {
-        const lockButton = document.createElement('button');
-        lockButton.className = 'lock';
-        lockButton.textContent = this.locked ? '🔒' : '🔓';
-        lockButton.onclick = () => this.toggleLock();
-        return lockButton;
-      }
-
-      setElement(element) {
-        this.element = element;
-        this.updateElementState();
-      }
-
-      toggleLock() {
-        this.locked = !this.locked;
-        this.updateElementState();
-        updateContainerLocks();
-      }
-
-      lock() {
-        this.locked = true;
-        this.updateElementState();
-      }
-
-      unlock() {
-        this.locked = false;
-        this.updateElementState();
-      }
-
-      updateElementState() {
-        if (this.element) {
-          const lockButton = this.element.querySelector('.lock');
-          const inputs = this.element.querySelectorAll('input');
-
-          lockButton.textContent = this.locked ? '🔒' : '🔓';
-          lockButton.classList.toggle('locked', this.locked);
-          inputs.forEach(input => {
-            input.disabled = this.locked;
-          });
-        }
-      }
-
-      isLocked() {
-        return this.locked;
-      }
-    }
-
-class Popup {
-  constructor(title, content, onSave) {
-    this.overlay = document.createElement('div');
-    this.overlay.className = 'popup-overlay';
-    
-    this.popup = document.createElement('div');
-    this.popup.className = 'edit-popup';
-    
-    this.createCloseButton();
-    this.createTitle(title);
-    this.createContent(content);
-    this.createButtons(onSave);
-
-    document.body.appendChild(this.overlay);
-    document.body.appendChild(this.popup);
-  }
-
-  createCloseButton() {
-    const closeButton = document.createElement('button');
-    closeButton.innerHTML = '&times;';
-    closeButton.className = 'close-button';
-    closeButton.onclick = () => this.close();
-    this.popup.appendChild(closeButton);
-  }
-
-  createTitle(title) {
-    const titleElement = document.createElement('h2');
-    titleElement.textContent = title;
-    this.popup.appendChild(titleElement);
-  }
-
-  createContent(content) {
-    this.popup.appendChild(content);
-  }
-
-  createButtons(onSave) {
-    const saveButton = document.createElement('button');
-    saveButton.textContent = 'Save';
-    saveButton.type = 'submit';
-    saveButton.onclick = () => {
-      onSave();
-      this.close();
-    };
-    
-    const cancelButton = document.createElement('button');
-    cancelButton.textContent = 'Cancel';
-    cancelButton.type = 'button';
-    cancelButton.onclick = () => this.close();
-
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'popup-buttons';
-    buttonContainer.appendChild(saveButton);
-    buttonContainer.appendChild(cancelButton);
-
-    this.popup.appendChild(buttonContainer);
-  }
-
-  close() {
-    document.body.removeChild(this.overlay);
-    document.body.removeChild(this.popup);
-  }
-}
-
-
 class PromptComponentManager {
   constructor(promptComponents) {
     this.promptComponents = promptComponents;
@@ -1280,6 +866,10 @@ class PromptComponentManager {
     }
   }
 
+  getPromptType(promptTemplate) {
+    return promptTemplate === nsfw_prompt_template ? 'nsfw' : 'regular';
+  }
+
   getSelectedComponents(promptType) {
     const selected = {
       components: {},
@@ -1287,22 +877,22 @@ class PromptComponentManager {
       dialogue_end: {}
     };
 
-    const dropdowns = document.querySelectorAll('#promptComponentsDropdown select');
-    dropdowns.forEach(dropdown => {
-      const selectedKey = dropdown.value;
-      if (selectedKey) {
-        const component = this.promptComponents[selectedKey];
+    const checkboxes = document.querySelectorAll('#promptComponentsDropdown input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+      if (checkbox.checked) {
+        const key = checkbox.id.replace('component-', '');
+        const component = this.promptComponents[key];
         const content = component[promptType] || component['universal'];
         if (typeof content === 'object') {
-          selected.components[selectedKey] = content.description || '';
+          selected.components[key] = content.description || '';
           if (content.dialogue_start) {
-            selected.dialogue_start[selectedKey] = content.dialogue_start;
+            selected.dialogue_start[key] = content.dialogue_start;
           }
           if (content.dialogue_end) {
-            selected.dialogue_end[selectedKey] = content.dialogue_end;
+            selected.dialogue_end[key] = content.dialogue_end;
           }
         } else {
-          selected.components[selectedKey] = content;
+          selected.components[key] = content;
         }
       }
     });
@@ -1341,254 +931,6 @@ class PromptComponentManager {
     // Remove any remaining placeholders for unselected components, except {{user}} and {{char}}
     text = text.replace(/{{(?!user|char)[^}]+}}/g, '');
     return text;
-  }
-}
-
-class Trait {
-  constructor(name, antonym, category) {
-    this.name = name;
-    this.antonym = antonym;
-    this.category = category;
-    this.value = Math.floor(Math.random() * 101);
-    this.element = null;
-    this.lock = new LockButton();
-  }
-
-  generateElement() {
-    const div = document.createElement('div');
-    div.className = 'trait';
-
-    const lockButton = this.lock.createLockButton();
-
-    div.innerHTML = `
-            <div class="trait-top-row">
-                <button class="delete-trait">\u274c</button>
-                <span class="trait-label">${this.name}:</span>
-                <input type="range" class="trait-slider" min="0" max="100" value="${this.value}">
-            </div>
-            <input type="text" class="trait-input" placeholder="${this.getStrengthModifier()}">
-        `;
-
-    const traitTopRow = div.querySelector('.trait-top-row');
-    traitTopRow.insertBefore(lockButton, traitTopRow.firstChild);
-
-    this.element = div;
-    this.lock.setElement(div);
-
-    const slider = div.querySelector('.trait-slider');
-    const input = div.querySelector('.trait-input');
-    const deleteButton = div.querySelector('.delete-trait');
-
-    slider.addEventListener('input', () => {
-      this.updateValue(slider.value);
-      input.placeholder = this.getStrengthModifier();
-      if (!input.value) {
-        input.value = '';
-      }
-    });
-
-    deleteButton.addEventListener('click', (event) => {
-      event.stopPropagation();
-      event.preventDefault();
-      traitContainer.deleteTrait(this.name);
-    });
-
-    return div;
-  }
-
-  reroll() {
-    if (!this.lock.isLocked()) {
-      let value = Math.floor(Math.random() * 101);
-      this.updateValue(value);
-    }
-  }
-
-  updateValue(newValue) {
-    if (!this.lock.isLocked()) {
-      this.value = newValue;
-      if (this.element) {
-        const slider = this.element.querySelector('.trait-slider');
-        const input = this.element.querySelector('.trait-input');
-        slider.value = newValue;
-        input.placeholder = this.getStrengthModifier();
-        if (!input.value) {
-          input.value = '';
-        }
-      }
-    }
-  }
-
-  generateText() {
-    const textInput = this.element ? this.element.querySelector('.trait-input').value : '';
-    if (textInput) {
-      if (textInput.toLowerCase().includes(this.name.toLowerCase()) || 
-          textInput.toLowerCase().includes(this.antonym.toLowerCase())) {
-        return `${textInput}\n`;
-      }
-      return `${this.name} - ${this.antonym}: ${textInput}\n`;
-    } else {
-      const strengthModifier = this.getStrengthModifier();
-      return `${strengthModifier}\n`;
-    }
-  }
-
-  isScenarioTrait() {
-    return this.category === "Scenario Traits";
-  }
-
-  getStrengthModifier() { 
-    const levels = [
-      { threshold: 45, modifier: "no {{trait}} at all" },
-      { threshold: 50, modifier: "practically nonexistent {{trait}}" },
-      { threshold: 56, modifier: "almost no {{trait}}" },
-      { threshold: 59, modifier: "very low {{trait}}" },
-      { threshold: 64, modifier: "considerably below average {{trait}}" },
-      { threshold: 67, modifier: "less than average {{trait}}" },
-      { threshold: 70, modifier: "average {{trait}}" },
-      { threshold: 73, modifier: "moderate {{trait}}" },
-      { threshold: 78, modifier: "above average {{trait}}" },
-      { threshold: 84, modifier: "substantial {{trait}}" },
-      { threshold: 89, modifier: "remarkable {{trait}}" },
-      { threshold: 93, modifier: "extraordinary {{trait}}" },
-      { threshold: 97, modifier: "unparalleled {{trait}}" }
-    ];
-
-    let trait, modifier;
-
-    if (this.value >= 45) {
-      trait = this.name;
-      for (let i = levels.length - 1; i >= 0; i--) {
-        if (this.value >= levels[i].threshold) {
-          modifier = levels[i].modifier;
-          break;
-        }
-      }
-    } else {
-      trait = this.antonym;
-      const invertedValue = 100 - this.value;
-      for (let i = levels.length - 1; i >= 0; i--) {
-        if (invertedValue >= levels[i].threshold) {
-          modifier = levels[i].modifier;
-          break;
-        }
-      }
-    }
-
-    return modifier.replace("{{trait}}", trait.toLowerCase());
-  }
-}
-
-class TraitContainer {
-  constructor() {
-    this.traits = {};
-    this.categories = {
-      "Personality Traits": [],
-      "Status Traits": [],
-      "Scenario Traits": []
-    };
-    this.dropdowns = {};
-  }
-
-  _forEach(callback) {
-    Object.values(this.traits).forEach(callback);
-  }
-
-  addTrait(newTraitName, antonym, category) {
-    if (newTraitName && !this.traits[newTraitName] && this.categories[category]) {
-      this.traits[newTraitName] = new Trait(newTraitName, antonym, category);
-      this.categories[category].push(this.traits[newTraitName]);
-      this.updateDropdownContent(category);
-    }
-  }
-
-  updateDropdowns() {
-    const traitsElement = document.getElementById('traits');
-    traitsElement.innerHTML = '';
-
-    const categories = Object.entries(this.categories);
-    categories.forEach(([category, traits]) => {
-      const dropdownContent = document.createElement('div');
-      dropdownContent.className = 'dropdown-content';
-      traits.forEach(trait => dropdownContent.appendChild(trait.generateElement()));
-
-      const dropdown = new Dropdown(
-        category, 
-        [dropdownContent],
-        () => this.isLocked(category),
-        () => this.lockAll(category),
-        () => this.unlockAll(category)
-      );
-      const dropdownElement = dropdown.generateElement();
-      
-      // Store a reference to the Dropdown instance
-      dropdownElement.__dropdown_instance = dropdown;
-      this.dropdowns[category] = dropdown;
-      
-      traitsElement.appendChild(dropdownElement);
-    });
-  }
-
-  updateDropdownContent(category) {
-    const dropdown = this.dropdowns[category];
-    if (dropdown && dropdown.element) {
-      const dropdownContent = dropdown.element.querySelector('.dropdown-content');
-      if (dropdownContent) {
-        dropdownContent.innerHTML = '';
-        this.categories[category].forEach(trait => {
-          dropdownContent.appendChild(trait.generateElement());
-        });
-      }
-    }
-  }
-
-  generateText() {
-    let allTraitText = '';
-    for (const category of ['Personality Traits', 'Status Traits', 'Scenario Traits']) {
-      let categoryText = `${category}:\n`;
-      for (const trait of this.categories[category]) {
-        categoryText += trait.generateText();
-      }
-      allTraitText += categoryText + '\n';
-    }
-    return allTraitText;
-  }
-
-  reroll() {
-    this._forEach(trait => trait.reroll());
-  }
-
-  reset() {
-    this.traits = {};
-    this.categories = {
-      "Personality Traits": [],
-      "Status Traits": [],
-      "Scenario Traits": []
-    };
-    this.dropdowns = {};
-    DEFAULT_TRAITS.forEach(traitData => this.addTrait(traitData.name, traitData.antonym, traitData.category));
-    this.updateDropdowns();
-  }
-
-  deleteTrait(traitName) {
-    const trait = this.traits[traitName];
-    if (trait) {
-      const category = trait.category;
-      this.categories[category] = this.categories[category].filter(t => t.name !== traitName);
-      delete this.traits[traitName];
-      this.updateDropdownContent(category);
-    }
-  }
-
-  isLocked(category) {
-    return this.categories[category].every(trait => trait.lock.isLocked());
-  }
-
-  lockAll(category) {
-    this.categories[category].forEach(trait => trait.lock.lock());
-  }
-
-  unlockAll(category) {
-    this.categories[category].forEach(trait => trait.lock.unlock());
   }
 }
 
@@ -1937,7 +1279,7 @@ function generateStep1Prompt() {
 
   const personalityTraitsList = PERSONALITY_TRAITS.join(', ');
 
-  const selectedComponents = getSelectedComponents('regular');
+  const selectedComponents = promptComponentManager.getSelectedComponents('regular');
   let step1Prompt = `Based on the following information about a character:
     ${allText}
     ${customPromptText}
@@ -1978,7 +1320,7 @@ function generateStep1Prompt() {
     \`\`\`
     `;
 
-  step1Prompt = replaceComponentPlaceholders(step1Prompt, selectedComponents);
+  step1Prompt = promptComponentManager.replaceComponentPlaceholders(step1Prompt, selectedComponents);
   copyToClipboard(step1Prompt);
 }
 
@@ -1993,13 +1335,13 @@ function copyWithStep2Prompt(promptTemplate) {
   let allText = attributesText + digestedTraits;
 
   const customPromptText = document.getElementById('customPrompt').value.trim();
-  const promptType = getPromptType(promptTemplate);
-  const selectedComponents = getSelectedComponents(promptType);
+  const promptType = promptComponentManager.getPromptType(promptTemplate);
+  const selectedComponents = promptComponentManager.getSelectedComponents(promptType);
   let finalText = promptTemplate
     .replace('{{traits}}', allText)
     .replace('{{custom_prompt}}', customPromptText);
 
-  finalText = replaceComponentPlaceholders(finalText, selectedComponents);
+  finalText = promptComponentManager.replaceComponentPlaceholders(finalText, selectedComponents);
   copyToClipboard(finalText);
 }
 
@@ -2011,13 +1353,13 @@ function copyAll() {
 function copyWithPrompt(prompt) {
   let allText = generateTraitAttributeText(attributeContainer, traitContainer);
   const customPromptText = document.getElementById('customPrompt').value.trim();
-  const promptType = getPromptType(prompt);
-  const selectedComponents = getSelectedComponents(promptType);
+  const promptType = promptComponentManager.getPromptType(prompt);
+  const selectedComponents = promptComponentManager.getSelectedComponents(promptType);
   let finalText = prompt
     .replace('{{traits}}', allText)
     .replace('{{custom_prompt}}', customPromptText);
 
-  finalText = replaceComponentPlaceholders(finalText, selectedComponents);
+  finalText = promptComponentManager.replaceComponentPlaceholders(finalText, selectedComponents);
   copyToClipboard(finalText);
 }
 
@@ -2048,6 +1390,667 @@ function updateContainerLocks() {
   Object.values(dropdowns).forEach(dropdown => {
     dropdown.syncLockButtonState();
   })
+}
+
+class Attribute {
+  constructor(name, options) {
+    this.name = name;
+    this.options = options;
+    this.element = null;
+    this.lock = new LockButton(name);
+    this.value = this.reroll();
+  }
+
+  reroll() {
+    if (!this.lock.isLocked()) {
+      this.value = this.options.sample();
+      this.updateValue(this.value);
+    }
+    return this.value;
+  }
+
+  generateElement() {
+    const div = document.createElement('div');
+    div.className = 'attribute';
+
+    const lockButton = this.lock.createLockButton();
+
+    div.innerHTML = `
+      <div class="attribute-top-row">
+        <span class="attribute-name">${this.name}:</span>
+        <input type="text" class="attribute-input" value="${this.value}">
+      </div>
+    `;
+    
+    const attributeTopRow = div.querySelector('.attribute-top-row');
+    attributeTopRow.insertBefore(lockButton, attributeTopRow.firstChild);
+
+    this.element = div;
+    this.lock.setElement(div);
+
+    const input = div.querySelector('.attribute-input');
+    input.addEventListener('input', (e) => {
+      if (!this.lock.isLocked()) {
+        this.value = e.target.value;
+      }
+    });
+
+    return div;
+  }
+
+  generateText() {
+    return `${this.name}: ${this.value}`;
+  }
+
+  updateValue(newValue) {
+    if (!this.lock.isLocked()) {
+      this.value = newValue;
+      if (this.element) {
+        const input = this.element.querySelector('.attribute-input');
+        input.value = newValue;
+      }
+    }
+  }
+}
+class AttributeContainer {
+  constructor() {
+    this.attributes = {};
+    this.dropdown = null;
+  }
+
+  _forEach(callback) {
+    Object.values(this.attributes).forEach(callback);
+  }
+
+  addAttribute(name, options) {
+    this.attributes[name] = new Attribute(name, options);
+  }
+
+  generateElements() {
+    const attributesElement = document.getElementById('attributes');
+    attributesElement.innerHTML = '';
+
+    const attributeElements = [];
+    this._forEach(attribute => attributeElements.push(attribute.generateElement()));
+
+    this.dropdown = new Dropdown('Attributes', attributeElements, this.isLocked.bind(this), this.lockAll.bind(this), this.unlockAll.bind(this));
+    attributesElement.appendChild(this.dropdown.generateElement());
+  }
+
+  generateText() {
+    let attributesText = '';
+    this._forEach(attribute => {
+      attributesText += attribute.generateText() + '\n';
+    });
+    // Remove any leading/trailing whitespace and ensure no empty lines
+    attributesText = attributesText.trim().replace(/^\s+/gm, '');
+    // Add a single newline at the end
+    return attributesText + '\n';
+  }
+
+  reroll() {
+    this._forEach(attribute => attribute.reroll())
+    const worldTypeAttribute = this.attributes['World Type'];
+    const raceAttribute = this.attributes['Race'];
+    if (worldTypeAttribute && raceAttribute && !raceAttribute.lock.isLocked()) {
+      if (worldTypeAttribute.value !== 'Fantasy') {
+        raceAttribute.updateValue('Human');
+      }
+    }
+  }
+
+  reset() {
+    this.attributes = {};
+    Object.entries(ATTRIBUTES_INFO).forEach(([key, options]) => {
+      this.addAttribute(key, options);
+    });
+    this.generateElements();
+  }
+
+  isLocked() {
+    return Object.values(this.attributes).every(attribute => attribute.lock.isLocked());
+  }
+
+  lockAll() {
+    this._forEach(attribute => attribute.lock.lock());
+  }
+
+  unlockAll() {
+    this._forEach(attribute => attribute.lock.unlock());
+  }
+}
+
+class Dropdown {
+  constructor(buttonText, content, isLocked, lockAll, unlockAll) {
+    this.buttonText = buttonText;
+    this.content = content;
+    this.element = null;
+    this.isOpen = false;
+    this.lockButton = new LockButton(buttonText);
+    this.isLocked = isLocked;
+    this.lockAll = lockAll;
+    this.unlockAll = unlockAll;
+  }
+
+  generateElement() {
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.className = 'dropdown-container';
+
+    const dropdownButton = document.createElement('div');
+    dropdownButton.className = 'dropdown-button';
+    
+    const buttonText = document.createElement('span');
+    buttonText.textContent = this.buttonText;
+    dropdownButton.onclick = (event) => {
+      event.stopPropagation();
+      this.toggle();
+    };
+    dropdownButton.appendChild(buttonText);
+
+    const lockButtonElement = this.lockButton.createLockButton();
+    lockButtonElement.onclick = (event) => {
+      event.stopPropagation();
+      this.toggleLock();
+    };
+    dropdownButton.appendChild(lockButtonElement);
+
+    const dropdownContent = document.createElement('div');
+    dropdownContent.className = 'dropdown-content';
+
+    this.content.forEach(item => dropdownContent.appendChild(item));
+
+    dropdownContainer.appendChild(dropdownButton);
+    dropdownContainer.appendChild(dropdownContent);
+
+    this.element = dropdownContainer;
+    this.lockButton.setElement(dropdownContainer);
+
+    // Initial sync of lock button state
+    this.syncLockButtonState();
+
+    return dropdownContainer;
+  }
+
+  toggle() {
+    this.isOpen ? this.close() : this.open();
+  }
+
+  open() {
+    if (this.element) {
+      this.element.classList.add('active');
+      this.isOpen = true;
+    }
+  }
+
+  close() {
+    if (this.element) {
+      this.element.classList.remove('active');
+      this.isOpen = false;
+    }
+  }
+
+  toggleLock() {
+    if (this.isLocked()) {
+      this.unlockAll();
+    } else {
+      this.lockAll();
+    }
+    this.syncLockButtonState();
+  }
+
+  syncLockButtonState() {
+    const isLocked = this.isLocked();
+    this.lockButton.locked = isLocked;
+    this.lockButton.updateElementState();
+  }
+}
+class EditPreviewContainer {
+  constructor(name, value) {
+    this.container = document.createElement('div');
+    this.container.className = 'edit-preview-container';
+
+    this.textarea = this.createTextarea(name, value);
+    this.preview = this.createPreview(value);
+    this.slider = this.createSlider();
+
+    this.container.appendChild(this.slider);
+    this.container.appendChild(this.textarea);
+    this.container.appendChild(this.preview);
+
+    this.setupEventListeners();
+  }
+
+  createTextarea(name, value) {
+    const textarea = document.createElement('textarea');
+    textarea.name = name;
+    textarea.value = value;
+    return textarea;
+  }
+
+  createPreview(value) {
+    const preview = document.createElement('div');
+    preview.className = 'preview';
+    preview.innerHTML = marked.parse(value);
+    return preview;
+  }
+
+  createSlider() {
+    const slider = document.createElement('div');
+    slider.className = 'slider';
+
+    const sliderButton = document.createElement('div');
+    sliderButton.className = 'slider-button';
+
+    const sliderText = document.createElement('div');
+    sliderText.className = 'slider-text';
+    
+    const editSpan = document.createElement('span');
+    editSpan.textContent = 'Edit';
+    
+    const previewSpan = document.createElement('span');
+    previewSpan.textContent = 'Preview';
+
+    sliderText.appendChild(editSpan);
+    sliderText.appendChild(previewSpan);
+
+    slider.appendChild(sliderButton);
+    slider.appendChild(sliderText);
+
+    return slider;
+  }
+
+  setupEventListeners() {
+    this.slider.onclick = () => {
+      this.container.classList.toggle('show-preview');
+      if (this.container.classList.contains('show-preview')) {
+        this.updatePreview();
+      }
+    };
+
+    this.textarea.oninput = () => {
+      if (this.container.classList.contains('show-preview')) {
+        this.updatePreview();
+      }
+    };
+  }
+
+  updatePreview() {
+    this.preview.innerHTML = marked.parse(this.textarea.value);
+  }
+
+  getElement() {
+    return this.container;
+  }
+
+  getValue() {
+    return this.textarea.value;
+  }
+}
+
+
+    class LockButton {
+      constructor(name) {
+        this.name = name;
+        this.locked = false;
+        this.element = null;
+      }
+
+      createLockButton() {
+        const lockButton = document.createElement('button');
+        lockButton.className = 'lock';
+        lockButton.textContent = this.locked ? '🔒' : '🔓';
+        lockButton.onclick = () => this.toggleLock();
+        return lockButton;
+      }
+
+      setElement(element) {
+        this.element = element;
+        this.updateElementState();
+      }
+
+      toggleLock() {
+        this.locked = !this.locked;
+        this.updateElementState();
+        updateContainerLocks();
+      }
+
+      lock() {
+        this.locked = true;
+        this.updateElementState();
+      }
+
+      unlock() {
+        this.locked = false;
+        this.updateElementState();
+      }
+
+      updateElementState() {
+        if (this.element) {
+          const lockButton = this.element.querySelector('.lock');
+          const inputs = this.element.querySelectorAll('input');
+
+          lockButton.textContent = this.locked ? '🔒' : '🔓';
+          lockButton.classList.toggle('locked', this.locked);
+          inputs.forEach(input => {
+            input.disabled = this.locked;
+          });
+        }
+      }
+
+      isLocked() {
+        return this.locked;
+      }
+    }
+
+class Popup {
+  constructor(title, content, onSave) {
+    this.overlay = document.createElement('div');
+    this.overlay.className = 'popup-overlay';
+    
+    this.popup = document.createElement('div');
+    this.popup.className = 'edit-popup';
+    
+    this.createCloseButton();
+    this.createTitle(title);
+    this.createContent(content);
+    this.createButtons(onSave);
+
+    document.body.appendChild(this.overlay);
+    document.body.appendChild(this.popup);
+  }
+
+  createCloseButton() {
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = '&times;';
+    closeButton.className = 'close-button';
+    closeButton.onclick = () => this.close();
+    this.popup.appendChild(closeButton);
+  }
+
+  createTitle(title) {
+    const titleElement = document.createElement('h2');
+    titleElement.textContent = title;
+    this.popup.appendChild(titleElement);
+  }
+
+  createContent(content) {
+    this.popup.appendChild(content);
+  }
+
+  createButtons(onSave) {
+    const saveButton = document.createElement('button');
+    saveButton.textContent = 'Save';
+    saveButton.type = 'submit';
+    saveButton.onclick = () => {
+      onSave();
+      this.close();
+    };
+    
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = 'Cancel';
+    cancelButton.type = 'button';
+    cancelButton.onclick = () => this.close();
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'popup-buttons';
+    buttonContainer.appendChild(saveButton);
+    buttonContainer.appendChild(cancelButton);
+
+    this.popup.appendChild(buttonContainer);
+  }
+
+  close() {
+    document.body.removeChild(this.overlay);
+    document.body.removeChild(this.popup);
+  }
+}
+
+class Trait {
+  constructor(name, antonym, category) {
+    this.name = name;
+    this.antonym = antonym;
+    this.category = category;
+    this.value = Math.floor(Math.random() * 101);
+    this.element = null;
+    this.lock = new LockButton();
+  }
+
+  generateElement() {
+    const div = document.createElement('div');
+    div.className = 'trait';
+
+    const lockButton = this.lock.createLockButton();
+
+    div.innerHTML = `
+            <div class="trait-top-row">
+                <button class="delete-trait">\u274c</button>
+                <span class="trait-label">${this.name}:</span>
+                <input type="range" class="trait-slider" min="0" max="100" value="${this.value}">
+            </div>
+            <input type="text" class="trait-input" placeholder="${this.getStrengthModifier()}">
+        `;
+
+    const traitTopRow = div.querySelector('.trait-top-row');
+    traitTopRow.insertBefore(lockButton, traitTopRow.firstChild);
+
+    this.element = div;
+    this.lock.setElement(div);
+
+    const slider = div.querySelector('.trait-slider');
+    const input = div.querySelector('.trait-input');
+    const deleteButton = div.querySelector('.delete-trait');
+
+    slider.addEventListener('input', () => {
+      this.updateValue(slider.value);
+      input.placeholder = this.getStrengthModifier();
+      if (!input.value) {
+        input.value = '';
+      }
+    });
+
+    deleteButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      traitContainer.deleteTrait(this.name);
+    });
+
+    return div;
+  }
+
+  reroll() {
+    if (!this.lock.isLocked()) {
+      let value = Math.floor(Math.random() * 101);
+      this.updateValue(value);
+    }
+  }
+
+  updateValue(newValue) {
+    if (!this.lock.isLocked()) {
+      this.value = newValue;
+      if (this.element) {
+        const slider = this.element.querySelector('.trait-slider');
+        const input = this.element.querySelector('.trait-input');
+        slider.value = newValue;
+        input.placeholder = this.getStrengthModifier();
+        if (!input.value) {
+          input.value = '';
+        }
+      }
+    }
+  }
+
+  generateText() {
+    const textInput = this.element ? this.element.querySelector('.trait-input').value : '';
+    if (textInput) {
+      if (textInput.toLowerCase().includes(this.name.toLowerCase()) || 
+          textInput.toLowerCase().includes(this.antonym.toLowerCase())) {
+        return `${textInput}\n`;
+      }
+      return `${this.name} - ${this.antonym}: ${textInput}\n`;
+    } else {
+      const strengthModifier = this.getStrengthModifier();
+      return `${strengthModifier}\n`;
+    }
+  }
+
+  isScenarioTrait() {
+    return this.category === "Scenario Traits";
+  }
+
+  getStrengthModifier() { 
+    const levels = [
+      { threshold: 45, modifier: "no {{trait}} at all" },
+      { threshold: 50, modifier: "practically nonexistent {{trait}}" },
+      { threshold: 56, modifier: "almost no {{trait}}" },
+      { threshold: 59, modifier: "very low {{trait}}" },
+      { threshold: 64, modifier: "considerably below average {{trait}}" },
+      { threshold: 67, modifier: "less than average {{trait}}" },
+      { threshold: 70, modifier: "average {{trait}}" },
+      { threshold: 73, modifier: "moderate {{trait}}" },
+      { threshold: 78, modifier: "above average {{trait}}" },
+      { threshold: 84, modifier: "substantial {{trait}}" },
+      { threshold: 89, modifier: "remarkable {{trait}}" },
+      { threshold: 93, modifier: "extraordinary {{trait}}" },
+      { threshold: 97, modifier: "unparalleled {{trait}}" }
+    ];
+
+    let trait, modifier;
+
+    if (this.value >= 45) {
+      trait = this.name;
+      for (let i = levels.length - 1; i >= 0; i--) {
+        if (this.value >= levels[i].threshold) {
+          modifier = levels[i].modifier;
+          break;
+        }
+      }
+    } else {
+      trait = this.antonym;
+      const invertedValue = 100 - this.value;
+      for (let i = levels.length - 1; i >= 0; i--) {
+        if (invertedValue >= levels[i].threshold) {
+          modifier = levels[i].modifier;
+          break;
+        }
+      }
+    }
+
+    return modifier.replace("{{trait}}", trait.toLowerCase());
+  }
+}
+
+class TraitContainer {
+  constructor() {
+    this.traits = {};
+    this.categories = {
+      "Personality Traits": [],
+      "Status Traits": [],
+      "Scenario Traits": []
+    };
+    this.dropdowns = {};
+  }
+
+  _forEach(callback) {
+    Object.values(this.traits).forEach(callback);
+  }
+
+  addTrait(newTraitName, antonym, category) {
+    if (newTraitName && !this.traits[newTraitName] && this.categories[category]) {
+      this.traits[newTraitName] = new Trait(newTraitName, antonym, category);
+      this.categories[category].push(this.traits[newTraitName]);
+      this.updateDropdownContent(category);
+    }
+  }
+
+  updateDropdowns() {
+    const traitsElement = document.getElementById('traits');
+    traitsElement.innerHTML = '';
+
+    const categories = Object.entries(this.categories);
+    categories.forEach(([category, traits]) => {
+      const dropdownContent = document.createElement('div');
+      dropdownContent.className = 'dropdown-content';
+      traits.forEach(trait => dropdownContent.appendChild(trait.generateElement()));
+
+      const dropdown = new Dropdown(
+        category, 
+        [dropdownContent],
+        () => this.isLocked(category),
+        () => this.lockAll(category),
+        () => this.unlockAll(category)
+      );
+      const dropdownElement = dropdown.generateElement();
+      
+      // Store a reference to the Dropdown instance
+      dropdownElement.__dropdown_instance = dropdown;
+      this.dropdowns[category] = dropdown;
+      
+      traitsElement.appendChild(dropdownElement);
+    });
+  }
+
+  updateDropdownContent(category) {
+    const dropdown = this.dropdowns[category];
+    if (dropdown && dropdown.element) {
+      const dropdownContent = dropdown.element.querySelector('.dropdown-content');
+      if (dropdownContent) {
+        dropdownContent.innerHTML = '';
+        this.categories[category].forEach(trait => {
+          dropdownContent.appendChild(trait.generateElement());
+        });
+      }
+    }
+  }
+
+  generateText() {
+    let allTraitText = '';
+    for (const category of ['Personality Traits', 'Status Traits', 'Scenario Traits']) {
+      let categoryText = `${category}:\n`;
+      for (const trait of this.categories[category]) {
+        categoryText += trait.generateText();
+      }
+      allTraitText += categoryText + '\n';
+    }
+    return allTraitText;
+  }
+
+  reroll() {
+    this._forEach(trait => trait.reroll());
+  }
+
+  reset() {
+    this.traits = {};
+    this.categories = {
+      "Personality Traits": [],
+      "Status Traits": [],
+      "Scenario Traits": []
+    };
+    this.dropdowns = {};
+    DEFAULT_TRAITS.forEach(traitData => this.addTrait(traitData.name, traitData.antonym, traitData.category));
+    this.updateDropdowns();
+  }
+
+  deleteTrait(traitName) {
+    const trait = this.traits[traitName];
+    if (trait) {
+      const category = trait.category;
+      this.categories[category] = this.categories[category].filter(t => t.name !== traitName);
+      delete this.traits[traitName];
+      this.updateDropdownContent(category);
+    }
+  }
+
+  isLocked(category) {
+    return this.categories[category].every(trait => trait.lock.isLocked());
+  }
+
+  lockAll(category) {
+    this.categories[category].forEach(trait => trait.lock.lock());
+  }
+
+  unlockAll(category) {
+    this.categories[category].forEach(trait => trait.lock.unlock());
+  }
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -2513,7 +2516,7 @@ The character card should closely follow the example card structure, and use cod
 
 `;
 
-  </script>
+</script>
 </body>
 
 </html>
