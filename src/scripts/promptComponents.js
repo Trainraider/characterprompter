@@ -14,13 +14,97 @@ function loadPromptComponents() {
     label.htmlFor = checkbox.id;
     label.textContent = key;
 
+    const gearIcon = document.createElement('button');
+    gearIcon.innerHTML = '⚙️';
+    gearIcon.className = 'gear-icon';
+    gearIcon.onclick = () => createEditPopup(key, component);
+
     const div = document.createElement('div');
     div.className = 'prompt-component-item';
     div.appendChild(checkbox);
     div.appendChild(label);
+    div.appendChild(gearIcon);
 
     dropdown.appendChild(div);
   }
+}
+
+function createEditPopup(key, component) {
+  const popup = document.createElement('div');
+  popup.className = 'edit-popup';
+  
+  const closeButton = document.createElement('button');
+  closeButton.innerHTML = '&times;';
+  closeButton.className = 'close-button';
+  closeButton.onclick = () => document.body.removeChild(popup);
+  
+  popup.appendChild(closeButton);
+
+  const title = document.createElement('h2');
+  title.textContent = `Edit ${key}`;
+  popup.appendChild(title);
+
+  const form = document.createElement('form');
+
+  for (const [propKey, propValue] of Object.entries(component)) {
+    if (typeof propValue === 'object') {
+      const fieldset = document.createElement('fieldset');
+      const legend = document.createElement('legend');
+      legend.textContent = propKey;
+      fieldset.appendChild(legend);
+
+      for (const [subKey, subValue] of Object.entries(propValue)) {
+        if (typeof subValue === 'string') {
+          const label = document.createElement('label');
+          label.textContent = subKey;
+          const input = document.createElement('textarea');
+          input.value = subValue;
+          input.name = `${propKey}.${subKey}`;
+          fieldset.appendChild(label);
+          fieldset.appendChild(input);
+        }
+      }
+
+      form.appendChild(fieldset);
+    } else if (typeof propValue === 'string') {
+      const label = document.createElement('label');
+      label.textContent = propKey;
+      const input = document.createElement('textarea');
+      input.value = propValue;
+      input.name = propKey;
+      form.appendChild(label);
+      form.appendChild(input);
+    }
+  }
+
+  const saveButton = document.createElement('button');
+  saveButton.textContent = 'Save';
+  saveButton.type = 'submit';
+  
+  const cancelButton = document.createElement('button');
+  cancelButton.textContent = 'Cancel';
+  cancelButton.type = 'button';
+  cancelButton.onclick = () => document.body.removeChild(popup);
+
+  form.appendChild(saveButton);
+  form.appendChild(cancelButton);
+
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    for (const [name, value] of formData.entries()) {
+      const keys = name.split('.');
+      let target = component;
+      for (let i = 0; i < keys.length - 1; i++) {
+        target = target[keys[i]];
+      }
+      target[keys[keys.length - 1]] = value;
+    }
+    document.body.removeChild(popup);
+  };
+
+  popup.appendChild(form);
+  document.body.appendChild(popup);
 }
 
 function getSelectedComponents(promptType) {

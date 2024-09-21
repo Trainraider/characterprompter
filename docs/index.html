@@ -192,7 +192,7 @@ button:hover, select:hover, .dropdown-button:hover, .dropdown-content { backgrou
 
 .lock.locked { background-color: rgba(0, 100, 0, 0.5); }
 
-.prompt-box, .custom-trait-box, .box-container, .dropdown-container {
+.prompt-box, .custom-trait-box, .box-container, .dropdown-container, .edit-popup {
   border: 1px solid #3334;
   border-radius: 15px;
   padding: 2px 10px;
@@ -338,7 +338,7 @@ input[type="checkbox"] {
   margin-right: 10px;
 }
 
-/* New styles for two-column layout */
+/* Two-column layout */
 .two-column-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -354,9 +354,70 @@ input[type="checkbox"] {
   margin-right: 5px;
 }
 
+/* New styles for gear icon and edit popup */
+.gear-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  margin-left: 5px;
+}
+
+.edit-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1001;
+  background-color: #222;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.edit-popup h2 {
+  margin-top: 0;
+}
+
+.edit-popup form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-popup fieldset {
+  border: 1px solid #444;
+  border-radius: var(--border-radius);
+  padding: 10px;
+}
+
+.edit-popup legend {
+  padding: 0 5px;
+}
+
+.edit-popup .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
 @media (max-width: 600px) {
   .two-column-grid {
     grid-template-columns: 1fr;
+  }
+
+  .edit-popup {
+    width: 95%;
+    max-height: 90vh;
   }
 }
 
@@ -1417,13 +1478,97 @@ function loadPromptComponents() {
     label.htmlFor = checkbox.id;
     label.textContent = key;
 
+    const gearIcon = document.createElement('button');
+    gearIcon.innerHTML = '⚙️';
+    gearIcon.className = 'gear-icon';
+    gearIcon.onclick = () => createEditPopup(key, component);
+
     const div = document.createElement('div');
     div.className = 'prompt-component-item';
     div.appendChild(checkbox);
     div.appendChild(label);
+    div.appendChild(gearIcon);
 
     dropdown.appendChild(div);
   }
+}
+
+function createEditPopup(key, component) {
+  const popup = document.createElement('div');
+  popup.className = 'edit-popup';
+  
+  const closeButton = document.createElement('button');
+  closeButton.innerHTML = '&times;';
+  closeButton.className = 'close-button';
+  closeButton.onclick = () => document.body.removeChild(popup);
+  
+  popup.appendChild(closeButton);
+
+  const title = document.createElement('h2');
+  title.textContent = `Edit ${key}`;
+  popup.appendChild(title);
+
+  const form = document.createElement('form');
+
+  for (const [propKey, propValue] of Object.entries(component)) {
+    if (typeof propValue === 'object') {
+      const fieldset = document.createElement('fieldset');
+      const legend = document.createElement('legend');
+      legend.textContent = propKey;
+      fieldset.appendChild(legend);
+
+      for (const [subKey, subValue] of Object.entries(propValue)) {
+        if (typeof subValue === 'string') {
+          const label = document.createElement('label');
+          label.textContent = subKey;
+          const input = document.createElement('textarea');
+          input.value = subValue;
+          input.name = `${propKey}.${subKey}`;
+          fieldset.appendChild(label);
+          fieldset.appendChild(input);
+        }
+      }
+
+      form.appendChild(fieldset);
+    } else if (typeof propValue === 'string') {
+      const label = document.createElement('label');
+      label.textContent = propKey;
+      const input = document.createElement('textarea');
+      input.value = propValue;
+      input.name = propKey;
+      form.appendChild(label);
+      form.appendChild(input);
+    }
+  }
+
+  const saveButton = document.createElement('button');
+  saveButton.textContent = 'Save';
+  saveButton.type = 'submit';
+  
+  const cancelButton = document.createElement('button');
+  cancelButton.textContent = 'Cancel';
+  cancelButton.type = 'button';
+  cancelButton.onclick = () => document.body.removeChild(popup);
+
+  form.appendChild(saveButton);
+  form.appendChild(cancelButton);
+
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    for (const [name, value] of formData.entries()) {
+      const keys = name.split('.');
+      let target = component;
+      for (let i = 0; i < keys.length - 1; i++) {
+        target = target[keys[i]];
+      }
+      target[keys[keys.length - 1]] = value;
+    }
+    document.body.removeChild(popup);
+  };
+
+  popup.appendChild(form);
+  document.body.appendChild(popup);
 }
 
 function getSelectedComponents(promptType) {
