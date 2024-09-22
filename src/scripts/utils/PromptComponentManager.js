@@ -1,35 +1,106 @@
 class PromptComponentManager {
   constructor(promptComponents) {
     this.promptComponents = promptComponents;
+    this.groupedComponents = {};
   }
 
   loadPromptComponents() {
     const dropdown = document.getElementById('promptComponentsDropdown');
     dropdown.className = 'two-column-grid';
 
+    // Group components
     for (const [key, component] of Object.entries(this.promptComponents)) {
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.id = `component-${key}`;
-      checkbox.checked = component.default;
-
-      const label = document.createElement('label');
-      label.htmlFor = checkbox.id;
-      label.textContent = key;
-
-      const gearIcon = document.createElement('button');
-      gearIcon.innerHTML = '⚙️';
-      gearIcon.className = 'gear-icon';
-      gearIcon.onclick = () => this.createEditPopup(key, component);
-
-      const div = document.createElement('div');
-      div.className = 'prompt-component-item';
-      div.appendChild(checkbox);
-      div.appendChild(label);
-      div.appendChild(gearIcon);
-
-      dropdown.appendChild(div);
+      const group = component.group || 'Ungrouped';
+      if (!this.groupedComponents[group]) {
+        this.groupedComponents[group] = {};
+      }
+      this.groupedComponents[group][key] = component;
     }
+
+    // Create UI elements
+    for (const [group, components] of Object.entries(this.groupedComponents)) {
+      if (group === 'Ungrouped') {
+        for (const [key, component] of Object.entries(components)) {
+          this.createUngroupedComponentUI(dropdown, key, component);
+        }
+      } else {
+        this.createGroupedComponentUI(dropdown, group, components);
+      }
+    }
+  }
+
+  createUngroupedComponentUI(container, key, component) {
+    const div = document.createElement('div');
+    div.className = 'prompt-component-item';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = `component-${key}`;
+    checkbox.checked = component.default === 'on';
+
+    const label = document.createElement('label');
+    label.htmlFor = checkbox.id;
+    label.textContent = key;
+
+    const gearIcon = document.createElement('button');
+    gearIcon.innerHTML = '⚙️';
+    gearIcon.className = 'gear-icon';
+    gearIcon.onclick = () => this.createEditPopup(key, component);
+
+    div.appendChild(checkbox);
+    div.appendChild(label);
+    div.appendChild(gearIcon);
+
+    container.appendChild(div);
+  }
+
+  createGroupedComponentUI(container, group, components) {
+    const div = document.createElement('div');
+    div.className = 'prompt-component-group';
+
+    const select = document.createElement('select');
+    select.id = `group-${group}`;
+
+    const noneOption = document.createElement('option');
+    noneOption.value = '';
+    noneOption.textContent = 'None';
+    select.appendChild(noneOption);
+
+    let defaultComponent = null;
+    for (const [key, component] of Object.entries(components)) {
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = key;
+      select.appendChild(option);
+
+      if (component.default === 'on') {
+        defaultComponent = key;
+      }
+    }
+
+    if (defaultComponent) {
+      select.value = defaultComponent;
+    }
+
+    const label = document.createElement('label');
+    label.htmlFor = select.id;
+    label.textContent = group;
+
+    const gearIcon = document.createElement('button');
+    gearIcon.innerHTML = '⚙️';
+    gearIcon.className = 'gear-icon';
+    gearIcon.onclick = () => {
+      const selectedKey = select.value;
+      if (selectedKey) {
+        this.createEditPopup(selectedKey, components[selectedKey]);
+      }
+    };
+
+    div.appendChild(label);
+    div.appendChild(select);
+    div.appendChild(gearIcon);
+
+    container.appendChild(div);
   }
 
   createEditPopup(key, component) {
@@ -41,10 +112,10 @@ class PromptComponentManager {
     const form = document.createElement('form');
 
     for (const [propKey, propValue] of Object.entries(component)) {
-      if (typeof propValue === 'object') {
+      if (propKey !== 'group' && typeof propValue === 'object') {
         const fieldset = this.createFieldset(propKey, propValue, `${key}.${propKey}`);
         form.appendChild(fieldset);
-      } else if (typeof propValue === 'string') {
+      } else if (typeof propValue === 'string' && propKey !== 'group') {
         const label = document.createElement('label');
         label.textContent = propKey;
         const editPreviewContainer = new EditPreviewContainer(propKey, propValue);
@@ -153,27 +224,40 @@ class PromptComponentManager {
       dialogue_end: {}
     };
 
-    const checkboxes = document.querySelectorAll('#promptComponentsDropdown input[type="checkbox"]');
-    checkboxes.forEach(checkbox => {
-      if (checkbox.checked) {
-        const key = checkbox.id.replace('component-', '');
-        const component = this.promptComponents[key];
-        const content = component[promptType] || component['universal'];
-        if (typeof content === 'object') {
-          selected.components[key] = content.description || '';
-          if (content.dialogue_start) {
-            selected.dialogue_start[key] = content.dialogue_start;
+    for (const [group, components] of Object.entries(this.groupedComponents)) {
+      if (group === 'Ungrouped') {
+        for (const [key, component] of Object.entries(components)) {
+          const checkbox = document.getElementById(`component-${key}`);
+          if (checkbox && checkbox.checked) {
+            this.addSelectedComponent(selected, key, component, promptType);
           }
-          if (content.dialogue_end) {
-            selected.dialogue_end[key] = content.dialogue_end;
-          }
-        } else {
-          selected.components[key] = content;
+        }
+      } else {
+        const select = document.getElementById(`group-${group}`);
+        if (select && select.value) {
+          const key = select.value;
+          const component = components[key];
+          this.addSelectedComponent(selected, key, component, promptType);
         }
       }
-    });
+    }
 
     return selected;
+  }
+
+  addSelectedComponent(selected, key, component, promptType) {
+    const content = component[promptType] || component['universal'];
+    if (typeof content === 'object') {
+      selected.components[key] = content.description || '';
+      if (content.dialogue_start) {
+        selected.dialogue_start[key] = content.dialogue_start;
+      }
+      if (content.dialogue_end) {
+        selected.dialogue_end[key] = content.dialogue_end;
+      }
+    } else {
+      selected.components[key] = content;
+    }
   }
 
   injectDialoguePrompts(text, dialogueStart, dialogueEnd) {

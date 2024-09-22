@@ -30,6 +30,7 @@ def process_prompt_components():
                 components[key] = {
                     'default': component_data.get('default', 'off'),
                     'universal': component_data.get('universal', ''),
+                    'group': component_data.get('group', ''),  # Add the 'group' field
                 }
                 
                 for prompt_type in ['regular', 'nsfw']:
