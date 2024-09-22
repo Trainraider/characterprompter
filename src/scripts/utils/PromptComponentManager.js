@@ -45,7 +45,7 @@ class PromptComponentManager {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.id = `component-${key}`;
-    checkbox.checked = component.default === 'on';
+    checkbox.checked = component.default;
 
     const label = document.createElement('label');
     label.htmlFor = checkbox.id;
@@ -90,7 +90,7 @@ class PromptComponentManager {
       option.textContent = component.name || key;
       select.appendChild(option);
 
-      if (component.default === 'on' && !defaultComponent) {
+      if (component.default && !defaultComponent) {
         defaultComponent = key;
       }
 

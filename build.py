@@ -28,11 +28,11 @@ def process_prompt_components():
                 component_data = yaml.safe_load(file)
                 key = os.path.splitext(filename)[0]
                 components[key] = {
-                    'default': component_data.get('default', 'off'),
+                    'default': component_data.get('default', False),
                     'universal': component_data.get('universal', ''),
                     'group': component_data.get('group', ''),
                     'name': component_data.get('name', key),
-                    'hover': component_data.get('hover', ''),  # Add the 'hover' field
+                    'hover': component_data.get('hover', ''),
                 }
                 
                 for prompt_type in ['regular', 'nsfw']:
