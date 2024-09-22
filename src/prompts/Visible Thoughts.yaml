@@ -1,5 +1,6 @@
 default: on
 group: 'Thoughts'
+name: 'Visible'
 regular:
   description: |
     {{char}} has thoughts like this for example:

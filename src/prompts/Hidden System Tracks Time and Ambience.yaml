@@ -1,4 +1,14 @@
 default: off
+group: 'Track the time and setting ambience'
+name: 'Hidden'
+hover: |
+    - Creates a system message to update the date, time, and descriptions of setting ambience.
+
+    - Slows plot pacing, improves writing quality
+
+    - Can be visible, or become hidden when it's done being written.
+
+    - High token count.
 regular:
   description: |
     {{char}} uses the system to keep track of the world state and setting ambiance, for example:

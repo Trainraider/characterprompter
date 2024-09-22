@@ -1,4 +1,8 @@
 default: off
+hover: |
+    - Explicitly spells out interaction patterns. E.g. If X happens then Y.
+    
+    - High token count.
 regular: |
  Interaction Tree:
  1. Guest arrives at the inn:

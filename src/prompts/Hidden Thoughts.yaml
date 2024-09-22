@@ -1,5 +1,12 @@
 default: off
 group: 'Thoughts'
+name: 'Hidden'
+hover: |
+    - Tells the bot to write inner thoughts.
+
+    - Thoughts can be visible, or disappear when they are finished.
+    
+    - High token count.
 regular:
   description: |
     {{char}} has thoughts like this for example:

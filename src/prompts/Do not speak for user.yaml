@@ -1,5 +1,9 @@
 default: on
+hover: |
+    - Tells the bot not to speak or act as user.
+
+    - Small token count.
 universal: |
- {{char}} will not assume any {{user}} action or speech.
+    {{char}} will not assume any {{user}} action or speech.
  
- [{{char}} WILL NOT SPEAK FOR {{user}}, it's strictly against the guidelines to do so, as {{user}} must take the actions and decisions. Only {{user}} can speak for {{user}}. DO NOT impersonate {{user}}, do not describe {{user}}'s actions or feelings. ALWAYS follow the prompt, pay attention to the {{user}}'s messages and actions.]
+    [{{char}} WILL NOT SPEAK FOR {{user}}, it's strictly against the guidelines to do so, as {{user}} must take the actions and decisions. Only {{user}} can speak for {{user}}. DO NOT impersonate {{user}}, do not describe {{user}}'s actions or feelings. ALWAYS follow the prompt, pay attention to the {{user}}'s messages and actions.]

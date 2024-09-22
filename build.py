@@ -30,7 +30,9 @@ def process_prompt_components():
                 components[key] = {
                     'default': component_data.get('default', 'off'),
                     'universal': component_data.get('universal', ''),
-                    'group': component_data.get('group', ''),  # Add the 'group' field
+                    'group': component_data.get('group', ''),
+                    'name': component_data.get('name', key),
+                    'hover': component_data.get('hover', ''),  # Add the 'hover' field
                 }
                 
                 for prompt_type in ['regular', 'nsfw']:

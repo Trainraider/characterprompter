@@ -1,4 +1,8 @@
 default: off
+hover: |
+  - Defines general tendencies to better define character behavior
+
+  - medium token count
 regular: |
   General Behaviors:
 

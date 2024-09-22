@@ -1,4 +1,6 @@
 default: off
+name: 'Visible'
+group: 'Track the time and setting ambience'
 regular:
   description: |
     {{char}} uses the system to keep track of the world state and setting ambiance, for example:

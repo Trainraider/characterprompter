@@ -29,6 +29,15 @@ class PromptComponentManager {
     }
   }
 
+  createTooltip(content) {
+    if (!content) return null;
+    
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.innerHTML = marked.parse(content);
+    return tooltip;
+  }
+
   createUngroupedComponentUI(container, key, component) {
     const div = document.createElement('div');
     div.className = 'prompt-component-item';
@@ -40,7 +49,13 @@ class PromptComponentManager {
 
     const label = document.createElement('label');
     label.htmlFor = checkbox.id;
-    label.textContent = key;
+    label.textContent = component.name || key;
+
+    const tooltip = this.createTooltip(component.hover);
+    if (tooltip) {
+      label.appendChild(tooltip);
+      label.classList.add('has-tooltip');
+    }
 
     const gearIcon = document.createElement('button');
     gearIcon.innerHTML = '⚙️';
@@ -67,14 +82,20 @@ class PromptComponentManager {
     select.appendChild(noneOption);
 
     let defaultComponent = null;
+    let groupTooltip = null;
+
     for (const [key, component] of Object.entries(components)) {
       const option = document.createElement('option');
       option.value = key;
-      option.textContent = key;
+      option.textContent = component.name || key;
       select.appendChild(option);
 
-      if (component.default === 'on') {
+      if (component.default === 'on' && !defaultComponent) {
         defaultComponent = key;
+      }
+
+      if (component.hover && !groupTooltip) {
+        groupTooltip = component.hover;
       }
     }
 
@@ -85,6 +106,12 @@ class PromptComponentManager {
     const label = document.createElement('label');
     label.htmlFor = select.id;
     label.textContent = group;
+
+    if (groupTooltip) {
+      const tooltip = this.createTooltip(groupTooltip);
+      label.appendChild(tooltip);
+      label.classList.add('has-tooltip');
+    }
 
     const gearIcon = document.createElement('button');
     gearIcon.innerHTML = '⚙️';
@@ -105,17 +132,17 @@ class PromptComponentManager {
 
   createEditPopup(key, component) {
     const form = this.createEditForm(key, component);
-    const popup = new Popup(`Edit ${key}`, form, () => this.saveEditForm(form, component));
+    const popup = new Popup(`Edit ${component.name || key}`, form, () => this.saveEditForm(form, component));
   }
 
   createEditForm(key, component) {
     const form = document.createElement('form');
 
     for (const [propKey, propValue] of Object.entries(component)) {
-      if (propKey !== 'group' && typeof propValue === 'object') {
+      if (propKey !== 'group' && propKey !== 'name' && propKey !== 'hover' && typeof propValue === 'object') {
         const fieldset = this.createFieldset(propKey, propValue, `${key}.${propKey}`);
         form.appendChild(fieldset);
-      } else if (typeof propValue === 'string' && propKey !== 'group') {
+      } else if (typeof propValue === 'string' && propKey !== 'group' && propKey !== 'name') {
         const label = document.createElement('label');
         label.textContent = propKey;
         const editPreviewContainer = new EditPreviewContainer(propKey, propValue);

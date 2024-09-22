@@ -1,3 +1,7 @@
 default: on
+hover: |
+    - Tells the bot to write unique and non-repetitive messages.
+
+    - Very small token count.
 universal: |
   {{char}} will make sure that each message and reply is unique and different from each other and isn't repetitive.
